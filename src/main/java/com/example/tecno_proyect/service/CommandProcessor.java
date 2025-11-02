@@ -36,6 +36,12 @@ public class CommandProcessor {
     private DesignService designService;
 
     @Autowired
+    private PayPlanService payPlanService;
+
+    @Autowired
+    private PaysService paysService;
+
+    @Autowired
     private EmailResponseService emailResponseService;    public String processCommand(String subject, String senderEmail) {
         try {
             if (subject == null || subject.trim().isEmpty()) {
@@ -192,6 +198,48 @@ public class CommandProcessor {
                     return handleObtenerDisenosAprobadosPorUsuario(parameters);
                 case "DESIGNPENDUSR":
                     return handleObtenerDisenosPendientesPorUsuario(parameters);
+                
+                // Comandos de planes de pago
+                case "LISPAYPLAN":
+                    return handleListarTodosLosPlanesPago(parameters);
+                case "BUSPAYPLANID":
+                    return handleBuscarPlanPagoPorId(parameters);
+                case "BUSPAYPLANPROY":
+                    return handleBuscarPlanPagoPorProyecto(parameters);
+                case "INSPAYPLAN":
+                    return handleInsertarPlanPago(parameters);
+                case "UPDPAYPLAN":
+                    return handleActualizarPlanPago(parameters);
+                case "BUSPAYPLANEST":
+                    return handleBuscarPlanesPagoPorEstado(parameters);
+                case "TOTDEUDAPEND":
+                    return handleObtenerTotalDeudaPendiente(parameters);
+                case "TOTPAGADO":
+                    return handleObtenerTotalPagado(parameters);
+                case "UPDDEUDATOT":
+                    return handleActualizarDeudaTotal(parameters);
+                case "CALCPORCPAGO":
+                    return handleCalcularPorcentajePago(parameters);
+                case "CAMBIOEST":
+                    return handleCambiarEstado(parameters);
+                
+                // Comandos de pagos
+                case "LISPAYS":
+                    return handleListarTodosLosPagos(parameters);
+                case "BUSPAYID":
+                    return handleBuscarPagoPorId(parameters);
+                case "INSPAY":
+                    return handleInsertarPago(parameters);
+                case "UPDPAY":
+                    return handleActualizarPago(parameters);
+                case "BUSPAYCLI":
+                    return handleBuscarPagosPorCliente(parameters);
+                case "TOTPAGCLI":
+                    return handleObtenerTotalPagadoPorCliente(parameters);
+                case "PLANPAGOHAS":
+                    return handlePlanPagoTienePagos(parameters);
+                case "COUNTPAYPPLAN":
+                    return handleContarPagosPorPlanPago(parameters);
                 default:
                     return emailResponseService.formatUnknownCommandResponse(command);
             }
@@ -1303,6 +1351,272 @@ public class CommandProcessor {
             return emailResponseService.formatListDisenosPendientesPorUsuarioResponse(disenos, "DESIGNPENDUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al obtener diseños pendientes por usuario: " + e.getMessage(), "DESIGNPENDUSR");
+        }
+    }
+
+    // --- Métodos de planes de pago ---
+    private String handleListarTodosLosPlanesPago(String[] parameters) {
+        try {
+            List<PayPlan> planesPago = payPlanService.listarTodosLosPlanesPago();
+            return emailResponseService.formatListPlanesPagoResponse(planesPago, "LISPAYPLAN");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al listar planes de pago: " + e.getMessage(), "LISPAYPLAN");
+        }
+    }
+
+    private String handleBuscarPlanPagoPorId(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPAYPLANID", "BUSPAYPLANID[\"idPayPlan\"]");
+        }
+        try {
+            Long idPayPlan = Long.parseLong(parameters[0]);
+            Optional<PayPlan> planOpt = payPlanService.buscarPlanPagoPorId(idPayPlan);
+            if (planOpt.isPresent()) {
+                return emailResponseService.formatSearchPlanPagoSuccess(planOpt.get(), "BUSPAYPLANID");
+            } else {
+                return emailResponseService.formatSearchPlanPagoNotFound(idPayPlan, "BUSPAYPLANID");
+            }
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar plan de pago por ID: " + e.getMessage(), "BUSPAYPLANID");
+        }
+    }
+
+    private String handleBuscarPlanPagoPorProyecto(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPAYPLANPROY", "BUSPAYPLANPROY[\"idProject\"]");
+        }
+        try {
+            Optional<PayPlan> planOpt = payPlanService.buscarPlanPagoPorProyecto(parameters[0]);
+            if (planOpt.isPresent()) {
+                return emailResponseService.formatSearchPlanPagoSuccess(planOpt.get(), "BUSPAYPLANPROY");
+            } else {
+                return emailResponseService.formatSearchPlanPagoNotFound(parameters[0], "BUSPAYPLANPROY");
+            }
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar plan de pago por proyecto: " + e.getMessage(), "BUSPAYPLANPROY");
+        }
+    }
+
+    private String handleInsertarPlanPago(String[] parameters) {
+        if (parameters.length < 6) {
+            return emailResponseService.formatInsufficientParametersResponse("INSPAYPLAN", "INSPAYPLAN[\"idProject\",\"totalDebt\",\"totalPayed\",\"numberDebt\",\"numberPays\",\"state\"]");
+        }
+        try {
+            PayPlan planPago = payPlanService.insertarPlanPago(
+                parameters[0], // idProject
+                new java.math.BigDecimal(parameters[1]), // totalDebt
+                new java.math.BigDecimal(parameters[2]), // totalPayed
+                Integer.parseInt(parameters[3]), // numberDebt
+                Integer.parseInt(parameters[4]), // numberPays
+                parameters[5]  // state
+            );
+            return emailResponseService.formatInsertPlanPagoSuccess(planPago, "INSPAYPLAN");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al insertar plan de pago: " + e.getMessage(), "INSPAYPLAN");
+        }
+    }
+
+    private String handleActualizarPlanPago(String[] parameters) {
+        if (parameters.length < 7) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDPAYPLAN", "UPDPAYPLAN[\"idPayPlan\",\"idProject\",\"totalDebt\",\"totalPayed\",\"numberDebt\",\"numberPays\",\"state\"]");
+        }
+        try {
+            PayPlan planPago = payPlanService.actualizarPlanPago(
+                Long.parseLong(parameters[0]), // idPayPlan
+                parameters[1], // idProject
+                new java.math.BigDecimal(parameters[2]), // totalDebt
+                new java.math.BigDecimal(parameters[3]), // totalPayed
+                Integer.parseInt(parameters[4]), // numberDebt
+                Integer.parseInt(parameters[5]), // numberPays
+                parameters[6]  // state
+            );
+            return emailResponseService.formatUpdatePlanPagoSuccess(planPago, "UPDPAYPLAN");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar plan de pago: " + e.getMessage(), "UPDPAYPLAN");
+        }
+    }
+
+    private String handleBuscarPlanesPagoPorEstado(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPAYPLANEST", "BUSPAYPLANEST[\"state\"]");
+        }
+        try {
+            List<PayPlan> planesPago = payPlanService.buscarPlanesPagoPorEstado(parameters[0]);
+            return emailResponseService.formatListPlanesPagoPorEstadoResponse(planesPago, "BUSPAYPLANEST");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar planes de pago por estado: " + e.getMessage(), "BUSPAYPLANEST");
+        }
+    }
+
+    private String handleObtenerTotalDeudaPendiente(String[] parameters) {
+        try {
+            java.math.BigDecimal totalDeuda = payPlanService.obtenerTotalDeudaPendiente();
+            return emailResponseService.formatTotalDeudaPendienteResponse(totalDeuda, "TOTDEUDAPEND");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al obtener total deuda pendiente: " + e.getMessage(), "TOTDEUDAPEND");
+        }
+    }
+
+    private String handleObtenerTotalPagado(String[] parameters) {
+        try {
+            java.math.BigDecimal totalPagado = payPlanService.obtenerTotalPagado();
+            return emailResponseService.formatTotalPagadoResponse(totalPagado, "TOTPAGADO");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al obtener total pagado: " + e.getMessage(), "TOTPAGADO");
+        }
+    }
+
+    private String handleActualizarDeudaTotal(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDDEUDATOT", "UPDDEUDATOT[\"idPayPlan\",\"nuevaDeuda\"]");
+        }
+        try {
+            Long idPayPlan = Long.parseLong(parameters[0]);
+            java.math.BigDecimal nuevaDeuda = new java.math.BigDecimal(parameters[1]);
+            PayPlan planPago = payPlanService.actualizarDeudaTotal(idPayPlan, nuevaDeuda);
+            return emailResponseService.formatUpdateDeudaTotalSuccess(planPago, "UPDDEUDATOT");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar deuda total: " + e.getMessage(), "UPDDEUDATOT");
+        }
+    }
+
+    private String handleCalcularPorcentajePago(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("CALCPORCPAGO", "CALCPORCPAGO[\"idPayPlan\"]");
+        }
+        try {
+            Long idPayPlan = Long.parseLong(parameters[0]);
+            java.math.BigDecimal porcentaje = payPlanService.calcularPorcentajePago(idPayPlan);
+            return emailResponseService.formatCalcularPorcentajePagoResponse(porcentaje, "CALCPORCPAGO");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al calcular porcentaje de pago: " + e.getMessage(), "CALCPORCPAGO");
+        }
+    }
+
+    private String handleCambiarEstado(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("CAMBIOEST", "CAMBIOEST[\"idPayPlan\",\"nuevoEstado\"]");
+        }
+        try {
+            Long idPayPlan = Long.parseLong(parameters[0]);
+            PayPlan planPago = payPlanService.cambiarEstado(idPayPlan, parameters[1]);
+            return emailResponseService.formatCambiarEstadoSuccess(planPago, "CAMBIOEST");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al cambiar estado: " + e.getMessage(), "CAMBIOEST");
+        }
+    }
+
+    // --- Métodos de pagos ---
+    private String handleListarTodosLosPagos(String[] parameters) {
+        try {
+            List<Pays> pagos = paysService.listarTodosLosPagos();
+            return emailResponseService.formatListPagosResponse(pagos, "LISPAYS");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al listar pagos: " + e.getMessage(), "LISPAYS");
+        }
+    }
+
+    private String handleBuscarPagoPorId(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPAYID", "BUSPAYID[\"id\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            Optional<Pays> pagoOpt = paysService.buscarPagoPorId(id);
+            if (pagoOpt.isPresent()) {
+                return emailResponseService.formatSearchPagoSuccess(pagoOpt.get(), "BUSPAYID");
+            } else {
+                return emailResponseService.formatSearchPagoNotFound(id, "BUSPAYID");
+            }
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar pago por ID: " + e.getMessage(), "BUSPAYID");
+        }
+    }
+
+    private String handleInsertarPago(String[] parameters) {
+        if (parameters.length < 5) {
+            return emailResponseService.formatInsufficientParametersResponse("INSPAY", "INSPAY[\"date\",\"total\",\"state\",\"idClient\",\"idPayPlan\"]");
+        }
+        try {
+            Pays pago = paysService.insertarPago(
+                java.time.LocalDate.parse(parameters[0]), // date
+                new java.math.BigDecimal(parameters[1]), // total
+                parameters[2], // state
+                parameters[3], // idClient
+                Long.parseLong(parameters[4])  // idPayPlan
+            );
+            return emailResponseService.formatInsertPagoSuccess(pago, "INSPAY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al insertar pago: " + e.getMessage(), "INSPAY");
+        }
+    }
+
+    private String handleActualizarPago(String[] parameters) {
+        if (parameters.length < 6) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDPAY", "UPDPAY[\"id\",\"date\",\"total\",\"state\",\"idClient\",\"idPayPlan\"]");
+        }
+        try {
+            Pays pago = paysService.actualizarPago(
+                Long.parseLong(parameters[0]), // id
+                java.time.LocalDate.parse(parameters[1]), // date
+                new java.math.BigDecimal(parameters[2]), // total
+                parameters[3], // state
+                parameters[4], // idClient
+                Long.parseLong(parameters[5])  // idPayPlan
+            );
+            return emailResponseService.formatUpdatePagoSuccess(pago, "UPDPAY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar pago: " + e.getMessage(), "UPDPAY");
+        }
+    }
+
+    private String handleBuscarPagosPorCliente(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPAYCLI", "BUSPAYCLI[\"idClient\"]");
+        }
+        try {
+            List<Pays> pagos = paysService.buscarPagosPorCliente(parameters[0]);
+            return emailResponseService.formatListPagosPorClienteResponse(pagos, "BUSPAYCLI");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar pagos por cliente: " + e.getMessage(), "BUSPAYCLI");
+        }
+    }
+
+    private String handleObtenerTotalPagadoPorCliente(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("TOTPAGCLI", "TOTPAGCLI[\"idClient\"]");
+        }
+        try {
+            java.math.BigDecimal totalPagado = paysService.obtenerTotalPagadoPorCliente(parameters[0]);
+            return emailResponseService.formatTotalPagadoPorClienteResponse(totalPagado, "TOTPAGCLI");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al obtener total pagado por cliente: " + e.getMessage(), "TOTPAGCLI");
+        }
+    }
+
+    private String handlePlanPagoTienePagos(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("PLANPAGOHAS", "PLANPAGOHAS[\"idPayPlan\"]");
+        }
+        try {
+            Long idPayPlan = Long.parseLong(parameters[0]);
+            boolean tienePagos = paysService.planPagoTienePagos(idPayPlan);
+            return emailResponseService.formatPlanPagoTienePagosResponse(tienePagos, idPayPlan, "PLANPAGOHAS");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al verificar si plan de pago tiene pagos: " + e.getMessage(), "PLANPAGOHAS");
+        }
+    }
+
+    private String handleContarPagosPorPlanPago(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("COUNTPAYPPLAN", "COUNTPAYPPLAN[\"idPayPlan\"]");
+        }
+        try {
+            Long idPayPlan = Long.parseLong(parameters[0]);
+            long cantidadPagos = paysService.contarPagosPorPlanPago(idPayPlan);
+            return emailResponseService.formatContarPagosPorPlanPagoResponse(cantidadPagos, idPayPlan, "COUNTPAYPPLAN");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al contar pagos por plan de pago: " + e.getMessage(), "COUNTPAYPPLAN");
         }
     }
 }
