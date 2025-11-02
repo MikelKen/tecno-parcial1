@@ -13,7 +13,13 @@ import java.util.regex.Pattern;
 
 @Service
 public class CommandProcessor {
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private ProjectService projectService;
 
+        @Autowired
+        private TaskService taskService;
     @Autowired
     private PersonaService personaService;
 
@@ -42,7 +48,7 @@ public class CommandProcessor {
                     return handleDeletePersona(parameters);
                 case "BUSPER":
                     return handleBuscarPersona(parameters);
-                
+                // Clientes
                 case "LISCLI":
                     return handleListClientes(parameters);
                 case "INSCLI":
@@ -57,9 +63,425 @@ public class CommandProcessor {
                     return handleBuscarClientesConProyectos(parameters);
                 case "ESTCLIS":
                     return handleObtenerEstadisticasClientes(parameters);
+                // Proyectos
+                case "LISPROY":
+                    return handleListarTodosLosProyectos(parameters);
+                case "INSPROY":
+                    return handleInsertarProyecto(parameters);
+                case "BUSPROYNOM":
+                    return handleBuscarProyectoPorNombre(parameters);
+                case "UPDPROY":
+                    return handleActualizarProyecto(parameters);
+                case "BUSPROYCLI":
+                    return handleBuscarProyectosPorCliente(parameters);
+                case "BUSPROYUSR":
+                    return handleBuscarProyectosPorUsuario(parameters);
+                case "BUSPROYEST":
+                    return handleBuscarProyectosPorEstado(parameters);
+                case "ESTPROY":
+                    return handleObtenerEstadisticasProyectos(parameters);
+                // Cronogramas
+                case "LISSCH":
+                    return handleListarTodosLosCronogramas(parameters);
+                case "BUSSCHID":
+                    return handleBuscarCronogramaPorId(parameters);
+                case "INSSCH":
+                    return handleInsertarCronograma(parameters);
+                case "UPDSCH":
+                    return handleActualizarCronograma(parameters);
+                case "BUSSCHPROY":
+                    return handleBuscarCronogramasPorProyecto(parameters);
+                case "BUSSCHUSR":
+                    return handleBuscarCronogramasPorUsuario(parameters);
+                case "SCHACT":
+                    return handleBuscarCronogramasActivos(parameters);
+                case "SCHCOMP":
+                    return handleBuscarCronogramasCompletados(parameters);
+                // Tareas
+                case "LISTASK":
+                    return handleListarTodasLasTareas(parameters);
+                case "BUSTASKID":
+                    return handleBuscarTareaPorId(parameters);
+                case "INSTASK":
+                    return handleInsertarTarea(parameters);
+                case "UPDTASK":
+                    return handleActualizarTarea(parameters);
+                case "DELTASK":
+                    return handleEliminarTarea(parameters);
+                case "BUSTASKSCH":
+                    return handleBuscarTareasPorCronograma(parameters);
+                case "BUSTASKUSR":
+                    return handleBuscarTareasPorUsuario(parameters);
+                case "TASKACT":
+                    return handleBuscarTareasActivas(parameters);
+                case "TASKCOMP":
+                    return handleBuscarTareasCompletadas(parameters);
+                case "TASKPEND":
+                    return handleBuscarTareasPendientes(parameters);
                 default:
                     return emailResponseService.formatUnknownCommandResponse(command);
             }
+
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse(e.getMessage(), subject);
+        }
+    }
+                        
+    // --- Métodos de tareas ---
+    private String handleListarTodasLasTareas(String[] parameters) {
+        try {
+            List<Task> tareas = taskService.listarTodasLasTareas();
+            return emailResponseService.formatListTareasResponse(tareas, "LISTASK");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al listar tareas: " + e.getMessage(), "LISTASK");
+        }
+    }
+
+    private String handleBuscarTareaPorId(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSTASKID", "BUSTASKID[\"id\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            Optional<Task> tareaOpt = taskService.buscarTareaPorId(id);
+            if (tareaOpt.isPresent()) {
+                return emailResponseService.formatSearchTareaSuccess(tareaOpt.get(), "BUSTASKID");
+            } else {
+                return emailResponseService.formatSearchTareaNotFound(id, "BUSTASKID");
+            }
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar tarea por id: " + e.getMessage(), "BUSTASKID");
+        }
+    }
+
+    private String handleInsertarTarea(String[] parameters) {
+        if (parameters.length < 6) {
+            return emailResponseService.formatInsufficientParametersResponse("INSTASK", "INSTASK[\"initHour\",\"finalHour\",\"description\",\"state\",\"idSchedule\",\"userId\"]");
+        }
+        try {
+            Task task = new Task(
+                java.time.LocalTime.parse(parameters[0]), // initHour
+                java.time.LocalTime.parse(parameters[1]), // finalHour
+                parameters[2], // description
+                parameters[3], // state
+                Long.parseLong(parameters[4]), // idSchedule
+                parameters[5]  // userId
+            );
+            Task nueva = taskService.insertarTarea(task);
+            return emailResponseService.formatInsertTareaSuccess(nueva, "INSTASK");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al insertar tarea: " + e.getMessage(), "INSTASK");
+        }
+    }
+
+    private String handleActualizarTarea(String[] parameters) {
+        if (parameters.length < 7) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDTASK", "UPDTASK[\"id\",\"initHour\",\"finalHour\",\"description\",\"state\",\"idSchedule\",\"userId\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            Task datos = new Task(
+                java.time.LocalTime.parse(parameters[1]), // initHour
+                java.time.LocalTime.parse(parameters[2]), // finalHour
+                parameters[3], // description
+                parameters[4], // state
+                Long.parseLong(parameters[5]), // idSchedule
+                parameters[6]  // userId
+            );
+            Task actualizado = taskService.actualizarTarea(id, datos);
+            return emailResponseService.formatUpdateTareaSuccess(actualizado, "UPDTASK");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar tarea: " + e.getMessage(), "UPDTASK");
+        }
+    }
+
+    private String handleEliminarTarea(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("DELTASK", "DELTASK[\"id\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            boolean eliminado = taskService.eliminarTarea(id);
+            if (eliminado) {
+                return emailResponseService.formatDeleteTareaSuccess(id, "DELTASK");
+            } else {
+                return emailResponseService.formatSearchTareaNotFound(id, "DELTASK");
+            }
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al eliminar tarea: " + e.getMessage(), "DELTASK");
+        }
+    }
+
+    private String handleBuscarTareasPorCronograma(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSTASKSCH", "BUSTASKSCH[\"idSchedule\"]");
+        }
+        try {
+            Long idSchedule = Long.parseLong(parameters[0]);
+            List<Task> tareas = taskService.buscarPorCronograma(idSchedule);
+            return emailResponseService.formatListTareasPorCronogramaResponse(tareas, "BUSTASKSCH");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar tareas por cronograma: " + e.getMessage(), "BUSTASKSCH");
+        }
+    }
+
+    private String handleBuscarTareasPorUsuario(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSTASKUSR", "BUSTASKUSR[\"userId\"]");
+        }
+        try {
+            List<Task> tareas = taskService.buscarPorUsuario(parameters[0]);
+            return emailResponseService.formatListTareasPorUsuarioResponse(tareas, "BUSTASKUSR");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar tareas por usuario: " + e.getMessage(), "BUSTASKUSR");
+        }
+    }
+
+    private String handleBuscarTareasActivas(String[] parameters) {
+        try {
+            List<Task> tareas = taskService.buscarTareasActivas();
+            return emailResponseService.formatListTareasActivasResponse(tareas, "TASKACT");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar tareas activas: " + e.getMessage(), "TASKACT");
+        }
+    }
+
+    private String handleBuscarTareasCompletadas(String[] parameters) {
+        try {
+            List<Task> tareas = taskService.buscarTareasCompletadas();
+            return emailResponseService.formatListTareasCompletadasResponse(tareas, "TASKCOMP");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar tareas completadas: " + e.getMessage(), "TASKCOMP");
+        }
+    }
+
+    private String handleBuscarTareasPendientes(String[] parameters) {
+        try {
+            List<Task> tareas = taskService.buscarTareasPendientes();
+            return emailResponseService.formatListTareasPendientesResponse(tareas, "TASKPEND");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar tareas pendientes: " + e.getMessage(), "TASKPEND");
+        }
+    }
+                    return emailResponseService.formatUnknownCommandResponse(command);
+            }
+    // --- Métodos de cronogramas ---
+    private String handleListarTodosLosCronogramas(String[] parameters) {
+        try {
+            List<Schedule> cronogramas = scheduleService.listarTodosLosCronogramas();
+            return emailResponseService.formatListCronogramasResponse(cronogramas, "LISSCH");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al listar cronogramas: " + e.getMessage(), "LISSCH");
+        }
+    }
+
+    private String handleBuscarCronogramaPorId(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSSCHID", "BUSSCHID[\"id\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            Optional<Schedule> cronogramaOpt = scheduleService.buscarCronogramaPorId(id);
+            if (cronogramaOpt.isPresent()) {
+                return emailResponseService.formatSearchCronogramaSuccess(cronogramaOpt.get(), "BUSSCHID");
+            } else {
+                return emailResponseService.formatSearchCronogramaNotFound(id, "BUSSCHID");
+            }
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar cronograma por id: " + e.getMessage(), "BUSSCHID");
+        }
+    }
+
+    private String handleInsertarCronograma(String[] parameters) {
+        if (parameters.length < 6) {
+            return emailResponseService.formatInsufficientParametersResponse("INSSCH", "INSSCH[\"initDate\",\"finalDate\",\"estimateDays\",\"state\",\"idProject\",\"userId\"]");
+        }
+        try {
+            Schedule schedule = new Schedule(
+                java.time.LocalDate.parse(parameters[0]), // initDate
+                java.time.LocalDate.parse(parameters[1]), // finalDate
+                Integer.parseInt(parameters[2]), // estimateDays
+                parameters[3], // state
+                parameters[4], // idProject
+                parameters[5]  // userId
+            );
+            Schedule nuevo = scheduleService.insertarCronograma(schedule);
+            return emailResponseService.formatInsertCronogramaSuccess(nuevo, "INSSCH");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al insertar cronograma: " + e.getMessage(), "INSSCH");
+        }
+    }
+
+    private String handleActualizarCronograma(String[] parameters) {
+        if (parameters.length < 7) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDSCH", "UPDSCH[\"id\",\"initDate\",\"finalDate\",\"estimateDays\",\"state\",\"idProject\",\"userId\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            Schedule datos = new Schedule(
+                java.time.LocalDate.parse(parameters[1]), // initDate
+                java.time.LocalDate.parse(parameters[2]), // finalDate
+                Integer.parseInt(parameters[3]), // estimateDays
+                parameters[4], // state
+                parameters[5], // idProject
+                parameters[6]  // userId
+            );
+            Schedule actualizado = scheduleService.actualizarCronograma(id, datos);
+            return emailResponseService.formatUpdateCronogramaSuccess(actualizado, "UPDSCH");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar cronograma: " + e.getMessage(), "UPDSCH");
+        }
+    }
+
+    private String handleBuscarCronogramasPorProyecto(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSSCHPROY", "BUSSCHPROY[\"idProject\"]");
+        }
+        try {
+            List<Schedule> cronogramas = scheduleService.buscarPorProyecto(parameters[0]);
+            return emailResponseService.formatListCronogramasPorProyectoResponse(cronogramas, "BUSSCHPROY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar cronogramas por proyecto: " + e.getMessage(), "BUSSCHPROY");
+        }
+    }
+
+    private String handleBuscarCronogramasPorUsuario(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSSCHUSR", "BUSSCHUSR[\"userId\"]");
+        }
+        try {
+            List<Schedule> cronogramas = scheduleService.buscarPorUsuario(parameters[0]);
+            return emailResponseService.formatListCronogramasPorUsuarioResponse(cronogramas, "BUSSCHUSR");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar cronogramas por usuario: " + e.getMessage(), "BUSSCHUSR");
+        }
+    }
+
+    private String handleBuscarCronogramasActivos(String[] parameters) {
+        try {
+            List<Schedule> cronogramas = scheduleService.buscarCronogramasActivos();
+            return emailResponseService.formatListCronogramasActivosResponse(cronogramas, "SCHACT");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar cronogramas activos: " + e.getMessage(), "SCHACT");
+        }
+    }
+
+    private String handleBuscarCronogramasCompletados(String[] parameters) {
+        try {
+            List<Schedule> cronogramas = scheduleService.buscarCronogramasCompletados();
+            return emailResponseService.formatListCronogramasCompletadosResponse(cronogramas, "SCHCOMP");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar cronogramas completados: " + e.getMessage(), "SCHCOMP");
+        }
+    }
+    // --- Métodos de proyectos ---
+    private String handleListarTodosLosProyectos(String[] parameters) {
+        try {
+            List<Project> proyectos = projectService.listarTodosLosProyectos();
+            return emailResponseService.formatListProyectosResponse(proyectos, "LISPROY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al listar proyectos: " + e.getMessage(), "LISPROY");
+        }
+    }
+
+    private String handleInsertarProyecto(String[] parameters) {
+        if (parameters.length < 6) {
+            return emailResponseService.formatInsufficientParametersResponse("INSPROY", "INSPROY[\"nombre\",\"descripcion\",\"ubicacion\",\"estado\",\"idCliente\",\"idUsuario\"]");
+        }
+        try {
+            Project proyecto = projectService.insertarProyecto(
+                parameters[0], // nombre
+                parameters[1], // descripcion
+                parameters[2], // ubicacion
+                parameters[3], // estado
+                parameters[4], // idCliente
+                parameters[5]  // idUsuario
+            );
+            return emailResponseService.formatInsertProyectoSuccess(proyecto, "INSPROY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al insertar proyecto: " + e.getMessage(), "INSPROY");
+        }
+    }
+
+    private String handleBuscarProyectoPorNombre(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPROYNOM", "BUSPROYNOM[\"nombre\"]");
+        }
+        try {
+            Optional<Project> proyectoOpt = projectService.buscarProyectoPorNombre(parameters[0]);
+            if (proyectoOpt.isPresent()) {
+                return emailResponseService.formatSearchProyectoSuccess(proyectoOpt.get(), "BUSPROYNOM");
+            } else {
+                return emailResponseService.formatSearchProyectoNotFound(parameters[0], "BUSPROYNOM");
+            }
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar proyecto por nombre: " + e.getMessage(), "BUSPROYNOM");
+        }
+    }
+
+    private String handleActualizarProyecto(String[] parameters) {
+        if (parameters.length < 6) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDPROY", "UPDPROY[\"nombre\",\"descripcion\",\"ubicacion\",\"estado\",\"idCliente\",\"idUsuario\"]");
+        }
+        try {
+            Project proyecto = projectService.actualizarProyecto(
+                parameters[0], // nombre
+                parameters[1], // descripcion
+                parameters[2], // ubicacion
+                parameters[3], // estado
+                parameters[4], // idCliente
+                parameters[5]  // idUsuario
+            );
+            return emailResponseService.formatUpdateProyectoSuccess(proyecto, "UPDPROY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar proyecto: " + e.getMessage(), "UPDPROY");
+        }
+    }
+
+    private String handleBuscarProyectosPorCliente(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPROYCLI", "BUSPROYCLI[\"idCliente\"]");
+        }
+        try {
+            List<Project> proyectos = projectService.buscarProyectosPorCliente(parameters[0]);
+            return emailResponseService.formatListProyectosPorClienteResponse(proyectos, "BUSPROYCLI");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar proyectos por cliente: " + e.getMessage(), "BUSPROYCLI");
+        }
+    }
+
+    private String handleBuscarProyectosPorUsuario(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPROYUSR", "BUSPROYUSR[\"idUsuario\"]");
+        }
+        try {
+            List<Project> proyectos = projectService.buscarProyectosPorUsuario(parameters[0]);
+            return emailResponseService.formatListProyectosPorUsuarioResponse(proyectos, "BUSPROYUSR");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar proyectos por usuario: " + e.getMessage(), "BUSPROYUSR");
+        }
+    }
+
+    private String handleBuscarProyectosPorEstado(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPROYEST", "BUSPROYEST[\"estado\"]");
+        }
+        try {
+            List<Project> proyectos = projectService.buscarProyectosPorEstado(parameters[0]);
+            return emailResponseService.formatListProyectosPorEstadoResponse(proyectos, "BUSPROYEST");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar proyectos por estado: " + e.getMessage(), "BUSPROYEST");
+        }
+    }
+
+    private String handleObtenerEstadisticasProyectos(String[] parameters) {
+        try {
+            String estadisticas = projectService.obtenerEstadisticasProyectos();
+            return emailResponseService.formatEstadisticasProyectosResponse(estadisticas, "ESTPROY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al obtener estadísticas de proyectos: " + e.getMessage(), "ESTPROY");
+        }
+    }
 
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse(e.getMessage(), subject);
