@@ -34,25 +34,29 @@ public class CommandProcessor {
             switch (command.toUpperCase()) {
                 case "LISPER":
                     return handleListPersonas(parameters);
-                
                 case "INSPER":
                     return handleInsertPersona(parameters);
-                
                 case "UPDPER":
                     return handleUpdatePersona(parameters);
-                
                 case "DELPER":
                     return handleDeletePersona(parameters);
-                
                 case "BUSPER":
                     return handleBuscarPersona(parameters);
                 
                 case "LISCLI":
                     return handleListClientes(parameters);
-                
                 case "INSCLI":
                     return handleInsertCliente(parameters);
-                
+                case "BUSCLIEMAIL":
+                    return handleBuscarClientePorEmail(parameters);
+                case "UPDCLI":
+                    return handleActualizarCliente(parameters);
+                case "DELCLI":
+                    return handleEliminarCliente(parameters);
+                case "BUSCLIPROY":
+                    return handleBuscarClientesConProyectos(parameters);
+                case "ESTCLIS":
+                    return handleObtenerEstadisticasClientes(parameters);
                 default:
                     return emailResponseService.formatUnknownCommandResponse(command);
             }
@@ -226,6 +230,96 @@ public class CommandProcessor {
             return emailResponseService.formatErrorResponse("Error al listar clientes: " + e.getMessage(), "LISCLI");
         }
     }
+
+        private String handleBuscarClientePorEmail(String[] parameters) {
+            if (parameters.length < 1) {
+                return emailResponseService.formatInsufficientParametersResponse("BUSCLIEMAIL", "BUSCLIEMAIL[\"email\"]");
+            }
+            try {
+                String email = parameters[0];
+                Optional<Client> clientOpt = clientService.buscarClientePorEmail(email);
+                if (clientOpt.isPresent()) {
+                    return emailResponseService.formatSearchClienteSuccess(clientOpt.get(), "BUSCLIEMAIL");
+                } else {
+                    return emailResponseService.formatSearchClienteNotFound(email, "BUSCLIEMAIL");
+                }
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al buscar cliente por email: " + e.getMessage(), "BUSCLIEMAIL");
+            }
+        }
+
+        private String handleInsertCliente(String[] parameters) {
+            System.out.println("INSCLI - Parámetros recibidos: " + parameters.length);
+            for (int i = 0; i < parameters.length; i++) {
+                System.out.println("Parámetro " + i + ": [" + parameters[i] + "]");
+            }
+            if (parameters.length < 4) {
+                return emailResponseService.formatInsufficientParametersResponse("INSCLI", "INSCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"]");
+            }
+            try {
+                Client cliente = clientService.insertarCliente(
+                    parameters[0], // nombre
+                    parameters[1], // email
+                    parameters[2], // teléfono
+                    parameters[3]  // dirección
+                );
+                return emailResponseService.formatInsertClienteSuccess(cliente, "INSCLI");
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al insertar cliente: " + e.getMessage(), "INSCLI");
+            }
+        }
+
+        private String handleActualizarCliente(String[] parameters) {
+            if (parameters.length < 4) {
+                return emailResponseService.formatInsufficientParametersResponse("UPDCLI", "UPDCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"]");
+            }
+            try {
+                Client cliente = clientService.actualizarCliente(
+                    parameters[0], // nombre
+                    parameters[1], // email
+                    parameters[2], // teléfono
+                    parameters[3]  // dirección
+                );
+                return emailResponseService.formatUpdateClienteSuccess(cliente, "UPDCLI");
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al actualizar cliente: " + e.getMessage(), "UPDCLI");
+            }
+        }
+
+        private String handleEliminarCliente(String[] parameters) {
+            if (parameters.length < 1) {
+                return emailResponseService.formatInsufficientParametersResponse("DELCLI", "DELCLI[\"nombre\"]");
+            }
+            try {
+                String nombre = parameters[0];
+                boolean eliminado = clientService.eliminarCliente(nombre);
+                if (eliminado) {
+                    return emailResponseService.formatDeleteClienteSuccess(nombre, "DELCLI");
+                } else {
+                    return emailResponseService.formatSearchClienteNotFound(nombre, "DELCLI");
+                }
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al eliminar cliente: " + e.getMessage(), "DELCLI");
+            }
+        }
+
+        private String handleBuscarClientesConProyectos(String[] parameters) {
+            try {
+                List<Client> clientes = clientService.buscarClientesConProyectos();
+                return emailResponseService.formatListClientesConProyectosResponse(clientes, "BUSCLIPROY");
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al buscar clientes con proyectos: " + e.getMessage(), "BUSCLIPROY");
+            }
+        }
+
+        private String handleObtenerEstadisticasClientes(String[] parameters) {
+            try {
+                String estadisticas = clientService.obtenerEstadisticasClientes();
+                return emailResponseService.formatEstadisticasClientesResponse(estadisticas, "ESTCLIS");
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al obtener estadísticas de clientes: " + e.getMessage(), "ESTCLIS");
+            }
+        }
 
     private String handleInsertCliente(String[] parameters) {
         // Debugging: log the parameters received
