@@ -42,6 +42,12 @@ public class CommandProcessor {
     private PaysService paysService;
 
     @Autowired
+    private MaterialService materialService;
+
+    @Autowired
+    private MaterialProjectService materialProjectService;
+
+    @Autowired
     private EmailResponseService emailResponseService;    public String processCommand(String subject, String senderEmail) {
         try {
             if (subject == null || subject.trim().isEmpty()) {
@@ -240,6 +246,42 @@ public class CommandProcessor {
                     return handlePlanPagoTienePagos(parameters);
                 case "COUNTPAYPPLAN":
                     return handleContarPagosPorPlanPago(parameters);
+                
+                // Comandos de materiales
+                case "LISMAT":
+                    return handleListarTodosLosMateriales(parameters);
+                case "BUSMATNOM":
+                    return handleBuscarMaterialPorNombre(parameters);
+                case "INSMAT":
+                    return handleInsertarMaterial(parameters);
+                case "UPDMAT":
+                    return handleActualizarMaterial(parameters);
+                case "BUSMATTIPO":
+                    return handleBuscarMaterialesPorTipo(parameters);
+                case "UPDMATPRECIO":
+                    return handleActualizarPrecioMaterial(parameters);
+                case "UPDMATSTOCK":
+                    return handleActualizarStockMaterial(parameters);
+                case "REDMATSTOCK":
+                    return handleReducirStockMaterial(parameters);
+                case "AUMMATSTOCK":
+                    return handleAumentarStockMaterial(parameters);
+                case "VERMATDISP":
+                    return handleVerificarDisponibilidadMaterial(parameters);
+                
+                // Comandos de materiales-proyecto
+                case "LISMATPROY":
+                    return handleListarTodosMaterialesProyecto(parameters);
+                case "BUSMATPROYID":
+                    return handleBuscarMaterialProyectoPorId(parameters);
+                case "INSMATPROY":
+                    return handleInsertarMaterialProyecto(parameters);
+                case "UPDMATPROY":
+                    return handleActualizarMaterialProyecto(parameters);
+                case "BUSMATPORPROY":
+                    return handleBuscarMaterialesPorProyecto(parameters);
+                case "BUSPROYPORMAT":
+                    return handleBuscarProyectosPorMaterial(parameters);
                 default:
                     return emailResponseService.formatUnknownCommandResponse(command);
             }
@@ -1617,6 +1659,231 @@ public class CommandProcessor {
             return emailResponseService.formatContarPagosPorPlanPagoResponse(cantidadPagos, idPayPlan, "COUNTPAYPPLAN");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al contar pagos por plan de pago: " + e.getMessage(), "COUNTPAYPPLAN");
+        }
+    }
+
+    // --- Métodos de materiales ---
+    private String handleListarTodosLosMateriales(String[] parameters) {
+        try {
+            List<Material> materiales = materialService.listarTodosLosMateriales();
+            return emailResponseService.formatListMaterialesResponse(materiales, "LISMAT");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al listar materiales: " + e.getMessage(), "LISMAT");
+        }
+    }
+
+    private String handleBuscarMaterialPorNombre(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSMATNOM", "BUSMATNOM[\"name\"]");
+        }
+        try {
+            Optional<Material> materialOpt = materialService.buscarMaterialPorNombre(parameters[0]);
+            if (materialOpt.isPresent()) {
+                return emailResponseService.formatSearchMaterialSuccess(materialOpt.get(), "BUSMATNOM");
+            } else {
+                return emailResponseService.formatSearchMaterialNotFound(parameters[0], "BUSMATNOM");
+            }
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar material por nombre: " + e.getMessage(), "BUSMATNOM");
+        }
+    }
+
+    private String handleInsertarMaterial(String[] parameters) {
+        if (parameters.length < 5) {
+            return emailResponseService.formatInsufficientParametersResponse("INSMAT", "INSMAT[\"name\",\"type\",\"unitMeasure\",\"unitPrice\",\"stock\"]");
+        }
+        try {
+            Material material = materialService.insertarMaterial(
+                parameters[0], // name
+                parameters[1], // type
+                parameters[2], // unitMeasure
+                new java.math.BigDecimal(parameters[3]), // unitPrice
+                Integer.parseInt(parameters[4])  // stock
+            );
+            return emailResponseService.formatInsertMaterialSuccess(material, "INSMAT");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al insertar material: " + e.getMessage(), "INSMAT");
+        }
+    }
+
+    private String handleActualizarMaterial(String[] parameters) {
+        if (parameters.length < 5) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDMAT", "UPDMAT[\"name\",\"type\",\"unitMeasure\",\"unitPrice\",\"stock\"]");
+        }
+        try {
+            Material material = materialService.actualizarMaterial(
+                parameters[0], // name
+                parameters[1], // type
+                parameters[2], // unitMeasure
+                new java.math.BigDecimal(parameters[3]), // unitPrice
+                Integer.parseInt(parameters[4])  // stock
+            );
+            return emailResponseService.formatUpdateMaterialSuccess(material, "UPDMAT");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar material: " + e.getMessage(), "UPDMAT");
+        }
+    }
+
+    private String handleBuscarMaterialesPorTipo(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSMATTIPO", "BUSMATTIPO[\"type\"]");
+        }
+        try {
+            List<Material> materiales = materialService.buscarMaterialesPorTipo(parameters[0]);
+            return emailResponseService.formatListMaterialesPorTipoResponse(materiales, "BUSMATTIPO");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar materiales por tipo: " + e.getMessage(), "BUSMATTIPO");
+        }
+    }
+
+    private String handleActualizarPrecioMaterial(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDMATPRECIO", "UPDMATPRECIO[\"name\",\"nuevoPrecio\"]");
+        }
+        try {
+            java.math.BigDecimal nuevoPrecio = new java.math.BigDecimal(parameters[1]);
+            Material material = materialService.actualizarPrecioMaterial(parameters[0], nuevoPrecio);
+            return emailResponseService.formatUpdatePrecioMaterialSuccess(material, "UPDMATPRECIO");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar precio de material: " + e.getMessage(), "UPDMATPRECIO");
+        }
+    }
+
+    private String handleActualizarStockMaterial(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDMATSTOCK", "UPDMATSTOCK[\"name\",\"nuevoStock\"]");
+        }
+        try {
+            Integer nuevoStock = Integer.parseInt(parameters[1]);
+            Material material = materialService.actualizarStockMaterial(parameters[0], nuevoStock);
+            return emailResponseService.formatUpdateStockMaterialSuccess(material, "UPDMATSTOCK");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar stock de material: " + e.getMessage(), "UPDMATSTOCK");
+        }
+    }
+
+    private String handleReducirStockMaterial(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("REDMATSTOCK", "REDMATSTOCK[\"name\",\"cantidad\"]");
+        }
+        try {
+            Integer cantidad = Integer.parseInt(parameters[1]);
+            Material material = materialService.reducirStockMaterial(parameters[0], cantidad);
+            return emailResponseService.formatReducirStockMaterialSuccess(material, "REDMATSTOCK");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al reducir stock de material: " + e.getMessage(), "REDMATSTOCK");
+        }
+    }
+
+    private String handleAumentarStockMaterial(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("AUMMATSTOCK", "AUMMATSTOCK[\"name\",\"cantidad\"]");
+        }
+        try {
+            Integer cantidad = Integer.parseInt(parameters[1]);
+            Material material = materialService.aumentarStockMaterial(parameters[0], cantidad);
+            return emailResponseService.formatAumentarStockMaterialSuccess(material, "AUMMATSTOCK");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al aumentar stock de material: " + e.getMessage(), "AUMMATSTOCK");
+        }
+    }
+
+    private String handleVerificarDisponibilidadMaterial(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("VERMATDISP", "VERMATDISP[\"name\",\"cantidadRequerida\"]");
+        }
+        try {
+            Integer cantidadRequerida = Integer.parseInt(parameters[1]);
+            boolean disponible = materialService.verificarDisponibilidadMaterial(parameters[0], cantidadRequerida);
+            return emailResponseService.formatVerificarDisponibilidadMaterialResponse(disponible, parameters[0], cantidadRequerida, "VERMATDISP");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al verificar disponibilidad de material: " + e.getMessage(), "VERMATDISP");
+        }
+    }
+
+    // --- Métodos de materiales-proyecto ---
+    private String handleListarTodosMaterialesProyecto(String[] parameters) {
+        try {
+            List<MaterialProject> materialesProyecto = materialProjectService.listarTodosMaterialesProyecto();
+            return emailResponseService.formatListMaterialesProyectoResponse(materialesProyecto, "LISMATPROY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al listar materiales-proyecto: " + e.getMessage(), "LISMATPROY");
+        }
+    }
+
+    private String handleBuscarMaterialProyectoPorId(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSMATPROYID", "BUSMATPROYID[\"id\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            Optional<MaterialProject> materialProyectoOpt = materialProjectService.buscarMaterialProyectoPorId(id);
+            if (materialProyectoOpt.isPresent()) {
+                return emailResponseService.formatSearchMaterialProyectoSuccess(materialProyectoOpt.get(), "BUSMATPROYID");
+            } else {
+                return emailResponseService.formatSearchMaterialProyectoNotFound(id, "BUSMATPROYID");
+            }
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar material-proyecto por ID: " + e.getMessage(), "BUSMATPROYID");
+        }
+    }
+
+    private String handleInsertarMaterialProyecto(String[] parameters) {
+        if (parameters.length < 4) {
+            return emailResponseService.formatInsufficientParametersResponse("INSMATPROY", "INSMATPROY[\"quantity\",\"leftOver\",\"idProject\",\"idMaterial\"]");
+        }
+        try {
+            MaterialProject materialProyecto = materialProjectService.insertarMaterialProyecto(
+                Integer.parseInt(parameters[0]), // quantity
+                Integer.parseInt(parameters[1]), // leftOver
+                parameters[2], // idProject
+                parameters[3]  // idMaterial
+            );
+            return emailResponseService.formatInsertMaterialProyectoSuccess(materialProyecto, "INSMATPROY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al insertar material-proyecto: " + e.getMessage(), "INSMATPROY");
+        }
+    }
+
+    private String handleActualizarMaterialProyecto(String[] parameters) {
+        if (parameters.length < 5) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDMATPROY", "UPDMATPROY[\"id\",\"quantity\",\"leftOver\",\"idProject\",\"idMaterial\"]");
+        }
+        try {
+            MaterialProject materialProyecto = materialProjectService.actualizarMaterialProyecto(
+                Long.parseLong(parameters[0]), // id
+                Integer.parseInt(parameters[1]), // quantity
+                Integer.parseInt(parameters[2]), // leftOver
+                parameters[3], // idProject
+                parameters[4]  // idMaterial
+            );
+            return emailResponseService.formatUpdateMaterialProyectoSuccess(materialProyecto, "UPDMATPROY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al actualizar material-proyecto: " + e.getMessage(), "UPDMATPROY");
+        }
+    }
+
+    private String handleBuscarMaterialesPorProyecto(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSMATPORPROY", "BUSMATPORPROY[\"idProject\"]");
+        }
+        try {
+            List<MaterialProject> materialesProyecto = materialProjectService.buscarMaterialesPorProyecto(parameters[0]);
+            return emailResponseService.formatListMaterialesPorProyectoResponse(materialesProyecto, "BUSMATPORPROY");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar materiales por proyecto: " + e.getMessage(), "BUSMATPORPROY");
+        }
+    }
+
+    private String handleBuscarProyectosPorMaterial(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("BUSPROYPORMAT", "BUSPROYPORMAT[\"idMaterial\"]");
+        }
+        try {
+            List<MaterialProject> proyectosMaterial = materialProjectService.buscarProyectosPorMaterial(parameters[0]);
+            return emailResponseService.formatListProyectosPorMaterialResponse(proyectosMaterial, "BUSPROYPORMAT");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al buscar proyectos por material: " + e.getMessage(), "BUSPROYPORMAT");
         }
     }
 }
