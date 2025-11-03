@@ -36,7 +36,7 @@ public class PaysService {
     /**
      * Insertar nuevo pago
      */
-    public Pays insertarPago(LocalDate date, BigDecimal total, String state, String idClient, Long idPayPlan) {
+    public Pays insertarPago(LocalDate date, BigDecimal total, String state, Long idClient, Long idPayPlan) {
         Pays pays = new Pays(date, total, state, idClient, idPayPlan);
         return paysRepository.save(pays);
     }
@@ -44,7 +44,7 @@ public class PaysService {
     /**
      * Actualizar pago existente
      */
-    public Pays actualizarPago(Long id, LocalDate date, BigDecimal total, String state, String idClient, Long idPayPlan) {
+    public Pays actualizarPago(Long id, LocalDate date, BigDecimal total, String state, Long idClient, Long idPayPlan) {
         Optional<Pays> pagoExistente = paysRepository.findById(id);
         
         if (pagoExistente.isEmpty()) {
@@ -75,7 +75,7 @@ public class PaysService {
     /**
      * Buscar pagos por cliente
      */
-    public List<Pays> buscarPagosPorCliente(String idClient) {
+    public List<Pays> buscarPagosPorCliente(Long idClient) {
         return paysRepository.findByIdClient(idClient);
     }
     
@@ -124,7 +124,7 @@ public class PaysService {
     /**
      * Buscar pagos por cliente y estado
      */
-    public List<Pays> buscarPagosPorClienteYEstado(String idClient, String state) {
+    public List<Pays> buscarPagosPorClienteYEstado(Long idClient, String state) {
         return paysRepository.findByIdClientAndState(idClient, state);
     }
     
@@ -145,7 +145,7 @@ public class PaysService {
     /**
      * Obtener total pagado por cliente
      */
-    public BigDecimal obtenerTotalPagadoPorCliente(String idClient) {
+    public BigDecimal obtenerTotalPagadoPorCliente(Long idClient) {
         BigDecimal total = paysRepository.getTotalPaidByClient(idClient);
         return total != null ? total : BigDecimal.ZERO;
     }
@@ -208,7 +208,7 @@ public class PaysService {
     /**
      * Validar datos de pago
      */
-    public boolean validarDatosPago(LocalDate date, BigDecimal total, String state, String idClient, Long idPayPlan) {
+    public boolean validarDatosPago(LocalDate date, BigDecimal total, String state, Long idClient, Long idPayPlan) {
         if (date == null) {
             return false;
         }
@@ -218,7 +218,7 @@ public class PaysService {
         if (state == null || state.trim().isEmpty()) {
             return false;
         }
-        if (idClient == null || idClient.trim().isEmpty()) {
+        if (idClient == null) {
             return false;
         }
         if (idPayPlan == null) {
@@ -249,7 +249,7 @@ public class PaysService {
     /**
      * Verificar si un cliente tiene pagos
      */
-    public boolean clienteTienePagos(String idClient) {
+    public boolean clienteTienePagos(Long idClient) {
         return !buscarPagosPorCliente(idClient).isEmpty();
     }
     
@@ -263,7 +263,7 @@ public class PaysService {
     /**
      * Buscar último pago por cliente
      */
-    public Optional<Pays> buscarUltimoPagoPorCliente(String idClient) {
+    public Optional<Pays> buscarUltimoPagoPorCliente(Long idClient) {
         List<Pays> pagos = buscarPagosPorCliente(idClient);
         return pagos.stream()
                 .max((p1, p2) -> p1.getDate().compareTo(p2.getDate()));
@@ -272,7 +272,7 @@ public class PaysService {
     /**
      * Buscar primer pago por cliente
      */
-    public Optional<Pays> buscarPrimerPagoPorCliente(String idClient) {
+    public Optional<Pays> buscarPrimerPagoPorCliente(Long idClient) {
         List<Pays> pagos = buscarPagosPorCliente(idClient);
         return pagos.stream()
                 .min((p1, p2) -> p1.getDate().compareTo(p2.getDate()));
@@ -281,7 +281,7 @@ public class PaysService {
     /**
      * Calcular promedio de pagos por cliente
      */
-    public BigDecimal calcularPromedioPagosPorCliente(String idClient) {
+    public BigDecimal calcularPromedioPagosPorCliente(Long idClient) {
         List<Pays> pagos = buscarPagosPorCliente(idClient);
         if (pagos.isEmpty()) {
             return BigDecimal.ZERO;
@@ -332,7 +332,7 @@ public class PaysService {
     /**
      * Contar pagos por cliente
      */
-    public long contarPagosPorCliente(String idClient) {
+    public long contarPagosPorCliente(Long idClient) {
         return buscarPagosPorCliente(idClient).size();
     }
     

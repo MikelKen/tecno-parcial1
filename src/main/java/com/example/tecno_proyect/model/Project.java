@@ -20,8 +20,8 @@ public class Project {
     @Column(name = "state", length = 50)
     private String state;
     
-    @Column(name = "id_client", length = 100)
-    private String idClient;
+    @Column(name = "id_client")
+    private Long idClient;
     
     @Column(name = "user_id", length = 100)
     private String userId;
@@ -57,7 +57,7 @@ public class Project {
     public Project() {}
     
     // Constructor con parámetros
-    public Project(String name, String description, String location, String state, String idClient, String userId) {
+    public Project(String name, String description, String location, String state, Long idClient, String userId) {
         this.name = name;
         this.description = description;
         this.location = location;
@@ -99,11 +99,11 @@ public class Project {
         this.state = state;
     }
     
-    public String getIdClient() {
+    public Long getIdClient() {
         return idClient;
     }
     
-    public void setIdClient(String idClient) {
+    public void setIdClient(Long idClient) {
         this.idClient = idClient;
     }
     

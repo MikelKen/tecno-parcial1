@@ -8,7 +8,11 @@ import java.util.List;
 public class Client {
     
     @Id
-    @Column(name = "name", length = 100)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+    
+    @Column(name = "name", length = 100, unique = true)
     private String name;
     
     @Column(name = "email", length = 150)
@@ -27,7 +31,7 @@ public class Client {
     // Constructor vacío
     public Client() {}
     
-    // Constructor con parámetros
+    // Constructor con parámetros (sin id, se genera automáticamente)
     public Client(String name, String email, String phone, String address) {
         this.name = name;
         this.email = email;
@@ -35,7 +39,24 @@ public class Client {
         this.address = address;
     }
     
+    // Constructor completo (con id para casos especiales)
+    public Client(Long id, String name, String email, String phone, String address) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.address = address;
+    }
+    
     // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
     public String getName() {
         return name;
     }
@@ -79,7 +100,8 @@ public class Client {
     @Override
     public String toString() {
         return "Client{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", address='" + address + '\'' +

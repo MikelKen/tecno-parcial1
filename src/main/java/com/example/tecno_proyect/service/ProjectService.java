@@ -34,7 +34,7 @@ public class ProjectService {
      * Insertar nuevo proyecto
      */
     public Project insertarProyecto(String name, String description, String location, 
-                                  String state, String idClient, String userId) {
+                                  String state, Long idClient, String userId) {
         // Verificar si ya existe un proyecto con ese nombre
         if (projectRepository.existsById(name)) {
             throw new RuntimeException("Ya existe un proyecto con nombre: " + name);
@@ -48,7 +48,7 @@ public class ProjectService {
      * Actualizar proyecto existente
      */
     public Project actualizarProyecto(String name, String description, String location, 
-                                     String state, String idClient, String userId) {
+                                     String state, Long idClient, String userId) {
         Optional<Project> proyectoExistente = projectRepository.findById(name);
         
         if (proyectoExistente.isEmpty()) {
@@ -79,7 +79,7 @@ public class ProjectService {
     /**
      * Buscar proyectos por cliente
      */
-    public List<Project> buscarProyectosPorCliente(String idClient) {
+    public List<Project> buscarProyectosPorCliente(Long idClient) {
         return projectRepository.findByIdClient(idClient);
     }
     

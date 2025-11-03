@@ -558,7 +558,7 @@ public class CommandProcessor {
                 parameters[1], // descripcion
                 parameters[2], // ubicacion
                 parameters[3], // estado
-                parameters[4], // idCliente
+                Long.parseLong(parameters[4]), // idCliente
                 parameters[5]  // idUsuario
             );
             return emailResponseService.formatInsertProyectoSuccess(proyecto, "INSPROY");
@@ -593,7 +593,7 @@ public class CommandProcessor {
                 parameters[1], // descripcion
                 parameters[2], // ubicacion
                 parameters[3], // estado
-                parameters[4], // idCliente
+                Long.parseLong(parameters[4]), // idCliente
                 parameters[5]  // idUsuario
             );
             return emailResponseService.formatUpdateProyectoSuccess(proyecto, "UPDPROY");
@@ -607,7 +607,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPROYCLI", "BUSPROYCLI[\"idCliente\"]");
         }
         try {
-            List<Project> proyectos = projectService.buscarProyectosPorCliente(parameters[0]);
+            List<Project> proyectos = projectService.buscarProyectosPorCliente(Long.parseLong(parameters[0]));
             return emailResponseService.formatListProyectosPorClienteResponse(proyectos, "BUSPROYCLI");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar proyectos por cliente: " + e.getMessage(), "BUSPROYCLI");
@@ -1584,7 +1584,7 @@ public class CommandProcessor {
                 java.time.LocalDate.parse(parameters[0]), // date
                 new java.math.BigDecimal(parameters[1]), // total
                 parameters[2], // state
-                parameters[3], // idClient
+                Long.parseLong(parameters[3]), // idClient
                 Long.parseLong(parameters[4])  // idPayPlan
             );
             return emailResponseService.formatInsertPagoSuccess(pago, "INSPAY");
@@ -1603,7 +1603,7 @@ public class CommandProcessor {
                 java.time.LocalDate.parse(parameters[1]), // date
                 new java.math.BigDecimal(parameters[2]), // total
                 parameters[3], // state
-                parameters[4], // idClient
+                Long.parseLong(parameters[4]), // idClient
                 Long.parseLong(parameters[5])  // idPayPlan
             );
             return emailResponseService.formatUpdatePagoSuccess(pago, "UPDPAY");
@@ -1617,7 +1617,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPAYCLI", "BUSPAYCLI[\"idClient\"]");
         }
         try {
-            List<Pays> pagos = paysService.buscarPagosPorCliente(parameters[0]);
+            List<Pays> pagos = paysService.buscarPagosPorCliente(Long.parseLong(parameters[0]));
             return emailResponseService.formatListPagosPorClienteResponse(pagos, "BUSPAYCLI");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar pagos por cliente: " + e.getMessage(), "BUSPAYCLI");
@@ -1629,7 +1629,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("TOTPAGCLI", "TOTPAGCLI[\"idClient\"]");
         }
         try {
-            java.math.BigDecimal totalPagado = paysService.obtenerTotalPagadoPorCliente(parameters[0]);
+            java.math.BigDecimal totalPagado = paysService.obtenerTotalPagadoPorCliente(Long.parseLong(parameters[0]));
             return emailResponseService.formatTotalPagadoPorClienteResponse(totalPagado, "TOTPAGCLI");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al obtener total pagado por cliente: " + e.getMessage(), "TOTPAGCLI");

@@ -24,10 +24,17 @@ public class ClientService {
     }
     
     /**
-     * Buscar cliente por nombre (ID)
+     * Buscar cliente por ID
+     */
+    public Optional<Client> buscarClientePorId(Long id) {
+        return clientRepository.findById(id);
+    }
+    
+    /**
+     * Buscar cliente por nombre
      */
     public Optional<Client> buscarClientePorNombre(String name) {
-        return clientRepository.findById(name);
+        return clientRepository.findByName(name);
     }
     
     /**
@@ -42,7 +49,7 @@ public class ClientService {
      */
     public Client insertarCliente(String name, String email, String phone, String address) {
         // Verificar si ya existe un cliente con ese nombre
-        if (clientRepository.existsById(name)) {
+        if (clientRepository.existsByName(name)) {
             throw new RuntimeException("Ya existe un cliente con nombre: " + name);
         }
         
@@ -56,10 +63,29 @@ public class ClientService {
     }
     
     /**
-     * Actualizar cliente existente
+     * Actualizar cliente existente por ID
+     */
+    public Client actualizarClientePorId(Long id, String name, String email, String phone, String address) {
+        Optional<Client> clienteExistente = clientRepository.findById(id);
+        
+        if (clienteExistente.isEmpty()) {
+            throw new RuntimeException("No se encontró cliente con ID: " + id);
+        }
+        
+        Client client = clienteExistente.get();
+        client.setName(name);
+        client.setEmail(email);
+        client.setPhone(phone);
+        client.setAddress(address);
+        
+        return clientRepository.save(client);
+    }
+    
+    /**
+     * Actualizar cliente existente por nombre (método legacy)
      */
     public Client actualizarCliente(String name, String email, String phone, String address) {
-        Optional<Client> clienteExistente = clientRepository.findById(name);
+        Optional<Client> clienteExistente = clientRepository.findByName(name);
         
         if (clienteExistente.isEmpty()) {
             throw new RuntimeException("No se encontró cliente con nombre: " + name);
@@ -74,11 +100,23 @@ public class ClientService {
     }
     
     /**
-     * Eliminar cliente por nombre
+     * Eliminar cliente por ID
+     */
+    public boolean eliminarClientePorId(Long id) {
+        if (clientRepository.existsById(id)) {
+            clientRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Eliminar cliente por nombre (método legacy)
      */
     public boolean eliminarCliente(String name) {
-        if (clientRepository.existsById(name)) {
-            clientRepository.deleteById(name);
+        Optional<Client> cliente = clientRepository.findByName(name);
+        if (cliente.isPresent()) {
+            clientRepository.deleteById(cliente.get().getId());
             return true;
         }
         return false;
@@ -106,10 +144,17 @@ public class ClientService {
     }
     
     /**
-     * Verificar si existe un cliente
+     * Verificar si existe un cliente por ID
+     */
+    public boolean existeClientePorId(Long id) {
+        return clientRepository.existsById(id);
+    }
+    
+    /**
+     * Verificar si existe un cliente por nombre
      */
     public boolean existeCliente(String name) {
-        return clientRepository.existsById(name);
+        return clientRepository.existsByName(name);
     }
     
     /**

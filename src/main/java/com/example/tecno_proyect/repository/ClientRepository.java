@@ -10,7 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ClientRepository extends JpaRepository<Client, String> {
+public interface ClientRepository extends JpaRepository<Client, Long> {
+    
+    // Buscar cliente por nombre
+    Optional<Client> findByName(String name);
+    
+    // Verificar si existe un cliente con ese nombre
+    boolean existsByName(String name);
     
     // Buscar cliente por email
     Optional<Client> findByEmail(String email);

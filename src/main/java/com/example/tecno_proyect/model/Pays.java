@@ -22,8 +22,8 @@ public class Pays {
     @Column(name = "state", length = 50)
     private String state;
     
-    @Column(name = "id_client", length = 100)
-    private String idClient;
+    @Column(name = "id_client")
+    private Long idClient;
     
     @Column(name = "id_pay_plan")
     private Long idPayPlan;
@@ -41,7 +41,7 @@ public class Pays {
     public Pays() {}
     
     // Constructor con parámetros
-    public Pays(LocalDate date, BigDecimal total, String state, String idClient, Long idPayPlan) {
+    public Pays(LocalDate date, BigDecimal total, String state, Long idClient, Long idPayPlan) {
         this.date = date;
         this.total = total;
         this.state = state;
@@ -82,11 +82,11 @@ public class Pays {
         this.state = state;
     }
     
-    public String getIdClient() {
+    public Long getIdClient() {
         return idClient;
     }
     
-    public void setIdClient(String idClient) {
+    public void setIdClient(Long idClient) {
         this.idClient = idClient;
     }
     

@@ -12,7 +12,7 @@ import java.util.List;
 public interface ProjectRepository extends JpaRepository<Project, String> {
     
     // Buscar proyectos por cliente
-    List<Project> findByIdClient(String idClient);
+    List<Project> findByIdClient(Long idClient);
     
     // Buscar proyectos por usuario
     List<Project> findByUserId(String userId);
@@ -37,7 +37,7 @@ public interface ProjectRepository extends JpaRepository<Project, String> {
     List<Project> findActiveProjects();
     
     // Buscar proyectos por cliente y estado
-    List<Project> findByIdClientAndState(String idClient, String state);
+    List<Project> findByIdClientAndState(Long idClient, String state);
     
     // Buscar proyectos por usuario y estado
     List<Project> findByUserIdAndState(String userId, String state);

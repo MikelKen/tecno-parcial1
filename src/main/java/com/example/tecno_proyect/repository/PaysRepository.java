@@ -14,7 +14,7 @@ import java.util.List;
 public interface PaysRepository extends JpaRepository<Pays, Long> {
     
     // Buscar pagos por cliente
-    List<Pays> findByIdClient(String idClient);
+    List<Pays> findByIdClient(Long idClient);
     
     // Buscar pagos por plan de pago
     List<Pays> findByIdPayPlan(Long idPayPlan);
@@ -37,9 +37,9 @@ public interface PaysRepository extends JpaRepository<Pays, Long> {
     @Query("SELECT p FROM Pays p WHERE p.total > :amount")
     List<Pays> findByTotalGreaterThan(@Param("amount") BigDecimal amount);
     
-    // Obtener total pagado por cliente
-    @Query("SELECT SUM(p.total) FROM Pays p WHERE p.idClient = :idClient AND p.state = 'Completado'")
-    BigDecimal getTotalPaidByClient(@Param("idClient") String idClient);
+        // Obtener total pagado por cliente
+    @Query("SELECT SUM(p.total) FROM Pays p WHERE p.idClient = :idClient")
+    BigDecimal getTotalPaidByClient(@Param("idClient") Long idClient);
     
     // Obtener total pagado por plan de pago
     @Query("SELECT SUM(p.total) FROM Pays p WHERE p.idPayPlan = :idPayPlan AND p.state = 'Completado'")
@@ -54,7 +54,7 @@ public interface PaysRepository extends JpaRepository<Pays, Long> {
     long countByState(@Param("state") String state);
     
     // Buscar pagos por cliente y estado
-    List<Pays> findByIdClientAndState(String idClient, String state);
+    List<Pays> findByIdClientAndState(Long idClient, String state);
     
     // Buscar últimos pagos (ordenados por fecha descendente)
     @Query("SELECT p FROM Pays p ORDER BY p.date DESC")
