@@ -12,7 +12,7 @@ import java.util.List;
 public interface ServiceEvaluationRepository extends JpaRepository<ServiceEvaluation, Long> {
     
     // Buscar evaluaciones por proyecto
-    List<ServiceEvaluation> findByIdProject(String idProject);
+    List<ServiceEvaluation> findByIdProject(Long idProject);
     
     // Buscar evaluaciones por calificación de diseño
     List<ServiceEvaluation> findByDesignQualification(Integer designQualification);

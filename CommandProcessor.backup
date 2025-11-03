@@ -1,6 +1,7 @@
 package com.example.tecno_proyect.service;
 
-import com.example.tecno_proyect.model.*;
+import com.example.tecno_proyect.model.Persona;
+import com.example.tecno_proyect.model.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,9 +48,7 @@ public class CommandProcessor {
     private MaterialProjectService materialProjectService;
 
     @Autowired
-    private EmailResponseService emailResponseService;
-
-    public String processCommand(String subject, String senderEmail) {
+    private EmailResponseService emailResponseService;    public String processCommand(String subject, String senderEmail) {
         try {
             if (subject == null || subject.trim().isEmpty()) {
                 return "Error: Comando vacío. Formato esperado: COMANDO[\"parametros\"]";
@@ -469,7 +468,7 @@ public class CommandProcessor {
                 java.time.LocalDate.parse(parameters[1]), // finalDate
                 Integer.parseInt(parameters[2]), // estimateDays
                 parameters[3], // state
-                Long.parseLong(parameters[4]), // idProject
+                parameters[4], // idProject
                 Long.parseLong(parameters[5])  // userId
             );
             Schedule nuevo = scheduleService.insertarCronograma(schedule);
@@ -490,7 +489,7 @@ public class CommandProcessor {
                 java.time.LocalDate.parse(parameters[2]), // finalDate
                 Integer.parseInt(parameters[3]), // estimateDays
                 parameters[4], // state
-                Long.parseLong(parameters[5]), // idProject
+                parameters[5], // idProject
                 Long.parseLong(parameters[6])  // userId
             );
             Schedule actualizado = scheduleService.actualizarCronograma(id, datos);
@@ -505,7 +504,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSSCHPROY", "BUSSCHPROY[\"idProject\"]");
         }
         try {
-            List<Schedule> cronogramas = scheduleService.buscarPorProyecto(Long.parseLong(parameters[0]));
+            List<Schedule> cronogramas = scheduleService.buscarPorProyecto(parameters[0]);
             return emailResponseService.formatListCronogramasPorProyectoResponse(cronogramas, "BUSSCHPROY");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cronogramas por proyecto: " + e.getMessage(), "BUSSCHPROY");
@@ -565,7 +564,7 @@ public class CommandProcessor {
                 parameters[2], // ubicacion
                 parameters[3], // estado
                 Long.parseLong(parameters[4]), // idCliente
-                Long.parseLong(parameters[5])  // idUsuario
+                parameters[5]  // idUsuario
             );
             return emailResponseService.formatInsertProyectoSuccess(proyecto, "INSPROY");
         } catch (Exception e) {
@@ -600,7 +599,7 @@ public class CommandProcessor {
                 parameters[2], // ubicacion
                 parameters[3], // estado
                 Long.parseLong(parameters[4]), // idCliente
-                Long.parseLong(parameters[5])  // idUsuario
+                parameters[5]  // idUsuario
             );
             return emailResponseService.formatUpdateProyectoSuccess(proyecto, "UPDPROY");
         } catch (Exception e) {
@@ -625,7 +624,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPROYUSR", "BUSPROYUSR[\"idUsuario\"]");
         }
         try {
-            List<Project> proyectos = projectService.buscarProyectosPorUsuario(Long.parseLong(parameters[0]));
+            List<Project> proyectos = projectService.buscarProyectosPorUsuario(parameters[0]);
             return emailResponseService.formatListProyectosPorUsuarioResponse(proyectos, "BUSPROYUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar proyectos por usuario: " + e.getMessage(), "BUSPROYUSR");
@@ -908,6 +907,32 @@ public class CommandProcessor {
             }
         }
 
+    private String handleInsertCliente(String[] parameters) {
+        // Debugging: log the parameters received
+        System.out.println("INSCLI - Parámetros recibidos: " + parameters.length);
+        for (int i = 0; i < parameters.length; i++) {
+            System.out.println("Parámetro " + i + ": [" + parameters[i] + "]");
+        }
+        
+        if (parameters.length < 4) {
+            return emailResponseService.formatInsufficientParametersResponse("INSCLI", 
+                "INSCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"]");
+        }
+
+        try {
+            Client cliente = clientService.insertarCliente(
+                parameters[0], // nombre
+                parameters[1], // email
+                parameters[2], // teléfono
+                parameters[3]  // dirección
+            );
+
+            return emailResponseService.formatInsertClienteSuccess(cliente, "INSCLI");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al insertar cliente: " + e.getMessage(), "INSCLI");
+        }
+    }
+
     // --- Métodos de usuarios ---
     private String handleListarTodosLosUsuarios(String[] parameters) {
         try {
@@ -970,18 +995,17 @@ public class CommandProcessor {
     }
 
     private String handleActualizarUsuario(String[] parameters) {
-        if (parameters.length < 7) {
-            return emailResponseService.formatInsufficientParametersResponse("UPDUSR", "UPDUSR[\"id\",\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"]");
+        if (parameters.length < 6) {
+            return emailResponseService.formatInsufficientParametersResponse("UPDUSR", "UPDUSR[\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"]");
         }
         try {
             User usuario = userService.actualizarUsuario(
-                Long.parseLong(parameters[0]), // id
-                parameters[1], // nombre
-                parameters[2], // email
-                parameters[3], // telefono
-                parameters[4], // direccion
-                parameters[5], // password
-                parameters[6]  // rol
+                parameters[0], // nombre
+                parameters[1], // email
+                parameters[2], // telefono
+                parameters[3], // direccion
+                parameters[4], // password
+                parameters[5]  // rol
             );
             return emailResponseService.formatUpdateUsuarioSuccess(usuario, "UPDUSR");
         } catch (Exception e) {
@@ -995,7 +1019,7 @@ public class CommandProcessor {
         }
         try {
             String nombre = parameters[0];
-            boolean eliminado = userService.eliminarUsuarioPorNombre(nombre);
+            boolean eliminado = userService.eliminarUsuario(nombre);
             if (eliminado) {
                 return emailResponseService.formatDeleteUsuarioSuccess(nombre, "DELUSR");
             } else {
@@ -1059,7 +1083,7 @@ public class CommandProcessor {
                 parameters[5], // state
                 Integer.parseInt(parameters[6]), // furnitureNumber
                 parameters[7], // comments
-                Long.parseLong(parameters[8]), // idProject
+                parameters[8], // idProject
                 Long.parseLong(parameters[9])  // userId
             );
             return emailResponseService.formatInsertCotizacionSuccess(cotizacion, "INSQUOTE");
@@ -1083,7 +1107,7 @@ public class CommandProcessor {
                 parameters[6], // state
                 Integer.parseInt(parameters[7]), // furnitureNumber
                 parameters[8], // comments
-                Long.parseLong(parameters[9]), // idProject
+                parameters[9], // idProject
                 Long.parseLong(parameters[10]) // userId
             );
             return emailResponseService.formatUpdateCotizacionSuccess(cotizacion, "UPDQUOTE");
@@ -1114,7 +1138,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSQUOTEPROY", "BUSQUOTEPROY[\"idProject\"]");
         }
         try {
-            List<Quote> cotizaciones = quoteService.buscarCotizacionesPorProyecto(Long.parseLong(parameters[0]));
+            List<Quote> cotizaciones = quoteService.buscarCotizacionesPorProyecto(parameters[0]);
             return emailResponseService.formatListCotizacionesPorProyectoResponse(cotizaciones, "BUSQUOTEPROY");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cotizaciones por proyecto: " + e.getMessage(), "BUSQUOTEPROY");
@@ -1126,7 +1150,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSQUOTEUSR", "BUSQUOTEUSR[\"userId\"]");
         }
         try {
-            List<Quote> cotizaciones = quoteService.buscarCotizacionesPorUsuario(Long.parseLong(parameters[0]));
+            List<Quote> cotizaciones = quoteService.buscarCotizacionesPorUsuario(parameters[0]);
             return emailResponseService.formatListCotizacionesPorUsuarioResponse(cotizaciones, "BUSQUOTEUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cotizaciones por usuario: " + e.getMessage(), "BUSQUOTEUSR");
@@ -1306,7 +1330,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSDESIGNUSR", "BUSDESIGNUSR[\"userId\"]");
         }
         try {
-            List<Design> disenos = designService.buscarDisenosPorUsuario(Long.parseLong(parameters[0]));
+            List<Design> disenos = designService.buscarDisenosPorUsuario(parameters[0]);
             return emailResponseService.formatListDisenosPorUsuarioResponse(disenos, "BUSDESIGNUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar diseños por usuario: " + e.getMessage(), "BUSDESIGNUSR");
@@ -1353,7 +1377,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("DESIGNAPPRUSR", "DESIGNAPPRUSR[\"userId\"]");
         }
         try {
-            List<Design> disenos = designService.obtenerDisenosAprobadosPorUsuario(Long.parseLong(parameters[0]));
+            List<Design> disenos = designService.obtenerDisenosAprobadosPorUsuario(parameters[0]);
             return emailResponseService.formatListDisenosAprobadosPorUsuarioResponse(disenos, "DESIGNAPPRUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al obtener diseños aprobados por usuario: " + e.getMessage(), "DESIGNAPPRUSR");
@@ -1365,7 +1389,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("DESIGNPENDUSR", "DESIGNPENDUSR[\"userId\"]");
         }
         try {
-            List<Design> disenos = designService.obtenerDisenosPendientesPorUsuario(Long.parseLong(parameters[0]));
+            List<Design> disenos = designService.obtenerDisenosPendientesPorUsuario(parameters[0]);
             return emailResponseService.formatListDisenosPendientesPorUsuarioResponse(disenos, "DESIGNPENDUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al obtener diseños pendientes por usuario: " + e.getMessage(), "DESIGNPENDUSR");
@@ -1421,7 +1445,7 @@ public class CommandProcessor {
         }
         try {
             PayPlan planPago = payPlanService.insertarPlanPago(
-                Long.parseLong(parameters[0]), // idProject
+                parameters[0], // idProject
                 new java.math.BigDecimal(parameters[1]), // totalDebt
                 new java.math.BigDecimal(parameters[2]), // totalPayed
                 Integer.parseInt(parameters[3]), // numberDebt
@@ -1441,7 +1465,7 @@ public class CommandProcessor {
         try {
             PayPlan planPago = payPlanService.actualizarPlanPago(
                 Long.parseLong(parameters[0]), // idPayPlan
-                Long.parseLong(parameters[1]), // idProject
+                parameters[1], // idProject
                 new java.math.BigDecimal(parameters[2]), // totalDebt
                 new java.math.BigDecimal(parameters[3]), // totalPayed
                 Integer.parseInt(parameters[4]), // numberDebt
@@ -1718,7 +1742,7 @@ public class CommandProcessor {
         }
         try {
             java.math.BigDecimal nuevoPrecio = new java.math.BigDecimal(parameters[1]);
-            Material material = materialService.actualizarPrecioMaterial(Long.parseLong(parameters[0]), nuevoPrecio);
+            Material material = materialService.actualizarPrecioMaterial(parameters[0], nuevoPrecio);
             return emailResponseService.formatUpdatePrecioMaterialSuccess(material, "UPDMATPRECIO");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al actualizar precio de material: " + e.getMessage(), "UPDMATPRECIO");
@@ -1731,7 +1755,7 @@ public class CommandProcessor {
         }
         try {
             Integer nuevoStock = Integer.parseInt(parameters[1]);
-            Material material = materialService.actualizarStockMaterial(Long.parseLong(parameters[0]), nuevoStock);
+            Material material = materialService.actualizarStockMaterial(parameters[0], nuevoStock);
             return emailResponseService.formatUpdateStockMaterialSuccess(material, "UPDMATSTOCK");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al actualizar stock de material: " + e.getMessage(), "UPDMATSTOCK");
@@ -1744,7 +1768,7 @@ public class CommandProcessor {
         }
         try {
             Integer cantidad = Integer.parseInt(parameters[1]);
-            Material material = materialService.reducirStockMaterial(Long.parseLong(parameters[0]), cantidad);
+            Material material = materialService.reducirStockMaterial(parameters[0], cantidad);
             return emailResponseService.formatReducirStockMaterialSuccess(material, "REDMATSTOCK");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al reducir stock de material: " + e.getMessage(), "REDMATSTOCK");
@@ -1757,7 +1781,7 @@ public class CommandProcessor {
         }
         try {
             Integer cantidad = Integer.parseInt(parameters[1]);
-            Material material = materialService.aumentarStockMaterial(Long.parseLong(parameters[0]), cantidad);
+            Material material = materialService.aumentarStockMaterial(parameters[0], cantidad);
             return emailResponseService.formatAumentarStockMaterialSuccess(material, "AUMMATSTOCK");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al aumentar stock de material: " + e.getMessage(), "AUMMATSTOCK");
@@ -1770,7 +1794,7 @@ public class CommandProcessor {
         }
         try {
             Integer cantidadRequerida = Integer.parseInt(parameters[1]);
-            boolean disponible = materialService.verificarDisponibilidadMaterial(Long.parseLong(parameters[0]), cantidadRequerida);
+            boolean disponible = materialService.verificarDisponibilidadMaterial(parameters[0], cantidadRequerida);
             return emailResponseService.formatVerificarDisponibilidadMaterialResponse(disponible, parameters[0], cantidadRequerida, "VERMATDISP");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al verificar disponibilidad de material: " + e.getMessage(), "VERMATDISP");

@@ -13,7 +13,7 @@ import java.util.List;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     
     // Buscar cronogramas por proyecto
-    List<Schedule> findByIdProject(String idProject);
+    List<Schedule> findByIdProject(Long idProject);
     
     // Buscar cronogramas por usuario
     List<Schedule> findByUserId(Long userId);
@@ -63,7 +63,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findOverdueSchedules();
     
     // Buscar cronogramas por proyecto y estado
-    List<Schedule> findByIdProjectAndState(String idProject, String state);
+    List<Schedule> findByIdProjectAndState(Long idProject, String state);
     
     // Buscar cronogramas por usuario y estado
     List<Schedule> findByUserIdAndState(Long userId, String state);

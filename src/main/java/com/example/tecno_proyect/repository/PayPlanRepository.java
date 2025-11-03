@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface PayPlanRepository extends JpaRepository<PayPlan, Long> {
     
     // Buscar plan de pago por proyecto (relación uno a uno)
-    Optional<PayPlan> findByIdProject(String idProject);
+    Optional<PayPlan> findByIdProject(Long idProject);
     
     // Buscar planes de pago por estado
     List<PayPlan> findByState(String state);

@@ -58,7 +58,7 @@ public class ScheduleService {
     }
 
     // Buscar por proyecto
-    public List<Schedule> buscarPorProyecto(String idProject) {
+    public List<Schedule> buscarPorProyecto(Long idProject) {
         return scheduleRepository.findByIdProject(idProject);
     }
 
@@ -128,7 +128,7 @@ public class ScheduleService {
     }
 
     // Buscar por proyecto y estado
-    public List<Schedule> buscarPorProyectoYEstado(String idProject, String state) {
+    public List<Schedule> buscarPorProyectoYEstado(Long idProject, String state) {
         return scheduleRepository.findByIdProjectAndState(idProject, state);
     }
 

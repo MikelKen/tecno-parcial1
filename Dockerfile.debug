@@ -1,0 +1,16 @@
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+# Instalar Maven
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+
+# Copiar solo el archivo problemático para probarlo
+COPY pom.xml .
+COPY src/main/java/com/example/tecno_proyect/service/CommandProcessor.java ./temp-test.java
+
+# Ver errores específicos de sintaxis
+RUN javac -version && echo "Java version OK"
+
+# Verificar sintaxis básica del archivo
+RUN head -20 temp-test.java

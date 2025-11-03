@@ -13,7 +13,7 @@ import java.util.List;
 public interface QuoteRepository extends JpaRepository<Quote, Long> {
     
     // Buscar cotizaciones por proyecto
-    List<Quote> findByIdProject(String idProject);
+    List<Quote> findByIdProject(Long idProject);
     
     // Buscar cotizaciones por usuario
     List<Quote> findByUserId(Long userId);
@@ -33,11 +33,11 @@ public interface QuoteRepository extends JpaRepository<Quote, Long> {
     long countByState(@Param("state") String state);
     
     // Buscar cotizaciones por proyecto y estado
-    List<Quote> findByIdProjectAndState(String idProject, String state);
+    List<Quote> findByIdProjectAndState(Long idProject, String state);
     
     // Obtener el total de cotizaciones por proyecto
     @Query("SELECT SUM(q.total) FROM Quote q WHERE q.idProject = :idProject AND q.state = 'Aprobada'")
-    BigDecimal getTotalApprovedQuotesByProject(@Param("idProject") String idProject);
+    BigDecimal getTotalApprovedQuotesByProject(@Param("idProject") Long idProject);
     
     // Buscar cotizaciones con número de muebles específico
     List<Quote> findByFurnitureNumber(Integer furnitureNumber);

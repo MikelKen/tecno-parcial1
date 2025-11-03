@@ -33,7 +33,7 @@ public class MaterialProjectService {
     /**
      * Insertar nueva relación material-proyecto
      */
-    public MaterialProject insertarMaterialProyecto(Integer quantity, Integer leftOver, String idProject, Long idMaterial) {
+    public MaterialProject insertarMaterialProyecto(Integer quantity, Integer leftOver, Long idProject, Long idMaterial) {
         MaterialProject materialProject = new MaterialProject(quantity, leftOver, idProject, idMaterial);
         return materialProjectRepository.save(materialProject);
     }
@@ -41,7 +41,7 @@ public class MaterialProjectService {
     /**
      * Actualizar relación material-proyecto existente
      */
-    public MaterialProject actualizarMaterialProyecto(Long id, Integer quantity, Integer leftOver, String idProject, Long idMaterial) {
+    public MaterialProject actualizarMaterialProyecto(Long id, Integer quantity, Integer leftOver, Long idProject, Long idMaterial) {
         Optional<MaterialProject> materialProyectoExistente = materialProjectRepository.findById(id);
         
         if (materialProyectoExistente.isEmpty()) {

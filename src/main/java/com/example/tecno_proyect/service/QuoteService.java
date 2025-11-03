@@ -36,7 +36,7 @@ public class QuoteService {
      */
     public Quote insertarCotizacion(String typeMetro, BigDecimal costMetro, BigDecimal quantityMetro,
                                    BigDecimal costFurniture, BigDecimal total, String state,
-                                   Integer furnitureNumber, String comments, String idProject, Long userId) {
+                                   Integer furnitureNumber, String comments, Long idProject, Long userId) {
         Quote quote = new Quote(typeMetro, costMetro, quantityMetro, costFurniture, total, 
                                state, furnitureNumber, comments, idProject, userId);
         return quoteRepository.save(quote);
@@ -47,7 +47,7 @@ public class QuoteService {
      */
     public Quote actualizarCotizacion(Long id, String typeMetro, BigDecimal costMetro, BigDecimal quantityMetro,
                                      BigDecimal costFurniture, BigDecimal total, String state,
-                                     Integer furnitureNumber, String comments, String idProject, Long userId) {
+                                     Integer furnitureNumber, String comments, Long idProject, Long userId) {
         Optional<Quote> cotizacionExistente = quoteRepository.findById(id);
         
         if (cotizacionExistente.isEmpty()) {
@@ -83,7 +83,7 @@ public class QuoteService {
     /**
      * Buscar cotizaciones por proyecto
      */
-    public List<Quote> buscarCotizacionesPorProyecto(String idProject) {
+    public List<Quote> buscarCotizacionesPorProyecto(Long idProject) {
         return quoteRepository.findByIdProject(idProject);
     }
     
@@ -119,7 +119,7 @@ public class QuoteService {
      * Obtener total de cotizaciones aprobadas por proyecto
      */
     public BigDecimal obtenerTotalCotizacionesAprobadasPorProyecto(String idProject) {
-        BigDecimal total = quoteRepository.getTotalApprovedQuotesByProject(idProject);
+        BigDecimal total = quoteRepository.getTotalApprovedQuotesByProject(Long.parseLong(idProject));
         return total != null ? total : BigDecimal.ZERO;
     }
     

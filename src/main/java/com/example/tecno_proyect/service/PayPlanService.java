@@ -36,13 +36,13 @@ public class PayPlanService {
      * Buscar plan de pago por proyecto
      */
     public Optional<PayPlan> buscarPlanPagoPorProyecto(String idProject) {
-        return payPlanRepository.findByIdProject(idProject);
+        return payPlanRepository.findByIdProject(Long.parseLong(idProject));
     }
     
     /**
      * Insertar nuevo plan de pago
      */
-    public PayPlan insertarPlanPago(String idProject, BigDecimal totalDebt, BigDecimal totalPayed, Integer numberDebt, 
+    public PayPlan insertarPlanPago(Long idProject, BigDecimal totalDebt, BigDecimal totalPayed, Integer numberDebt, 
                                    Integer numberPays, String state) {
         PayPlan payPlan = new PayPlan(idProject, totalDebt, totalPayed, numberDebt, numberPays, state);
         return payPlanRepository.save(payPlan);
@@ -51,7 +51,7 @@ public class PayPlanService {
     /**
      * Actualizar plan de pago existente
      */
-    public PayPlan actualizarPlanPago(Long idPayPlan, String idProject, BigDecimal totalDebt, BigDecimal totalPayed, 
+    public PayPlan actualizarPlanPago(Long idPayPlan, Long idProject, BigDecimal totalDebt, BigDecimal totalPayed, 
                                      Integer numberDebt, Integer numberPays, String state) {
         Optional<PayPlan> planExistente = payPlanRepository.findById(idPayPlan);
         

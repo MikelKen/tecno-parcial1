@@ -16,10 +16,10 @@ public interface MaterialSupplierRepository extends JpaRepository<MaterialSuppli
     List<MaterialSupplier> findByIdSupplier(String idSupplier);
     
     // Buscar por material
-    List<MaterialSupplier> findByIdMaterial(String idMaterial);
+    List<MaterialSupplier> findByIdMaterial(Long idMaterial);
     
     // Buscar por proveedor y material específico
-    List<MaterialSupplier> findByIdSupplierAndIdMaterial(String idSupplier, String idMaterial);
+    List<MaterialSupplier> findByIdSupplierAndIdMaterial(String idSupplier, Long idMaterial);
     
     // Buscar por rango de precios unitarios
     @Query("SELECT ms FROM MaterialSupplier ms WHERE ms.unitPrice BETWEEN :minPrice AND :maxPrice")
@@ -38,15 +38,15 @@ public interface MaterialSupplierRepository extends JpaRepository<MaterialSuppli
     
     // Obtener el precio más bajo para un material
     @Query("SELECT MIN(ms.unitPrice) FROM MaterialSupplier ms WHERE ms.idMaterial = :idMaterial")
-    BigDecimal getLowestPriceForMaterial(@Param("idMaterial") String idMaterial);
+    BigDecimal getLowestPriceForMaterial(@Param("idMaterial") Long idMaterial);
     
     // Obtener el precio más alto para un material
     @Query("SELECT MAX(ms.unitPrice) FROM MaterialSupplier ms WHERE ms.idMaterial = :idMaterial")
-    BigDecimal getHighestPriceForMaterial(@Param("idMaterial") String idMaterial);
+    BigDecimal getHighestPriceForMaterial(@Param("idMaterial") Long idMaterial);
     
     // Buscar proveedores con mejor precio para un material
     @Query("SELECT ms FROM MaterialSupplier ms WHERE ms.idMaterial = :idMaterial ORDER BY ms.unitPrice ASC")
-    List<MaterialSupplier> findBestPriceSuppliersForMaterial(@Param("idMaterial") String idMaterial);
+    List<MaterialSupplier> findBestPriceSuppliersForMaterial(@Param("idMaterial") Long idMaterial);
     
     // Obtener total de compras a un proveedor
     @Query("SELECT SUM(ms.total) FROM MaterialSupplier ms WHERE ms.idSupplier = :idSupplier")
@@ -54,7 +54,7 @@ public interface MaterialSupplierRepository extends JpaRepository<MaterialSuppli
     
     // Obtener total gastado en un material
     @Query("SELECT SUM(ms.total) FROM MaterialSupplier ms WHERE ms.idMaterial = :idMaterial")
-    BigDecimal getTotalSpentOnMaterial(@Param("idMaterial") String idMaterial);
+    BigDecimal getTotalSpentOnMaterial(@Param("idMaterial") Long idMaterial);
     
     // Buscar relaciones ordenadas por precio (mejores ofertas primero)
     @Query("SELECT ms FROM MaterialSupplier ms ORDER BY ms.unitPrice ASC")
@@ -66,5 +66,5 @@ public interface MaterialSupplierRepository extends JpaRepository<MaterialSuppli
     
     // Contar proveedores para un material específico
     @Query("SELECT COUNT(DISTINCT ms.idSupplier) FROM MaterialSupplier ms WHERE ms.idMaterial = :idMaterial")
-    long countSuppliersForMaterial(@Param("idMaterial") String idMaterial);
+    long countSuppliersForMaterial(@Param("idMaterial") Long idMaterial);
 }
