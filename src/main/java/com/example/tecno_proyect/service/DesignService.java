@@ -42,7 +42,7 @@ public class DesignService {
      * Insertar nuevo diseño
      */
     public Design insertarDiseno(Long idQuote, String urlRender, String laminatedPlane, Boolean approved, 
-                                LocalDate approvedDate, String comments, String userId) {
+                                LocalDate approvedDate, String comments, Long userId) {
         Design design = new Design(idQuote, urlRender, laminatedPlane, approved, approvedDate, comments, userId);
         return designRepository.save(design);
     }
@@ -51,7 +51,7 @@ public class DesignService {
      * Actualizar diseño existente
      */
     public Design actualizarDiseno(Long idDesign, Long idQuote, String urlRender, String laminatedPlane, Boolean approved, 
-                                  LocalDate approvedDate, String comments, String userId) {
+                                  LocalDate approvedDate, String comments, Long userId) {
         Optional<Design> disenoExistente = designRepository.findById(idDesign);
         
         if (disenoExistente.isEmpty()) {
@@ -84,7 +84,7 @@ public class DesignService {
     /**
      * Buscar diseños por usuario
      */
-    public List<Design> buscarDisenosPorUsuario(String userId) {
+    public List<Design> buscarDisenosPorUsuario(Long userId) {
         return designRepository.findByUserId(userId);
     }
     
@@ -235,8 +235,8 @@ public class DesignService {
     /**
      * Validar datos de diseño
      */
-    public boolean validarDatosDiseno(String urlRender, String laminatedPlane, String comments, String userId) {
-        if (userId == null || userId.trim().isEmpty()) {
+    public boolean validarDatosDiseno(String urlRender, String laminatedPlane, String comments, Long userId) {
+        if (userId == null) {
             return false;
         }
         // URL render y plano laminado pueden ser opcionales
@@ -283,7 +283,7 @@ public class DesignService {
     /**
      * Obtener diseños aprobados por usuario
      */
-    public List<Design> obtenerDisenosAprobadosPorUsuario(String userId) {
+    public List<Design> obtenerDisenosAprobadosPorUsuario(Long userId) {
         return buscarDisenosPorUsuario(userId).stream()
                 .filter(design -> design.getApproved() != null && design.getApproved())
                 .toList();
@@ -292,7 +292,7 @@ public class DesignService {
     /**
      * Obtener diseños pendientes por usuario
      */
-    public List<Design> obtenerDisenosPendientesPorUsuario(String userId) {
+    public List<Design> obtenerDisenosPendientesPorUsuario(Long userId) {
         return buscarDisenosPorUsuario(userId).stream()
                 .filter(design -> design.getApproved() == null || !design.getApproved())
                 .toList();
@@ -301,14 +301,14 @@ public class DesignService {
     /**
      * Contar diseños por usuario
      */
-    public long contarDisenosPorUsuario(String userId) {
+    public long contarDisenosPorUsuario(Long userId) {
         return buscarDisenosPorUsuario(userId).size();
     }
     
     /**
      * Verificar si un usuario tiene diseños
      */
-    public boolean usuarioTieneDisenos(String userId) {
+    public boolean usuarioTieneDisenos(Long userId) {
         return contarDisenosPorUsuario(userId) > 0;
     }
 }

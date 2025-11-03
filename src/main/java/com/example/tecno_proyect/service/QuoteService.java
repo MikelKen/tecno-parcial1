@@ -36,7 +36,7 @@ public class QuoteService {
      */
     public Quote insertarCotizacion(String typeMetro, BigDecimal costMetro, BigDecimal quantityMetro,
                                    BigDecimal costFurniture, BigDecimal total, String state,
-                                   Integer furnitureNumber, String comments, String idProject, String userId) {
+                                   Integer furnitureNumber, String comments, String idProject, Long userId) {
         Quote quote = new Quote(typeMetro, costMetro, quantityMetro, costFurniture, total, 
                                state, furnitureNumber, comments, idProject, userId);
         return quoteRepository.save(quote);
@@ -47,7 +47,7 @@ public class QuoteService {
      */
     public Quote actualizarCotizacion(Long id, String typeMetro, BigDecimal costMetro, BigDecimal quantityMetro,
                                      BigDecimal costFurniture, BigDecimal total, String state,
-                                     Integer furnitureNumber, String comments, String idProject, String userId) {
+                                     Integer furnitureNumber, String comments, String idProject, Long userId) {
         Optional<Quote> cotizacionExistente = quoteRepository.findById(id);
         
         if (cotizacionExistente.isEmpty()) {
@@ -90,7 +90,7 @@ public class QuoteService {
     /**
      * Buscar cotizaciones por usuario
      */
-    public List<Quote> buscarCotizacionesPorUsuario(String userId) {
+    public List<Quote> buscarCotizacionesPorUsuario(Long userId) {
         return quoteRepository.findByUserId(userId);
     }
     

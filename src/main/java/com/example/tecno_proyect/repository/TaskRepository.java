@@ -16,7 +16,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByIdSchedule(Long idSchedule);
     
     // Buscar tareas por usuario
-    List<Task> findByUserId(String userId);
+    List<Task> findByUserId(Long userId);
     
     // Buscar tareas por estado
     List<Task> findByState(String state);
@@ -48,7 +48,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findPendingTasks();
     
     // Buscar tareas por usuario y estado
-    List<Task> findByUserIdAndState(String userId, String state);
+    List<Task> findByUserIdAndState(Long userId, String state);
     
     // Buscar tareas por cronograma y estado
     List<Task> findByIdScheduleAndState(Long idSchedule, String state);
@@ -59,7 +59,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     
     // Contar tareas por usuario
     @Query("SELECT COUNT(t) FROM Task t WHERE t.userId = :userId")
-    long countByUserId(@Param("userId") String userId);
+    long countByUserId(@Param("userId") Long userId);
     
     // Buscar tareas ordenadas por hora de inicio
     @Query("SELECT t FROM Task t ORDER BY t.initHour ASC")
@@ -71,12 +71,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     
     // Buscar tareas por usuario ordenadas por hora de inicio
     @Query("SELECT t FROM Task t WHERE t.userId = :userId ORDER BY t.initHour ASC")
-    List<Task> findByUserIdOrderedByStartTime(@Param("userId") String userId);
+    List<Task> findByUserIdOrderedByStartTime(@Param("userId") Long userId);
     
     // Buscar tareas que se superponen en tiempo
     @Query("SELECT t FROM Task t WHERE t.userId = :userId AND " +
            "((t.initHour <= :endTime AND t.finalHour >= :startTime))")
-    List<Task> findOverlappingTasks(@Param("userId") String userId, 
+    List<Task> findOverlappingTasks(@Param("userId") Long userId, 
                                    @Param("startTime") LocalTime startTime, 
                                    @Param("endTime") LocalTime endTime);
 }

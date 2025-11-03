@@ -24,10 +24,17 @@ public class UserService {
     }
     
     /**
-     * Buscar usuario por nombre (ID)
+     * Buscar usuario por ID
+     */
+    public Optional<User> buscarUsuarioPorId(Long id) {
+        return userRepository.findById(id);
+    }
+    
+    /**
+     * Buscar usuario por nombre
      */
     public Optional<User> buscarUsuarioPorNombre(String name) {
-        return userRepository.findById(name);
+        return userRepository.findByName(name);
     }
     
     /**
@@ -42,7 +49,7 @@ public class UserService {
      */
     public User insertarUsuario(String name, String email, String phone, String address, String password, String role) {
         // Verificar si ya existe un usuario con ese nombre
-        if (userRepository.existsById(name)) {
+        if (userRepository.existsByName(name)) {
             throw new RuntimeException("Ya existe un usuario con nombre: " + name);
         }
         
@@ -56,10 +63,31 @@ public class UserService {
     }
     
     /**
-     * Actualizar usuario existente
+     * Actualizar usuario existente por ID
      */
-    public User actualizarUsuario(String name, String email, String phone, String address, String password, String role) {
-        Optional<User> userExistente = userRepository.findById(name);
+    public User actualizarUsuario(Long id, String name, String email, String phone, String address, String password, String role) {
+        Optional<User> userExistente = userRepository.findById(id);
+        
+        if (userExistente.isEmpty()) {
+            throw new RuntimeException("No se encontró usuario con ID: " + id);
+        }
+        
+        User user = userExistente.get();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setAddress(address);
+        user.setPassword(password);
+        user.setRole(role);
+        
+        return userRepository.save(user);
+    }
+    
+    /**
+     * Actualizar usuario existente por nombre
+     */
+    public User actualizarUsuarioPorNombre(String name, String email, String phone, String address, String password, String role) {
+        Optional<User> userExistente = userRepository.findByName(name);
         
         if (userExistente.isEmpty()) {
             throw new RuntimeException("No se encontró usuario con nombre: " + name);
@@ -76,11 +104,23 @@ public class UserService {
     }
     
     /**
+     * Eliminar usuario por ID
+     */
+    public boolean eliminarUsuario(Long id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * Eliminar usuario por nombre
      */
-    public boolean eliminarUsuario(String name) {
-        if (userRepository.existsById(name)) {
-            userRepository.deleteById(name);
+    public boolean eliminarUsuarioPorNombre(String name) {
+        Optional<User> userOpt = userRepository.findByName(name);
+        if (userOpt.isPresent()) {
+            userRepository.delete(userOpt.get());
             return true;
         }
         return false;
@@ -101,10 +141,17 @@ public class UserService {
     }
     
     /**
-     * Verificar si existe un usuario
+     * Verificar si existe un usuario por ID
      */
-    public boolean existeUsuario(String name) {
-        return userRepository.existsById(name);
+    public boolean existeUsuario(Long id) {
+        return userRepository.existsById(id);
+    }
+    
+    /**
+     * Verificar si existe un usuario por nombre
+     */
+    public boolean existeUsuarioPorNombre(String name) {
+        return userRepository.existsByName(name);
     }
     
     /**

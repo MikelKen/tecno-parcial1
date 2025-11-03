@@ -329,7 +329,7 @@ public class CommandProcessor {
                 parameters[2], // description
                 parameters[3], // state
                 Long.parseLong(parameters[4]), // idSchedule
-                parameters[5]  // userId
+                Long.parseLong(parameters[5])  // userId
             );
             Task nueva = taskService.insertarTarea(task);
             return emailResponseService.formatInsertTareaSuccess(nueva, "INSTASK");
@@ -350,7 +350,7 @@ public class CommandProcessor {
                 parameters[3], // description
                 parameters[4], // state
                 Long.parseLong(parameters[5]), // idSchedule
-                parameters[6]  // userId
+                Long.parseLong(parameters[6])  // userId
             );
             Task actualizado = taskService.actualizarTarea(id, datos);
             return emailResponseService.formatUpdateTareaSuccess(actualizado, "UPDTASK");
@@ -394,8 +394,11 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSTASKUSR", "BUSTASKUSR[\"userId\"]");
         }
         try {
-            List<Task> tareas = taskService.buscarPorUsuario(parameters[0]);
+            Long userId = Long.parseLong(parameters[0]);
+            List<Task> tareas = taskService.buscarPorUsuario(userId);
             return emailResponseService.formatListTareasPorUsuarioResponse(tareas, "BUSTASKUSR");
+        } catch (NumberFormatException e) {
+            return emailResponseService.formatErrorResponse("ID de usuario inválido: " + parameters[0], "BUSTASKUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar tareas por usuario: " + e.getMessage(), "BUSTASKUSR");
         }
@@ -467,7 +470,7 @@ public class CommandProcessor {
                 Integer.parseInt(parameters[2]), // estimateDays
                 parameters[3], // state
                 parameters[4], // idProject
-                parameters[5]  // userId
+                Long.parseLong(parameters[5])  // userId
             );
             Schedule nuevo = scheduleService.insertarCronograma(schedule);
             return emailResponseService.formatInsertCronogramaSuccess(nuevo, "INSSCH");
@@ -488,7 +491,7 @@ public class CommandProcessor {
                 Integer.parseInt(parameters[3]), // estimateDays
                 parameters[4], // state
                 parameters[5], // idProject
-                parameters[6]  // userId
+                Long.parseLong(parameters[6])  // userId
             );
             Schedule actualizado = scheduleService.actualizarCronograma(id, datos);
             return emailResponseService.formatUpdateCronogramaSuccess(actualizado, "UPDSCH");
@@ -514,8 +517,11 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSSCHUSR", "BUSSCHUSR[\"userId\"]");
         }
         try {
-            List<Schedule> cronogramas = scheduleService.buscarPorUsuario(parameters[0]);
+            Long userId = Long.parseLong(parameters[0]);
+            List<Schedule> cronogramas = scheduleService.buscarPorUsuario(userId);
             return emailResponseService.formatListCronogramasPorUsuarioResponse(cronogramas, "BUSSCHUSR");
+        } catch (NumberFormatException e) {
+            return emailResponseService.formatErrorResponse("ID de usuario inválido: " + parameters[0], "BUSSCHUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cronogramas por usuario: " + e.getMessage(), "BUSSCHUSR");
         }
@@ -1084,7 +1090,7 @@ public class CommandProcessor {
                 Integer.parseInt(parameters[6]), // furnitureNumber
                 parameters[7], // comments
                 parameters[8], // idProject
-                parameters[9]  // userId
+                Long.parseLong(parameters[9])  // userId
             );
             return emailResponseService.formatInsertCotizacionSuccess(cotizacion, "INSQUOTE");
         } catch (Exception e) {
@@ -1108,7 +1114,7 @@ public class CommandProcessor {
                 Integer.parseInt(parameters[7]), // furnitureNumber
                 parameters[8], // comments
                 parameters[9], // idProject
-                parameters[10] // userId
+                Long.parseLong(parameters[10]) // userId
             );
             return emailResponseService.formatUpdateCotizacionSuccess(cotizacion, "UPDQUOTE");
         } catch (Exception e) {
@@ -1279,7 +1285,7 @@ public class CommandProcessor {
                 Boolean.parseBoolean(parameters[3]), // approved
                 java.time.LocalDate.parse(parameters[4]), // approvedDate
                 parameters[5], // comments
-                parameters[6]  // userId
+                Long.parseLong(parameters[6])  // userId
             );
             return emailResponseService.formatInsertDisenoSuccess(diseno, "INSDESIGN");
         } catch (Exception e) {
@@ -1300,7 +1306,7 @@ public class CommandProcessor {
                 Boolean.parseBoolean(parameters[4]), // approved
                 java.time.LocalDate.parse(parameters[5]), // approvedDate
                 parameters[6], // comments
-                parameters[7]  // userId
+                Long.parseLong(parameters[7])  // userId
             );
             return emailResponseService.formatUpdateDisenoSuccess(diseno, "UPDDESIGN");
         } catch (Exception e) {

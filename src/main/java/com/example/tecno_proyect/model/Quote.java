@@ -40,8 +40,8 @@ public class Quote {
     @Column(name = "id_project")
     private Long idProject;
     
-    @Column(name = "user_id", length = 100)
-    private String userId;
+    @Column(name = "user_id")
+    private Long userId;
     
     // Relaciones
     @ManyToOne
@@ -61,7 +61,7 @@ public class Quote {
     // Constructor con parámetros
     public Quote(String typeMetro, BigDecimal costMetro, BigDecimal quantityMetro, 
                 BigDecimal costFurniture, BigDecimal total, String state, 
-                Integer furnitureNumber, String comments, Long idProject, String userId) {
+                Integer furnitureNumber, String comments, Long idProject, Long userId) {
         this.typeMetro = typeMetro;
         this.costMetro = costMetro;
         this.quantityMetro = quantityMetro;
@@ -155,11 +155,11 @@ public class Quote {
         this.idProject = idProject;
     }
     
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
     
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
     
@@ -200,7 +200,7 @@ public class Quote {
                 ", furnitureNumber=" + furnitureNumber +
                 ", comments='" + comments + '\'' +
                 ", idProject='" + idProject + '\'' +
-                ", userId='" + userId + '\'' +
+                ", userId=" + userId +
                 '}';
     }
 }

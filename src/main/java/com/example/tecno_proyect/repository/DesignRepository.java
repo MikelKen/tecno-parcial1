@@ -17,7 +17,7 @@ public interface DesignRepository extends JpaRepository<Design, Long> {
     Optional<Design> findByIdQuote(Long idQuote);
     
     // Buscar diseños por usuario
-    List<Design> findByUserId(String userId);
+    List<Design> findByUserId(Long userId);
     
     // Buscar diseños aprobados
     List<Design> findByApproved(Boolean approved);

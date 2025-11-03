@@ -16,7 +16,7 @@ public interface QuoteRepository extends JpaRepository<Quote, Long> {
     List<Quote> findByIdProject(String idProject);
     
     // Buscar cotizaciones por usuario
-    List<Quote> findByUserId(String userId);
+    List<Quote> findByUserId(Long userId);
     
     // Buscar cotizaciones por estado
     List<Quote> findByState(String state);

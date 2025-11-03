@@ -16,7 +16,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByIdProject(String idProject);
     
     // Buscar cronogramas por usuario
-    List<Schedule> findByUserId(String userId);
+    List<Schedule> findByUserId(Long userId);
     
     // Buscar cronogramas por estado
     List<Schedule> findByState(String state);
@@ -66,7 +66,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByIdProjectAndState(String idProject, String state);
     
     // Buscar cronogramas por usuario y estado
-    List<Schedule> findByUserIdAndState(String userId, String state);
+    List<Schedule> findByUserIdAndState(Long userId, String state);
     
     // Contar cronogramas por estado
     @Query("SELECT COUNT(s) FROM Schedule s WHERE s.state = :state")
@@ -74,7 +74,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     
     // Contar cronogramas por usuario
     @Query("SELECT COUNT(s) FROM Schedule s WHERE s.userId = :userId")
-    long countByUserId(@Param("userId") String userId);
+    long countByUserId(@Param("userId") Long userId);
     
     // Buscar cronogramas con duración mayor a días específicos
     @Query("SELECT s FROM Schedule s WHERE s.estimateDays > :days")

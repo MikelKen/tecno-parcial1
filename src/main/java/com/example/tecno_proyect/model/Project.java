@@ -27,8 +27,8 @@ public class Project {
     @Column(name = "id_client")
     private Long idClient;
     
-    @Column(name = "user_id", length = 100)
-    private String userId;
+    @Column(name = "user_id")
+    private Long userId;
     
     // Relaciones
     @ManyToOne
@@ -61,7 +61,7 @@ public class Project {
     public Project() {}
     
     // Constructor con parámetros (sin ID - se auto-genera)
-    public Project(String name, String description, String location, String state, Long idClient, String userId) {
+    public Project(String name, String description, String location, String state, Long idClient, Long userId) {
         this.name = name;
         this.description = description;
         this.location = location;
@@ -71,7 +71,7 @@ public class Project {
     }
     
     // Constructor con ID (para casos especiales)
-    public Project(Long id, String name, String description, String location, String state, Long idClient, String userId) {
+    public Project(Long id, String name, String description, String location, String state, Long idClient, Long userId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -130,11 +130,11 @@ public class Project {
         this.idClient = idClient;
     }
     
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
     
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
     
@@ -211,7 +211,7 @@ public class Project {
                 ", location='" + location + '\'' +
                 ", state='" + state + '\'' +
                 ", idClient=" + idClient +
-                ", userId='" + userId + '\'' +
+                ", userId=" + userId +
                 '}';
     }
 }

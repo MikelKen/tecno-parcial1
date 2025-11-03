@@ -27,8 +27,8 @@ public class Task {
     @Column(name = "id_schedule")
     private Long idSchedule;
     
-    @Column(name = "user_id", length = 100)
-    private String userId;
+    @Column(name = "user_id")
+    private Long userId;
     
     // Relaciones
     @ManyToOne
@@ -48,7 +48,7 @@ public class Task {
     
     // Constructor con parámetros
     public Task(LocalTime initHour, LocalTime finalHour, String description, 
-               String state, Long idSchedule, String userId) {
+               String state, Long idSchedule, Long userId) {
         this.initHour = initHour;
         this.finalHour = finalHour;
         this.description = description;
@@ -106,11 +106,11 @@ public class Task {
         this.idSchedule = idSchedule;
     }
     
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
     
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
     

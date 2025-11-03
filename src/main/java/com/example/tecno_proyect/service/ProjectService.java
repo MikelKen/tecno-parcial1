@@ -41,7 +41,7 @@ public class ProjectService {
      * Insertar nuevo proyecto
      */
     public Project insertarProyecto(String name, String description, String location, 
-                                  String state, Long idClient, String userId) {
+                                  String state, Long idClient, Long userId) {
         // Verificar si ya existe un proyecto con ese nombre
         if (projectRepository.existsByName(name)) {
             throw new RuntimeException("Ya existe un proyecto con nombre: " + name);
@@ -55,7 +55,7 @@ public class ProjectService {
      * Actualizar proyecto existente por ID
      */
     public Project actualizarProyecto(Long id, String name, String description, String location, 
-                                     String state, Long idClient, String userId) {
+                                     String state, Long idClient, Long userId) {
         Optional<Project> proyectoExistente = projectRepository.findById(id);
         
         if (proyectoExistente.isEmpty()) {
@@ -77,7 +77,7 @@ public class ProjectService {
      * Actualizar proyecto existente por nombre
      */
     public Project actualizarProyectoPorNombre(String name, String description, String location, 
-                                             String state, Long idClient, String userId) {
+                                             String state, Long idClient, Long userId) {
         Optional<Project> proyectoExistente = projectRepository.findByName(name);
         
         if (proyectoExistente.isEmpty()) {
@@ -127,7 +127,7 @@ public class ProjectService {
     /**
      * Buscar proyectos por usuario
      */
-    public List<Project> buscarProyectosPorUsuario(String userId) {
+    public List<Project> buscarProyectosPorUsuario(Long userId) {
         return projectRepository.findByUserId(userId);
     }
     
@@ -216,7 +216,7 @@ public class ProjectService {
     /**
      * Asignar proyecto a usuario por ID
      */
-    public Project asignarProyectoAUsuario(Long id, String userId) {
+    public Project asignarProyectoAUsuario(Long id, Long userId) {
         Optional<Project> proyectoOpt = projectRepository.findById(id);
         if (proyectoOpt.isPresent()) {
             Project project = proyectoOpt.get();
@@ -229,7 +229,7 @@ public class ProjectService {
     /**
      * Asignar proyecto a usuario por nombre
      */
-    public Project asignarProyectoAUsuarioPorNombre(String name, String userId) {
+    public Project asignarProyectoAUsuarioPorNombre(String name, Long userId) {
         Optional<Project> proyectoOpt = projectRepository.findByName(name);
         if (proyectoOpt.isPresent()) {
             Project project = proyectoOpt.get();

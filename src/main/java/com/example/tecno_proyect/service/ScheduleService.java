@@ -63,7 +63,7 @@ public class ScheduleService {
     }
 
     // Buscar por usuario
-    public List<Schedule> buscarPorUsuario(String userId) {
+    public List<Schedule> buscarPorUsuario(Long userId) {
         return scheduleRepository.findByUserId(userId);
     }
 
@@ -133,7 +133,7 @@ public class ScheduleService {
     }
 
     // Buscar por usuario y estado
-    public List<Schedule> buscarPorUsuarioYEstado(String userId, String state) {
+    public List<Schedule> buscarPorUsuarioYEstado(Long userId, String state) {
         return scheduleRepository.findByUserIdAndState(userId, state);
     }
 
@@ -143,7 +143,7 @@ public class ScheduleService {
     }
 
     // Contar por usuario
-    public long contarPorUsuario(String userId) {
+    public long contarPorUsuario(Long userId) {
         return scheduleRepository.countByUserId(userId);
     }
 

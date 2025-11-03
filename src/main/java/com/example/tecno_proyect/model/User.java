@@ -8,7 +8,11 @@ import java.util.List;
 public class User {
     
     @Id
-    @Column(name = "name", length = 100)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+    
+    @Column(name = "name", length = 100, unique = true)
     private String name;
     
     @Column(name = "email", length = 150)
@@ -39,7 +43,7 @@ public class User {
     // Constructor vacío
     public User() {}
     
-    // Constructor con parámetros
+    // Constructor con parámetros (sin ID - se auto-genera)
     public User(String name, String email, String phone, String address, String password, String role) {
         this.name = name;
         this.email = email;
@@ -49,7 +53,26 @@ public class User {
         this.role = role;
     }
     
+    // Constructor con ID (para casos especiales)
+    public User(Long id, String name, String email, String phone, String address, String password, String role) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.address = address;
+        this.password = password;
+        this.role = role;
+    }
+    
     // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
     public String getName() {
         return name;
     }
@@ -125,7 +148,8 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", address='" + address + '\'' +

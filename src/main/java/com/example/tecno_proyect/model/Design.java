@@ -30,8 +30,8 @@ public class Design {
     @Column(name = "comments", length = 500)
     private String comments;
     
-    @Column(name = "user_id", length = 100)
-    private String userId;
+    @Column(name = "user_id")
+    private Long userId;
     
     // Relaciones
     @ManyToOne
@@ -47,7 +47,7 @@ public class Design {
     
     // Constructor con parámetros
     public Design(Long idQuote, String urlRender, String laminatedPlane, Boolean approved, 
-                 LocalDate approvedDate, String comments, String userId) {
+                 LocalDate approvedDate, String comments, Long userId) {
         this.idQuote = idQuote;
         this.urlRender = urlRender;
         this.laminatedPlane = laminatedPlane;
@@ -114,11 +114,11 @@ public class Design {
         this.comments = comments;
     }
     
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
     
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
     

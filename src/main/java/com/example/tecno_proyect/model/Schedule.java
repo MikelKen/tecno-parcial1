@@ -28,8 +28,8 @@ public class Schedule {
     @Column(name = "id_project")
     private Long idProject;
     
-    @Column(name = "user_id", length = 100)
-    private String userId;
+    @Column(name = "user_id")
+    private Long userId;
     
     // Relaciones
     @ManyToOne
@@ -48,7 +48,7 @@ public class Schedule {
     
     // Constructor con parámetros
     public Schedule(LocalDate initDate, LocalDate finalDate, Integer estimateDays, 
-                   String state, Long idProject, String userId) {
+                   String state, Long idProject, Long userId) {
         this.initDate = initDate;
         this.finalDate = finalDate;
         this.estimateDays = estimateDays;
@@ -106,11 +106,11 @@ public class Schedule {
         this.idProject = idProject;
     }
     
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
     
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
     
@@ -147,7 +147,7 @@ public class Schedule {
                 ", estimateDays=" + estimateDays +
                 ", state='" + state + '\'' +
                 ", idProject=" + idProject +
-                ", userId='" + userId + '\'' +
+                ", userId=" + userId +
                 '}';
     }
 }

@@ -10,7 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, Long> {
+    
+    // Buscar usuario por nombre (único)
+    Optional<User> findByName(String name);
+    
+    // Verificar si existe por nombre
+    boolean existsByName(String name);
     
     // Buscar usuario por email
     Optional<User> findByEmail(String email);

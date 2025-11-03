@@ -21,7 +21,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByIdClient(Long idClient);
     
     // Buscar proyectos por usuario
-    List<Project> findByUserId(String userId);
+    List<Project> findByUserId(Long userId);
     
     // Buscar proyectos por estado
     List<Project> findByState(String state);
@@ -46,5 +46,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByIdClientAndState(Long idClient, String state);
     
     // Buscar proyectos por usuario y estado
-    List<Project> findByUserIdAndState(String userId, String state);
+    List<Project> findByUserIdAndState(Long userId, String state);
 }

@@ -63,7 +63,7 @@ public class TaskService {
     }
 
     // Buscar por usuario
-    public List<Task> buscarPorUsuario(String userId) {
+    public List<Task> buscarPorUsuario(Long userId) {
         return taskRepository.findByUserId(userId);
     }
 
@@ -108,7 +108,7 @@ public class TaskService {
     }
 
     // Buscar por usuario y estado
-    public List<Task> buscarPorUsuarioYEstado(String userId, String state) {
+    public List<Task> buscarPorUsuarioYEstado(Long userId, String state) {
         return taskRepository.findByUserIdAndState(userId, state);
     }
 
@@ -123,7 +123,7 @@ public class TaskService {
     }
 
     // Contar por usuario
-    public long contarPorUsuario(String userId) {
+    public long contarPorUsuario(Long userId) {
         return taskRepository.countByUserId(userId);
     }
 
@@ -138,12 +138,12 @@ public class TaskService {
     }
 
     // Buscar por usuario ordenadas por hora de inicio
-    public List<Task> buscarPorUsuarioOrdenadasPorHoraInicio(String userId) {
+    public List<Task> buscarPorUsuarioOrdenadasPorHoraInicio(Long userId) {
         return taskRepository.findByUserIdOrderedByStartTime(userId);
     }
 
     // Buscar tareas que se superponen en tiempo
-    public List<Task> buscarTareasSuperpuestas(String userId, LocalTime startTime, LocalTime endTime) {
+    public List<Task> buscarTareasSuperpuestas(Long userId, LocalTime startTime, LocalTime endTime) {
         return taskRepository.findOverlappingTasks(userId, startTime, endTime);
     }
 }
