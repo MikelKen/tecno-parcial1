@@ -33,7 +33,7 @@ public class MaterialProjectService {
     /**
      * Insertar nueva relación material-proyecto
      */
-    public MaterialProject insertarMaterialProyecto(Integer quantity, Integer leftOver, String idProject, String idMaterial) {
+    public MaterialProject insertarMaterialProyecto(Integer quantity, Integer leftOver, String idProject, Long idMaterial) {
         MaterialProject materialProject = new MaterialProject(quantity, leftOver, idProject, idMaterial);
         return materialProjectRepository.save(materialProject);
     }
@@ -41,7 +41,7 @@ public class MaterialProjectService {
     /**
      * Actualizar relación material-proyecto existente
      */
-    public MaterialProject actualizarMaterialProyecto(Long id, Integer quantity, Integer leftOver, String idProject, String idMaterial) {
+    public MaterialProject actualizarMaterialProyecto(Long id, Integer quantity, Integer leftOver, String idProject, Long idMaterial) {
         Optional<MaterialProject> materialProyectoExistente = materialProjectRepository.findById(id);
         
         if (materialProyectoExistente.isEmpty()) {
@@ -78,14 +78,14 @@ public class MaterialProjectService {
     /**
      * Buscar proyectos por material
      */
-    public List<MaterialProject> buscarProyectosPorMaterial(String idMaterial) {
+    public List<MaterialProject> buscarProyectosPorMaterial(Long idMaterial) {
         return materialProjectRepository.findByIdMaterial(idMaterial);
     }
     
     /**
      * Buscar por proyecto y material específicos
      */
-    public List<MaterialProject> buscarPorProyectoYMaterial(String idProject, String idMaterial) {
+    public List<MaterialProject> buscarPorProyectoYMaterial(String idProject, Long idMaterial) {
         return materialProjectRepository.findByIdProjectAndIdMaterial(idProject, idMaterial);
     }
     
@@ -157,7 +157,7 @@ public class MaterialProjectService {
     /**
      * Contar proyectos que usan un material específico
      */
-    public long contarProyectosQuUsanMaterial(String idMaterial) {
+    public long contarProyectosQuUsanMaterial(Long idMaterial) {
         return materialProjectRepository.countProjectsUsingMaterial(idMaterial);
     }
     
@@ -223,7 +223,7 @@ public class MaterialProjectService {
     /**
      * Validar datos de material-proyecto
      */
-    public boolean validarDatosMaterialProyecto(Integer quantity, Integer leftOver, String idProject, String idMaterial) {
+    public boolean validarDatosMaterialProyecto(Integer quantity, Integer leftOver, String idProject, Long idMaterial) {
         if (quantity == null || quantity <= 0) {
             return false;
         }
@@ -236,7 +236,7 @@ public class MaterialProjectService {
         if (idProject == null || idProject.trim().isEmpty()) {
             return false;
         }
-        if (idMaterial == null || idMaterial.trim().isEmpty()) {
+        if (idMaterial == null) {
             return false;
         }
         return true;
@@ -252,7 +252,7 @@ public class MaterialProjectService {
     /**
      * Verificar si un material está asignado a proyectos
      */
-    public boolean materialEstaAsignado(String idMaterial) {
+    public boolean materialEstaAsignado(Long idMaterial) {
         return !buscarProyectosPorMaterial(idMaterial).isEmpty();
     }
     
@@ -302,7 +302,7 @@ public class MaterialProjectService {
     /**
      * Verificar disponibilidad de material para un proyecto
      */
-    public boolean verificarDisponibilidadMaterial(String idMaterial, Integer cantidadRequerida) {
+    public boolean verificarDisponibilidadMaterial(Long idMaterial, Integer cantidadRequerida) {
         List<MaterialProject> usosMaterial = buscarProyectosPorMaterial(idMaterial);
         Integer totalUsado = usosMaterial.stream()
                 .mapToInt(mp -> mp.getQuantity() != null ? mp.getQuantity() : 0)

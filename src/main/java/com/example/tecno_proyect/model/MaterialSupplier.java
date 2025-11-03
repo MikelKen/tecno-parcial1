@@ -24,8 +24,8 @@ public class MaterialSupplier {
     @Column(name = "id_supplier", length = 100)
     private String idSupplier;
     
-    @Column(name = "id_material", length = 100)
-    private String idMaterial;
+    @Column(name = "id_material")
+    private Long idMaterial;
     
     // Relaciones
     @ManyToOne
@@ -41,7 +41,7 @@ public class MaterialSupplier {
     
     // Constructor con parámetros
     public MaterialSupplier(Integer quantity, BigDecimal unitPrice, BigDecimal total, 
-                           String idSupplier, String idMaterial) {
+                           String idSupplier, Long idMaterial) {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.total = total;
@@ -90,11 +90,11 @@ public class MaterialSupplier {
         this.idSupplier = idSupplier;
     }
     
-    public String getIdMaterial() {
+    public Long getIdMaterial() {
         return idMaterial;
     }
     
-    public void setIdMaterial(String idMaterial) {
+    public void setIdMaterial(Long idMaterial) {
         this.idMaterial = idMaterial;
     }
     
@@ -122,7 +122,7 @@ public class MaterialSupplier {
                 ", unitPrice=" + unitPrice +
                 ", total=" + total +
                 ", idSupplier='" + idSupplier + '\'' +
-                ", idMaterial='" + idMaterial + '\'' +
+                ", idMaterial=" + idMaterial +
                 '}';
     }
 }

@@ -20,8 +20,8 @@ public class MaterialProject {
     @Column(name = "id_project", length = 100)
     private String idProject;
     
-    @Column(name = "id_material", length = 100)
-    private String idMaterial;
+    @Column(name = "id_material")
+    private Long idMaterial;
     
     // Relaciones
     @ManyToOne
@@ -36,7 +36,7 @@ public class MaterialProject {
     public MaterialProject() {}
     
     // Constructor con parámetros
-    public MaterialProject(Integer quantity, Integer leftOver, String idProject, String idMaterial) {
+    public MaterialProject(Integer quantity, Integer leftOver, String idProject, Long idMaterial) {
         this.quantity = quantity;
         this.leftOver = leftOver;
         this.idProject = idProject;
@@ -76,11 +76,11 @@ public class MaterialProject {
         this.idProject = idProject;
     }
     
-    public String getIdMaterial() {
+    public Long getIdMaterial() {
         return idMaterial;
     }
     
-    public void setIdMaterial(String idMaterial) {
+    public void setIdMaterial(Long idMaterial) {
         this.idMaterial = idMaterial;
     }
     
@@ -107,7 +107,7 @@ public class MaterialProject {
                 ", quantity=" + quantity +
                 ", leftOver=" + leftOver +
                 ", idProject='" + idProject + '\'' +
-                ", idMaterial='" + idMaterial + '\'' +
+                ", idMaterial=" + idMaterial +
                 '}';
     }
 }

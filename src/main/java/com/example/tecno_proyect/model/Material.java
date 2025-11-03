@@ -9,7 +9,11 @@ import java.util.List;
 public class Material {
     
     @Id
-    @Column(name = "name", length = 100)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+    
+    @Column(name = "name", length = 100, unique = true)
     private String name;
     
     @Column(name = "type", length = 50)
@@ -34,7 +38,7 @@ public class Material {
     // Constructor vacío
     public Material() {}
     
-    // Constructor con parámetros
+    // Constructor con parámetros (sin ID - se auto-genera)
     public Material(String name, String type, String unitMeasure, BigDecimal unitPrice, Integer stock) {
         this.name = name;
         this.type = type;
@@ -43,7 +47,25 @@ public class Material {
         this.stock = stock;
     }
     
+    // Constructor con ID (para casos especiales)
+    public Material(Long id, String name, String type, String unitMeasure, BigDecimal unitPrice, Integer stock) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.unitMeasure = unitMeasure;
+        this.unitPrice = unitPrice;
+        this.stock = stock;
+    }
+    
     // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
     public String getName() {
         return name;
     }
@@ -103,7 +125,8 @@ public class Material {
     @Override
     public String toString() {
         return "Material{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", unitMeasure='" + unitMeasure + '\'' +
                 ", unitPrice=" + unitPrice +

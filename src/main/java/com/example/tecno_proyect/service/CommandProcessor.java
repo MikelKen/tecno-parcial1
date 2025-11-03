@@ -1711,7 +1711,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("UPDMAT", "UPDMAT[\"name\",\"type\",\"unitMeasure\",\"unitPrice\",\"stock\"]");
         }
         try {
-            Material material = materialService.actualizarMaterial(
+            Material material = materialService.actualizarMaterialPorNombre(
                 parameters[0], // name
                 parameters[1], // type
                 parameters[2], // unitMeasure
@@ -1837,7 +1837,7 @@ public class CommandProcessor {
                 Integer.parseInt(parameters[0]), // quantity
                 Integer.parseInt(parameters[1]), // leftOver
                 parameters[2], // idProject
-                parameters[3]  // idMaterial
+                Long.parseLong(parameters[3])  // idMaterial
             );
             return emailResponseService.formatInsertMaterialProyectoSuccess(materialProyecto, "INSMATPROY");
         } catch (Exception e) {
@@ -1855,7 +1855,7 @@ public class CommandProcessor {
                 Integer.parseInt(parameters[1]), // quantity
                 Integer.parseInt(parameters[2]), // leftOver
                 parameters[3], // idProject
-                parameters[4]  // idMaterial
+                Long.parseLong(parameters[4])  // idMaterial
             );
             return emailResponseService.formatUpdateMaterialProyectoSuccess(materialProyecto, "UPDMATPROY");
         } catch (Exception e) {
@@ -1880,7 +1880,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPROYPORMAT", "BUSPROYPORMAT[\"idMaterial\"]");
         }
         try {
-            List<MaterialProject> proyectosMaterial = materialProjectService.buscarProyectosPorMaterial(parameters[0]);
+            List<MaterialProject> proyectosMaterial = materialProjectService.buscarProyectosPorMaterial(Long.parseLong(parameters[0]));
             return emailResponseService.formatListProyectosPorMaterialResponse(proyectosMaterial, "BUSPROYPORMAT");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar proyectos por material: " + e.getMessage(), "BUSPROYPORMAT");

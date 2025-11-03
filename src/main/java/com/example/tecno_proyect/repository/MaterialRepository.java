@@ -10,7 +10,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public interface MaterialRepository extends JpaRepository<Material, String> {
+public interface MaterialRepository extends JpaRepository<Material, Long> {
+    
+    // Buscar material por nombre (único)
+    java.util.Optional<Material> findByName(String name);
+    
+    // Verificar si existe por nombre
+    boolean existsByName(String name);
     
     // Buscar materiales por tipo
     List<Material> findByType(String type);
