@@ -13,8 +13,8 @@ public class PayPlan {
     @Column(name = "id_pay_plan")
     private Long idPayPlan;
     
-    @Column(name = "id_project", length = 100)
-    private String idProject;
+    @Column(name = "id_project")
+    private Long idProject;
     
     @Column(name = "total_debt", precision = 12, scale = 2)
     private BigDecimal totalDebt;
@@ -43,7 +43,7 @@ public class PayPlan {
     public PayPlan() {}
     
     // Constructor con parámetros
-    public PayPlan(String idProject, BigDecimal totalDebt, BigDecimal totalPayed, Integer numberDebt, 
+    public PayPlan(Long idProject, BigDecimal totalDebt, BigDecimal totalPayed, Integer numberDebt, 
                   Integer numberPays, String state) {
         this.idProject = idProject;
         this.totalDebt = totalDebt;
@@ -62,11 +62,11 @@ public class PayPlan {
         this.idPayPlan = idPayPlan;
     }
     
-    public String getIdProject() {
+    public Long getIdProject() {
         return idProject;
     }
     
-    public void setIdProject(String idProject) {
+    public void setIdProject(Long idProject) {
         this.idProject = idProject;
     }
     

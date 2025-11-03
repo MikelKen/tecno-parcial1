@@ -71,7 +71,7 @@ public class MaterialProjectService {
     /**
      * Buscar materiales por proyecto
      */
-    public List<MaterialProject> buscarMaterialesPorProyecto(String idProject) {
+    public List<MaterialProject> buscarMaterialesPorProyecto(Long idProject) {
         return materialProjectRepository.findByIdProject(idProject);
     }
     
@@ -85,7 +85,7 @@ public class MaterialProjectService {
     /**
      * Buscar por proyecto y material específicos
      */
-    public List<MaterialProject> buscarPorProyectoYMaterial(String idProject, Long idMaterial) {
+    public List<MaterialProject> buscarPorProyectoYMaterial(Long idProject, Long idMaterial) {
         return materialProjectRepository.findByIdProjectAndIdMaterial(idProject, idMaterial);
     }
     
@@ -141,7 +141,7 @@ public class MaterialProjectService {
     /**
      * Obtener total de materiales usados en un proyecto
      */
-    public Integer obtenerTotalMaterialesUsadosEnProyecto(String idProject) {
+    public Integer obtenerTotalMaterialesUsadosEnProyecto(Long idProject) {
         Integer total = materialProjectRepository.getTotalMaterialsUsedInProject(idProject);
         return total != null ? total : 0;
     }
@@ -149,7 +149,7 @@ public class MaterialProjectService {
     /**
      * Obtener total de sobrantes en un proyecto
      */
-    public Integer obtenerTotalSobrantesEnProyecto(String idProject) {
+    public Integer obtenerTotalSobrantesEnProyecto(Long idProject) {
         Integer total = materialProjectRepository.getTotalLeftOverInProject(idProject);
         return total != null ? total : 0;
     }
@@ -223,7 +223,7 @@ public class MaterialProjectService {
     /**
      * Validar datos de material-proyecto
      */
-    public boolean validarDatosMaterialProyecto(Integer quantity, Integer leftOver, String idProject, Long idMaterial) {
+    public boolean validarDatosMaterialProyecto(Integer quantity, Integer leftOver, Long idProject, Long idMaterial) {
         if (quantity == null || quantity <= 0) {
             return false;
         }
@@ -233,7 +233,7 @@ public class MaterialProjectService {
         if (leftOver > quantity) {
             return false; // El sobrante no puede ser mayor que la cantidad
         }
-        if (idProject == null || idProject.trim().isEmpty()) {
+        if (idProject == null) {
             return false;
         }
         if (idMaterial == null) {
@@ -245,7 +245,7 @@ public class MaterialProjectService {
     /**
      * Verificar si un proyecto tiene materiales asignados
      */
-    public boolean proyectoTieneMateriales(String idProject) {
+    public boolean proyectoTieneMateriales(Long idProject) {
         return !buscarMaterialesPorProyecto(idProject).isEmpty();
     }
     
@@ -259,7 +259,7 @@ public class MaterialProjectService {
     /**
      * Buscar material con mayor cantidad por proyecto
      */
-    public Optional<MaterialProject> buscarMaterialMayorCantidadPorProyecto(String idProject) {
+    public Optional<MaterialProject> buscarMaterialMayorCantidadPorProyecto(Long idProject) {
         List<MaterialProject> materiales = buscarMaterialesPorProyecto(idProject);
         return materiales.stream()
                 .max((m1, m2) -> Integer.compare(m1.getQuantity(), m2.getQuantity()));
@@ -268,7 +268,7 @@ public class MaterialProjectService {
     /**
      * Buscar material con menor eficiencia por proyecto
      */
-    public Optional<MaterialProject> buscarMaterialMenorEficienciaPorProyecto(String idProject) {
+    public Optional<MaterialProject> buscarMaterialMenorEficienciaPorProyecto(Long idProject) {
         List<MaterialProject> materiales = buscarMaterialesPorProyecto(idProject);
         return materiales.stream()
                 .filter(mp -> mp.getQuantity() != null && mp.getQuantity() > 0)
@@ -282,7 +282,7 @@ public class MaterialProjectService {
     /**
      * Obtener resumen de materiales por proyecto
      */
-    public String obtenerResumenMaterialesPorProyecto(String idProject) {
+    public String obtenerResumenMaterialesPorProyecto(Long idProject) {
         List<MaterialProject> materiales = buscarMaterialesPorProyecto(idProject);
         Integer totalUsado = obtenerTotalMaterialesUsadosEnProyecto(idProject);
         Integer totalSobrante = obtenerTotalSobrantesEnProyecto(idProject);
@@ -294,7 +294,7 @@ public class MaterialProjectService {
     /**
      * Eliminar todos los materiales de un proyecto
      */
-    public void eliminarTodosMaterialesDeProyecto(String idProject) {
+    public void eliminarTodosMaterialesDeProyecto(Long idProject) {
         List<MaterialProject> materiales = buscarMaterialesPorProyecto(idProject);
         materialProjectRepository.deleteAll(materiales);
     }

@@ -12,13 +12,13 @@ import java.util.List;
 public interface MaterialProjectRepository extends JpaRepository<MaterialProject, Long> {
     
     // Buscar materiales de un proyecto
-    List<MaterialProject> findByIdProject(String idProject);
+    List<MaterialProject> findByIdProject(Long idProject);
     
     // Buscar proyectos que usan un material específico
     List<MaterialProject> findByIdMaterial(Long idMaterial);
     
     // Buscar por proyecto y material específico
-    List<MaterialProject> findByIdProjectAndIdMaterial(String idProject, Long idMaterial);
+    List<MaterialProject> findByIdProjectAndIdMaterial(Long idProject, Long idMaterial);
     
     // Buscar materiales con sobrante en proyectos
     @Query("SELECT mp FROM MaterialProject mp WHERE mp.leftOver > 0")
@@ -37,11 +37,11 @@ public interface MaterialProjectRepository extends JpaRepository<MaterialProject
     
     // Obtener total de materiales usados en un proyecto
     @Query("SELECT SUM(mp.quantity) FROM MaterialProject mp WHERE mp.idProject = :idProject")
-    Integer getTotalMaterialsUsedInProject(@Param("idProject") String idProject);
+    Integer getTotalMaterialsUsedInProject(@Param("idProject") Long idProject);
     
     // Obtener total de sobrantes en un proyecto
     @Query("SELECT SUM(mp.leftOver) FROM MaterialProject mp WHERE mp.idProject = :idProject")
-    Integer getTotalLeftOverInProject(@Param("idProject") String idProject);
+    Integer getTotalLeftOverInProject(@Param("idProject") Long idProject);
     
     // Contar proyectos que usan un material específico
     @Query("SELECT COUNT(DISTINCT mp.idProject) FROM MaterialProject mp WHERE mp.idMaterial = :idMaterial")

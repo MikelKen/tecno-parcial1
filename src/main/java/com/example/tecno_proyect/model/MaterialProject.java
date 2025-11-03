@@ -17,8 +17,8 @@ public class MaterialProject {
     @Column(name = "left_over")
     private Integer leftOver;
     
-    @Column(name = "id_project", length = 100)
-    private String idProject;
+    @Column(name = "id_project")
+    private Long idProject;
     
     @Column(name = "id_material")
     private Long idMaterial;
@@ -36,7 +36,7 @@ public class MaterialProject {
     public MaterialProject() {}
     
     // Constructor con parámetros
-    public MaterialProject(Integer quantity, Integer leftOver, String idProject, Long idMaterial) {
+    public MaterialProject(Integer quantity, Integer leftOver, Long idProject, Long idMaterial) {
         this.quantity = quantity;
         this.leftOver = leftOver;
         this.idProject = idProject;
@@ -68,11 +68,11 @@ public class MaterialProject {
         this.leftOver = leftOver;
     }
     
-    public String getIdProject() {
+    public Long getIdProject() {
         return idProject;
     }
     
-    public void setIdProject(String idProject) {
+    public void setIdProject(Long idProject) {
         this.idProject = idProject;
     }
     
@@ -106,7 +106,7 @@ public class MaterialProject {
                 "id=" + id +
                 ", quantity=" + quantity +
                 ", leftOver=" + leftOver +
-                ", idProject='" + idProject + '\'' +
+                ", idProject=" + idProject +
                 ", idMaterial=" + idMaterial +
                 '}';
     }

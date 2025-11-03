@@ -14,8 +14,8 @@ public class ServiceEvaluation {
     @Column(name = "comments", length = 500)
     private String comments;
     
-    @Column(name = "id_project", length = 100)
-    private String idProject;
+    @Column(name = "id_project")
+    private Long idProject;
     
     @Column(name = "design_qualification")
     private Integer designQualification;
@@ -35,7 +35,7 @@ public class ServiceEvaluation {
     public ServiceEvaluation() {}
     
     // Constructor con parámetros
-    public ServiceEvaluation(String comments, String idProject, Integer designQualification, 
+    public ServiceEvaluation(String comments, Long idProject, Integer designQualification, 
                            Integer fabricQualification, Integer installationQualification) {
         this.comments = comments;
         this.idProject = idProject;
@@ -61,11 +61,11 @@ public class ServiceEvaluation {
         this.comments = comments;
     }
     
-    public String getIdProject() {
+    public Long getIdProject() {
         return idProject;
     }
     
-    public void setIdProject(String idProject) {
+    public void setIdProject(Long idProject) {
         this.idProject = idProject;
     }
     

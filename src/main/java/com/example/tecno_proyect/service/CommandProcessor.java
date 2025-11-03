@@ -588,7 +588,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("UPDPROY", "UPDPROY[\"nombre\",\"descripcion\",\"ubicacion\",\"estado\",\"idCliente\",\"idUsuario\"]");
         }
         try {
-            Project proyecto = projectService.actualizarProyecto(
+            Project proyecto = projectService.actualizarProyectoPorNombre(
                 parameters[0], // nombre
                 parameters[1], // descripcion
                 parameters[2], // ubicacion
@@ -1836,7 +1836,7 @@ public class CommandProcessor {
             MaterialProject materialProyecto = materialProjectService.insertarMaterialProyecto(
                 Integer.parseInt(parameters[0]), // quantity
                 Integer.parseInt(parameters[1]), // leftOver
-                parameters[2], // idProject
+                Long.parseLong(parameters[2]), // idProject
                 Long.parseLong(parameters[3])  // idMaterial
             );
             return emailResponseService.formatInsertMaterialProyectoSuccess(materialProyecto, "INSMATPROY");
@@ -1854,7 +1854,7 @@ public class CommandProcessor {
                 Long.parseLong(parameters[0]), // id
                 Integer.parseInt(parameters[1]), // quantity
                 Integer.parseInt(parameters[2]), // leftOver
-                parameters[3], // idProject
+                Long.parseLong(parameters[3]), // idProject
                 Long.parseLong(parameters[4])  // idMaterial
             );
             return emailResponseService.formatUpdateMaterialProyectoSuccess(materialProyecto, "UPDMATPROY");
@@ -1868,7 +1868,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSMATPORPROY", "BUSMATPORPROY[\"idProject\"]");
         }
         try {
-            List<MaterialProject> materialesProyecto = materialProjectService.buscarMaterialesPorProyecto(parameters[0]);
+            List<MaterialProject> materialesProyecto = materialProjectService.buscarMaterialesPorProyecto(Long.parseLong(parameters[0]));
             return emailResponseService.formatListMaterialesPorProyectoResponse(materialesProyecto, "BUSMATPORPROY");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar materiales por proyecto: " + e.getMessage(), "BUSMATPORPROY");

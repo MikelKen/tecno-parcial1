@@ -24,10 +24,17 @@ public class ProjectService {
     }
     
     /**
-     * Buscar proyecto por nombre (ID)
+     * Buscar proyecto por ID
+     */
+    public Optional<Project> buscarProyectoPorId(Long id) {
+        return projectRepository.findById(id);
+    }
+    
+    /**
+     * Buscar proyecto por nombre
      */
     public Optional<Project> buscarProyectoPorNombre(String name) {
-        return projectRepository.findById(name);
+        return projectRepository.findByName(name);
     }
     
     /**
@@ -36,7 +43,7 @@ public class ProjectService {
     public Project insertarProyecto(String name, String description, String location, 
                                   String state, Long idClient, String userId) {
         // Verificar si ya existe un proyecto con ese nombre
-        if (projectRepository.existsById(name)) {
+        if (projectRepository.existsByName(name)) {
             throw new RuntimeException("Ya existe un proyecto con nombre: " + name);
         }
         
@@ -45,11 +52,33 @@ public class ProjectService {
     }
     
     /**
-     * Actualizar proyecto existente
+     * Actualizar proyecto existente por ID
      */
-    public Project actualizarProyecto(String name, String description, String location, 
+    public Project actualizarProyecto(Long id, String name, String description, String location, 
                                      String state, Long idClient, String userId) {
-        Optional<Project> proyectoExistente = projectRepository.findById(name);
+        Optional<Project> proyectoExistente = projectRepository.findById(id);
+        
+        if (proyectoExistente.isEmpty()) {
+            throw new RuntimeException("No se encontró proyecto con ID: " + id);
+        }
+        
+        Project project = proyectoExistente.get();
+        project.setName(name);
+        project.setDescription(description);
+        project.setLocation(location);
+        project.setState(state);
+        project.setIdClient(idClient);
+        project.setUserId(userId);
+        
+        return projectRepository.save(project);
+    }
+    
+    /**
+     * Actualizar proyecto existente por nombre
+     */
+    public Project actualizarProyectoPorNombre(String name, String description, String location, 
+                                             String state, Long idClient, String userId) {
+        Optional<Project> proyectoExistente = projectRepository.findByName(name);
         
         if (proyectoExistente.isEmpty()) {
             throw new RuntimeException("No se encontró proyecto con nombre: " + name);
@@ -66,11 +95,23 @@ public class ProjectService {
     }
     
     /**
+     * Eliminar proyecto por ID
+     */
+    public boolean eliminarProyecto(Long id) {
+        if (projectRepository.existsById(id)) {
+            projectRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * Eliminar proyecto por nombre
      */
-    public boolean eliminarProyecto(String name) {
-        if (projectRepository.existsById(name)) {
-            projectRepository.deleteById(name);
+    public boolean eliminarProyectoPorNombre(String name) {
+        Optional<Project> proyectoOpt = projectRepository.findByName(name);
+        if (proyectoOpt.isPresent()) {
+            projectRepository.delete(proyectoOpt.get());
             return true;
         }
         return false;
@@ -126,10 +167,17 @@ public class ProjectService {
     }
     
     /**
-     * Verificar si existe un proyecto
+     * Verificar si existe un proyecto por ID
      */
-    public boolean existeProyecto(String name) {
-        return projectRepository.existsById(name);
+    public boolean existeProyecto(Long id) {
+        return projectRepository.existsById(id);
+    }
+    
+    /**
+     * Verificar si existe un proyecto por nombre
+     */
+    public boolean existeProyectoPorNombre(String name) {
+        return projectRepository.existsByName(name);
     }
     
     /**
@@ -140,10 +188,23 @@ public class ProjectService {
     }
     
     /**
-     * Cambiar estado de proyecto
+     * Cambiar estado de proyecto por ID
      */
-    public Project cambiarEstadoProyecto(String name, String nuevoEstado) {
-        Optional<Project> proyectoOpt = projectRepository.findById(name);
+    public Project cambiarEstadoProyecto(Long id, String nuevoEstado) {
+        Optional<Project> proyectoOpt = projectRepository.findById(id);
+        if (proyectoOpt.isPresent()) {
+            Project project = proyectoOpt.get();
+            project.setState(nuevoEstado);
+            return projectRepository.save(project);
+        }
+        throw new RuntimeException("No se encontró proyecto con ID: " + id);
+    }
+    
+    /**
+     * Cambiar estado de proyecto por nombre
+     */
+    public Project cambiarEstadoProyectoPorNombre(String name, String nuevoEstado) {
+        Optional<Project> proyectoOpt = projectRepository.findByName(name);
         if (proyectoOpt.isPresent()) {
             Project project = proyectoOpt.get();
             project.setState(nuevoEstado);
@@ -153,10 +214,23 @@ public class ProjectService {
     }
     
     /**
-     * Asignar proyecto a usuario
+     * Asignar proyecto a usuario por ID
      */
-    public Project asignarProyectoAUsuario(String name, String userId) {
-        Optional<Project> proyectoOpt = projectRepository.findById(name);
+    public Project asignarProyectoAUsuario(Long id, String userId) {
+        Optional<Project> proyectoOpt = projectRepository.findById(id);
+        if (proyectoOpt.isPresent()) {
+            Project project = proyectoOpt.get();
+            project.setUserId(userId);
+            return projectRepository.save(project);
+        }
+        throw new RuntimeException("No se encontró proyecto con ID: " + id);
+    }
+    
+    /**
+     * Asignar proyecto a usuario por nombre
+     */
+    public Project asignarProyectoAUsuarioPorNombre(String name, String userId) {
+        Optional<Project> proyectoOpt = projectRepository.findByName(name);
         if (proyectoOpt.isPresent()) {
             Project project = proyectoOpt.get();
             project.setUserId(userId);

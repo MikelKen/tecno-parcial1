@@ -37,8 +37,8 @@ public class Quote {
     @Column(name = "comments", length = 500)
     private String comments;
     
-    @Column(name = "id_project", length = 100)
-    private String idProject;
+    @Column(name = "id_project")
+    private Long idProject;
     
     @Column(name = "user_id", length = 100)
     private String userId;
@@ -61,7 +61,7 @@ public class Quote {
     // Constructor con parámetros
     public Quote(String typeMetro, BigDecimal costMetro, BigDecimal quantityMetro, 
                 BigDecimal costFurniture, BigDecimal total, String state, 
-                Integer furnitureNumber, String comments, String idProject, String userId) {
+                Integer furnitureNumber, String comments, Long idProject, String userId) {
         this.typeMetro = typeMetro;
         this.costMetro = costMetro;
         this.quantityMetro = quantityMetro;
@@ -147,11 +147,11 @@ public class Quote {
         this.comments = comments;
     }
     
-    public String getIdProject() {
+    public Long getIdProject() {
         return idProject;
     }
     
-    public void setIdProject(String idProject) {
+    public void setIdProject(Long idProject) {
         this.idProject = idProject;
     }
     

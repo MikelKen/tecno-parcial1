@@ -25,8 +25,8 @@ public class Schedule {
     @Column(name = "state", length = 50)
     private String state;
     
-    @Column(name = "id_project", length = 100)
-    private String idProject;
+    @Column(name = "id_project")
+    private Long idProject;
     
     @Column(name = "user_id", length = 100)
     private String userId;
@@ -48,7 +48,7 @@ public class Schedule {
     
     // Constructor con parámetros
     public Schedule(LocalDate initDate, LocalDate finalDate, Integer estimateDays, 
-                   String state, String idProject, String userId) {
+                   String state, Long idProject, String userId) {
         this.initDate = initDate;
         this.finalDate = finalDate;
         this.estimateDays = estimateDays;
@@ -98,11 +98,11 @@ public class Schedule {
         this.state = state;
     }
     
-    public String getIdProject() {
+    public Long getIdProject() {
         return idProject;
     }
     
-    public void setIdProject(String idProject) {
+    public void setIdProject(Long idProject) {
         this.idProject = idProject;
     }
     
@@ -146,7 +146,7 @@ public class Schedule {
                 ", finalDate=" + finalDate +
                 ", estimateDays=" + estimateDays +
                 ", state='" + state + '\'' +
-                ", idProject='" + idProject + '\'' +
+                ", idProject=" + idProject +
                 ", userId='" + userId + '\'' +
                 '}';
     }

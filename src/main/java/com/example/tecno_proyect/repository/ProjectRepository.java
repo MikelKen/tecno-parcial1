@@ -9,7 +9,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, String> {
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+    
+    // Buscar proyecto por nombre (único)
+    java.util.Optional<Project> findByName(String name);
+    
+    // Verificar si existe por nombre
+    boolean existsByName(String name);
     
     // Buscar proyectos por cliente
     List<Project> findByIdClient(Long idClient);

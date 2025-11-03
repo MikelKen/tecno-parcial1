@@ -8,7 +8,11 @@ import java.util.List;
 public class Project {
     
     @Id
-    @Column(name = "name", length = 100)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+    
+    @Column(name = "name", length = 100, unique = true)
     private String name;
     
     @Column(name = "description", length = 500)
@@ -56,7 +60,7 @@ public class Project {
     // Constructor vacío
     public Project() {}
     
-    // Constructor con parámetros
+    // Constructor con parámetros (sin ID - se auto-genera)
     public Project(String name, String description, String location, String state, Long idClient, String userId) {
         this.name = name;
         this.description = description;
@@ -66,7 +70,26 @@ public class Project {
         this.userId = userId;
     }
     
+    // Constructor con ID (para casos especiales)
+    public Project(Long id, String name, String description, String location, String state, Long idClient, String userId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.location = location;
+        this.state = state;
+        this.idClient = idClient;
+        this.userId = userId;
+    }
+    
     // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
     public String getName() {
         return name;
     }
@@ -182,11 +205,12 @@ public class Project {
     @Override
     public String toString() {
         return "Project{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", location='" + location + '\'' +
                 ", state='" + state + '\'' +
-                ", idClient='" + idClient + '\'' +
+                ", idClient=" + idClient +
                 ", userId='" + userId + '\'' +
                 '}';
     }
