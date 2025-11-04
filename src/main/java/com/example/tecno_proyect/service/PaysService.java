@@ -342,4 +342,41 @@ public class PaysService {
     public long contarPagosPorPlanPago(Long idPayPlan) {
         return buscarPagosPorPlanPago(idPayPlan).size();
     }
+    
+    /**
+     * Obtener todos los pagos de un plan de pago
+     */
+    public List<Pays> obtenerPagosPorPlanPago(Long idPayPlan) {
+        return buscarPagosPorPlanPago(idPayPlan);
+    }
+    
+    /**
+     * Pagar - cambiar estado a pagado y actualizar plan asociado
+     */
+    @Autowired
+    private PayPlanService payPlanService;
+    
+    public Pays pagar(Long idPago, LocalDate fechaPago, Long idClient) {
+        Optional<Pays> pagoOpt = paysRepository.findById(idPago);
+        if (pagoOpt.isPresent()) {
+            Pays pago = pagoOpt.get();
+            
+            // Actualizar el pago
+            pago.setState("Pagado");
+            pago.setDate(fechaPago);
+            if (idClient != null) {
+                pago.setIdClient(idClient);
+            }
+            
+            Pays pagoActualizado = paysRepository.save(pago);
+            
+            // Actualizar el plan de pago asociado
+            if (pago.getIdPayPlan() != null) {
+                payPlanService.obtenerPlanPagoCompleto(pago.getIdPayPlan());
+            }
+            
+            return pagoActualizado;
+        }
+        throw new RuntimeException("No se encontró pago con ID: " + idPago);
+    }
 }

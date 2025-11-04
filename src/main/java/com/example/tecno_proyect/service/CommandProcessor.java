@@ -235,6 +235,12 @@ public class CommandProcessor {
                     return handleCalcularPorcentajePago(parameters);
                 case "CAMBIOEST":
                     return handleCambiarEstado(parameters);
+                case "CREARPLANPAGOS":
+                    return handleCrearPlanPagoConPagos(parameters);
+                case "OBTENERPLANPAGO":
+                    return handleObtenerPlanPagoCompleto(parameters);
+                case "RECALCPLANPAGO":
+                    return handleRecalcularPlanPago(parameters);
                 
                 // Comandos de pagos
                 case "LISPAYS":
@@ -253,6 +259,10 @@ public class CommandProcessor {
                     return handlePlanPagoTienePagos(parameters);
                 case "COUNTPAYPPLAN":
                     return handleContarPagosPorPlanPago(parameters);
+                case "OBTPAGOSPLAN":
+                    return handleObtenerPagosPorPlanPago(parameters);
+                case "PAGAR":
+                    return handlePagar(parameters);
                 
                 // Comandos de materiales
                 case "LISMAT":
@@ -1872,6 +1882,90 @@ public class CommandProcessor {
             return emailResponseService.formatListProyectosPorMaterialResponse(proyectosMaterial, "BUSPROYPORMAT");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar proyectos por material: " + e.getMessage(), "BUSPROYPORMAT");
+        }
+    }
+    
+    // --- Nuevos métodos para PayPlan y Pays ---
+    
+    private String handleCrearPlanPagoConPagos(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("CREARPLANPAGOS", "CREARPLANPAGOS[\"idProject\",\"monto1,monto2,monto3...\"]");
+        }
+        try {
+            Long idProject = Long.parseLong(parameters[0]);
+            String[] montosStr = parameters[1].split(",");
+            List<java.math.BigDecimal> montos = new ArrayList<>();
+            
+            for (String montoStr : montosStr) {
+                montos.add(new java.math.BigDecimal(montoStr.trim()));
+            }
+            
+            PayPlan plan = payPlanService.crearPlanPagoConPagos(idProject, montos);
+            return emailResponseService.formatCreatePlanPagoSuccess(plan, "CREARPLANPAGOS");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al crear plan de pago: " + e.getMessage(), "CREARPLANPAGOS");
+        }
+    }
+    
+    private String handleObtenerPlanPagoCompleto(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("OBTENERPLANPAGO", "OBTENERPLANPAGO[\"idPayPlan\"]");
+        }
+        try {
+            Long idPayPlan = Long.parseLong(parameters[0]);
+            PayPlan plan = payPlanService.obtenerPlanPagoCompleto(idPayPlan);
+            return emailResponseService.formatSearchPlanPagoSuccess(plan, "OBTENERPLANPAGO");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al obtener plan de pago: " + e.getMessage(), "OBTENERPLANPAGO");
+        }
+    }
+    
+    private String handleRecalcularPlanPago(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("RECALCPLANPAGO", "RECALCPLANPAGO[\"idPayPlan\",\"nuevoMonto1,nuevoMonto2...\"]");
+        }
+        try {
+            Long idPayPlan = Long.parseLong(parameters[0]);
+            String[] montosStr = parameters[1].split(",");
+            List<java.math.BigDecimal> nuevosMontos = new ArrayList<>();
+            
+            for (String montoStr : montosStr) {
+                nuevosMontos.add(new java.math.BigDecimal(montoStr.trim()));
+            }
+            
+            PayPlan plan = payPlanService.recalcularPlanPago(idPayPlan, nuevosMontos);
+            return emailResponseService.formatRecalcularPlanPagoSuccess(plan, "RECALCPLANPAGO");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al recalcular plan de pago: " + e.getMessage(), "RECALCPLANPAGO");
+        }
+    }
+    
+    private String handleObtenerPagosPorPlanPago(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("OBTPAGOSPLAN", "OBTPAGOSPLAN[\"idPayPlan\"]");
+        }
+        try {
+            Long idPayPlan = Long.parseLong(parameters[0]);
+            List<Pays> pagos = paysService.obtenerPagosPorPlanPago(idPayPlan);
+            return emailResponseService.formatListPagosPorPlanPagoResponse(pagos, "OBTPAGOSPLAN");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al obtener pagos del plan: " + e.getMessage(), "OBTPAGOSPLAN");
+        }
+    }
+    
+    private String handlePagar(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("PAGAR", "PAGAR[\"idPago\",\"fechaPago\",\"idClient\"]");
+        }
+        try {
+            Long idPago = Long.parseLong(parameters[0]);
+            java.time.LocalDate fechaPago = java.time.LocalDate.parse(parameters[1]);
+            Long idClient = parameters.length > 2 ? Long.parseLong(parameters[2]) : null;
+            
+            Pays pago = paysService.pagar(idPago, fechaPago, idClient);
+            return emailResponseService.formatPagarSuccess(pago, "PAGAR");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al procesar pago: " + e.getMessage(), "PAGAR");
         }
     }
 }

@@ -777,4 +777,22 @@ public class EmailResponseService {
     public String formatSearchCotizacionSuccess(Object cotizacion, String command) {
         return formatSuccessResponse("BÚSQUEDA", cotizacion, command);
     }
+    
+    // --- Nuevos métodos para PayPlan y Pays ---
+    
+    public String formatCreatePlanPagoSuccess(Object plan, String command) {
+        return formatSuccessResponse("CREACIÓN PLAN DE PAGO", plan, command);
+    }
+    
+    public String formatRecalcularPlanPagoSuccess(Object plan, String command) {
+        return formatSuccessResponse("RECÁLCULO PLAN DE PAGO", plan, command);
+    }
+    
+    public String formatListPagosPorPlanPagoResponse(List<?> pagos, String command) {
+        return formatListResponse(pagos, command, "pagos por plan de pago");
+    }
+    
+    public String formatPagarSuccess(Object pago, String command) {
+        return formatSuccessResponse("PAGO PROCESADO", pago, command);
+    }
 }
