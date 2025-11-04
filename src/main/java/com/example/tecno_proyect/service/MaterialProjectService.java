@@ -16,6 +16,9 @@ public class MaterialProjectService {
     @Autowired
     private MaterialProjectRepository materialProjectRepository;
     
+    @Autowired
+    private MaterialService materialService;
+    
     /**
      * Listar todos los materiales por proyecto
      */
@@ -31,15 +34,43 @@ public class MaterialProjectService {
     }
     
     /**
-     * Insertar nueva relación material-proyecto
+     * Insertar nueva relación material-proyecto con control de stock
      */
     public MaterialProject insertarMaterialProyecto(Integer quantity, Integer leftOver, Long idProject, Long idMaterial) {
+        // Validar datos básicos
+        if (!validarDatosMaterialProyecto(quantity, leftOver, idProject, idMaterial)) {
+            throw new RuntimeException("Datos de material-proyecto inválidos");
+        }
+        
+        // Verificar que el material existe y tiene suficiente stock
+        Optional<com.example.tecno_proyect.model.Material> materialOpt = materialService.buscarMaterialPorId(idMaterial);
+        if (materialOpt.isEmpty()) {
+            throw new RuntimeException("Material con ID " + idMaterial + " no existe");
+        }
+        
+        com.example.tecno_proyect.model.Material material = materialOpt.get();
+        if (material.getStock() == null || material.getStock() < quantity) {
+            throw new RuntimeException("Stock insuficiente. Disponible: " + 
+                (material.getStock() != null ? material.getStock() : 0) + 
+                ", Requerido: " + quantity);
+        }
+        
+        // Crear la relación material-proyecto
         MaterialProject materialProject = new MaterialProject(quantity, leftOver, idProject, idMaterial);
-        return materialProjectRepository.save(materialProject);
+        MaterialProject savedMaterialProject = materialProjectRepository.save(materialProject);
+        
+        // Descontar del stock del material
+        materialService.reducirStockMaterial(idMaterial, quantity);
+        
+        System.out.println("Material asignado a proyecto. Material ID: " + idMaterial + 
+                          ", Cantidad: " + quantity + ", Stock restante: " + 
+                          (material.getStock() - quantity));
+        
+        return savedMaterialProject;
     }
     
     /**
-     * Actualizar relación material-proyecto existente
+     * Actualizar relación material-proyecto existente con control de stock
      */
     public MaterialProject actualizarMaterialProyecto(Long id, Integer quantity, Integer leftOver, Long idProject, Long idMaterial) {
         Optional<MaterialProject> materialProyectoExistente = materialProjectRepository.findById(id);
@@ -48,20 +79,71 @@ public class MaterialProjectService {
             throw new RuntimeException("No se encontró material-proyecto con ID: " + id);
         }
         
-        MaterialProject materialProject = materialProyectoExistente.get();
-        materialProject.setQuantity(quantity);
-        materialProject.setLeftOver(leftOver);
-        materialProject.setIdProject(idProject);
-        materialProject.setIdMaterial(idMaterial);
+        MaterialProject materialProjectAntiguo = materialProyectoExistente.get();
+        Integer cantidadAntigua = materialProjectAntiguo.getQuantity();
+        Long materialIdAntiguo = materialProjectAntiguo.getIdMaterial();
         
-        return materialProjectRepository.save(materialProject);
+        // Validar datos básicos
+        if (!validarDatosMaterialProyecto(quantity, leftOver, idProject, idMaterial)) {
+            throw new RuntimeException("Datos de material-proyecto inválidos");
+        }
+        
+        // Si cambió el material o la cantidad, necesitamos ajustar los stocks
+        if (!materialIdAntiguo.equals(idMaterial) || !cantidadAntigua.equals(quantity)) {
+            
+            // Devolver stock del material anterior
+            if (cantidadAntigua != null && cantidadAntigua > 0) {
+                materialService.aumentarStockMaterial(materialIdAntiguo, cantidadAntigua);
+                System.out.println("Stock devuelto al material " + materialIdAntiguo + ": " + cantidadAntigua);
+            }
+            
+            // Verificar stock del nuevo material
+            Optional<com.example.tecno_proyect.model.Material> materialOpt = materialService.buscarMaterialPorId(idMaterial);
+            if (materialOpt.isEmpty()) {
+                throw new RuntimeException("Material con ID " + idMaterial + " no existe");
+            }
+            
+            com.example.tecno_proyect.model.Material material = materialOpt.get();
+            if (material.getStock() == null || material.getStock() < quantity) {
+                // Revertir la devolución si no hay suficiente stock en el nuevo material
+                if (cantidadAntigua != null && cantidadAntigua > 0) {
+                    materialService.reducirStockMaterial(materialIdAntiguo, cantidadAntigua);
+                }
+                throw new RuntimeException("Stock insuficiente en nuevo material. Disponible: " + 
+                    (material.getStock() != null ? material.getStock() : 0) + 
+                    ", Requerido: " + quantity);
+            }
+            
+            // Descontar del stock del nuevo material
+            materialService.reducirStockMaterial(idMaterial, quantity);
+            System.out.println("Stock descontado del material " + idMaterial + ": " + quantity);
+        }
+        
+        // Actualizar la relación
+        materialProjectAntiguo.setQuantity(quantity);
+        materialProjectAntiguo.setLeftOver(leftOver);
+        materialProjectAntiguo.setIdProject(idProject);
+        materialProjectAntiguo.setIdMaterial(idMaterial);
+        
+        return materialProjectRepository.save(materialProjectAntiguo);
     }
     
     /**
-     * Eliminar relación material-proyecto por ID
+     * Eliminar relación material-proyecto por ID con devolución de stock
      */
     public boolean eliminarMaterialProyecto(Long id) {
-        if (materialProjectRepository.existsById(id)) {
+        Optional<MaterialProject> materialProjectOpt = materialProjectRepository.findById(id);
+        
+        if (materialProjectOpt.isPresent()) {
+            MaterialProject materialProject = materialProjectOpt.get();
+            
+            // Devolver el stock al material antes de eliminar
+            if (materialProject.getQuantity() != null && materialProject.getQuantity() > 0) {
+                materialService.aumentarStockMaterial(materialProject.getIdMaterial(), materialProject.getQuantity());
+                System.out.println("Stock devuelto al eliminar material-proyecto. Material ID: " + 
+                                  materialProject.getIdMaterial() + ", Cantidad: " + materialProject.getQuantity());
+            }
+            
             materialProjectRepository.deleteById(id);
             return true;
         }
@@ -303,21 +385,148 @@ public class MaterialProjectService {
      * Verificar disponibilidad de material para un proyecto
      */
     public boolean verificarDisponibilidadMaterial(Long idMaterial, Integer cantidadRequerida) {
-        List<MaterialProject> usosMaterial = buscarProyectosPorMaterial(idMaterial);
-        Integer totalUsado = usosMaterial.stream()
-                .mapToInt(mp -> mp.getQuantity() != null ? mp.getQuantity() : 0)
-                .sum();
-        
-        // Verificamos que la cantidad requerida sea válida
         if (cantidadRequerida == null || cantidadRequerida <= 0) {
             return false;
         }
         
-        // Para implementación futura: verificar contra stock disponible
-        // Por ejemplo: stockDisponible >= (totalUsado + cantidadRequerida)
-        // Por ahora, simplemente reportamos el uso actual en logs
-        System.out.println("Material " + idMaterial + " - Total usado: " + totalUsado + ", Requerido: " + cantidadRequerida);
+        Optional<com.example.tecno_proyect.model.Material> materialOpt = materialService.buscarMaterialPorId(idMaterial);
+        if (materialOpt.isEmpty()) {
+            return false;
+        }
         
-        return true; // Siempre disponible por ahora
+        com.example.tecno_proyect.model.Material material = materialOpt.get();
+        Integer stockDisponible = material.getStock() != null ? material.getStock() : 0;
+        
+        return stockDisponible >= cantidadRequerida;
+    }
+    
+    /**
+     * Devolver material sobrante al stock
+     */
+    public MaterialProject devolverMaterialSobrante(Long id, Integer cantidadDevolver) {
+        Optional<MaterialProject> materialProjectOpt = materialProjectRepository.findById(id);
+        
+        if (materialProjectOpt.isEmpty()) {
+            throw new RuntimeException("No se encontró material-proyecto con ID: " + id);
+        }
+        
+        MaterialProject materialProject = materialProjectOpt.get();
+        Integer sobrante = materialProject.getLeftOver() != null ? materialProject.getLeftOver() : 0;
+        
+        if (cantidadDevolver == null || cantidadDevolver <= 0) {
+            throw new RuntimeException("Cantidad a devolver debe ser mayor a 0");
+        }
+        
+        if (cantidadDevolver > sobrante) {
+            throw new RuntimeException("No se puede devolver más de lo que sobra. Sobrante: " + sobrante);
+        }
+        
+        // Devolver al stock
+        materialService.aumentarStockMaterial(materialProject.getIdMaterial(), cantidadDevolver);
+        
+        // Actualizar el sobrante
+        materialProject.setLeftOver(sobrante - cantidadDevolver);
+        
+        // También ajustar la cantidad total usada
+        Integer cantidadTotal = materialProject.getQuantity();
+        materialProject.setQuantity(cantidadTotal - cantidadDevolver);
+        
+        MaterialProject saved = materialProjectRepository.save(materialProject);
+        
+        System.out.println("Material sobrante devuelto. Material ID: " + materialProject.getIdMaterial() + 
+                          ", Cantidad devuelta: " + cantidadDevolver + 
+                          ", Nuevo sobrante: " + (sobrante - cantidadDevolver));
+        
+        return saved;
+    }
+    
+    /**
+     * Devolver todo el material sobrante al stock
+     */
+    public MaterialProject devolverTodoSobrante(Long id) {
+        Optional<MaterialProject> materialProjectOpt = materialProjectRepository.findById(id);
+        
+        if (materialProjectOpt.isEmpty()) {
+            throw new RuntimeException("No se encontró material-proyecto con ID: " + id);
+        }
+        
+        MaterialProject materialProject = materialProjectOpt.get();
+        Integer sobrante = materialProject.getLeftOver() != null ? materialProject.getLeftOver() : 0;
+        
+        if (sobrante <= 0) {
+            throw new RuntimeException("No hay material sobrante para devolver");
+        }
+        
+        return devolverMaterialSobrante(id, sobrante);
+    }
+    
+    /**
+     * Obtener reporte de stock de materiales usados en un proyecto
+     */
+    public String obtenerReporteStockProyecto(Long idProject) {
+        List<MaterialProject> materiales = buscarMaterialesPorProyecto(idProject);
+        StringBuilder reporte = new StringBuilder();
+        reporte.append("=== REPORTE DE STOCK - PROYECTO ").append(idProject).append(" ===\n");
+        
+        for (MaterialProject mp : materiales) {
+            Optional<com.example.tecno_proyect.model.Material> materialOpt = 
+                materialService.buscarMaterialPorId(mp.getIdMaterial());
+            
+            if (materialOpt.isPresent()) {
+                com.example.tecno_proyect.model.Material material = materialOpt.get();
+                reporte.append("Material: ").append(material.getName())
+                       .append(" (ID: ").append(material.getId()).append(")\n")
+                       .append("  - Stock actual: ").append(material.getStock()).append(" ")
+                       .append(material.getUnitMeasure()).append("\n")
+                       .append("  - Usado en proyecto: ").append(mp.getQuantity()).append("\n")
+                       .append("  - Sobrante: ").append(mp.getLeftOver()).append("\n")
+                       .append("  - Precio unitario: $").append(material.getUnitPrice()).append("\n\n");
+            }
+        }
+        
+        return reporte.toString();
+    }
+    
+    /**
+     * Verificar y ajustar sobrantes basado en uso real
+     */
+    public MaterialProject ajustarSobrantePorUsoReal(Long id, Integer cantidadRealmentUsada) {
+        Optional<MaterialProject> materialProjectOpt = materialProjectRepository.findById(id);
+        
+        if (materialProjectOpt.isEmpty()) {
+            throw new RuntimeException("No se encontró material-proyecto con ID: " + id);
+        }
+        
+        MaterialProject materialProject = materialProjectOpt.get();
+        Integer cantidadAsignada = materialProject.getQuantity();
+        
+        if (cantidadRealmentUsada == null || cantidadRealmentUsada < 0) {
+            throw new RuntimeException("Cantidad realmente usada debe ser >= 0");
+        }
+        
+        if (cantidadRealmentUsada > cantidadAsignada) {
+            throw new RuntimeException("Cantidad usada no puede ser mayor a la asignada. Asignada: " + cantidadAsignada);
+        }
+        
+        Integer nuevoSobrante = cantidadAsignada - cantidadRealmentUsada;
+        Integer sobranteAnterior = materialProject.getLeftOver() != null ? materialProject.getLeftOver() : 0;
+        
+        // Si hay diferencia en el sobrante, ajustar el stock
+        Integer diferenciaSobrante = nuevoSobrante - sobranteAnterior;
+        if (diferenciaSobrante != 0) {
+            if (diferenciaSobrante > 0) {
+                // Hay más sobrante del esperado, devolver al stock
+                materialService.aumentarStockMaterial(materialProject.getIdMaterial(), diferenciaSobrante);
+                System.out.println("Stock ajustado (devuelto): " + diferenciaSobrante);
+            } else {
+                // Hay menos sobrante, descontar del stock
+                materialService.reducirStockMaterial(materialProject.getIdMaterial(), Math.abs(diferenciaSobrante));
+                System.out.println("Stock ajustado (descontado): " + Math.abs(diferenciaSobrante));
+            }
+        }
+        
+        materialProject.setLeftOver(nuevoSobrante);
+        
+        return materialProjectRepository.save(materialProject);
     }
 }

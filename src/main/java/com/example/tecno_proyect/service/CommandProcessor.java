@@ -299,6 +299,19 @@ public class CommandProcessor {
                     return handleBuscarMaterialesPorProyecto(parameters);
                 case "BUSPROYPORMAT":
                     return handleBuscarProyectosPorMaterial(parameters);
+                    
+                // --- Nuevos comandos de gestión de stock ---
+                case "DEVOLVERSOBRANTE":
+                    return handleDevolverMaterialSobrante(parameters);
+                case "DEVOLVERTODO":
+                    return handleDevolverTodoSobrante(parameters);
+                case "REPORTESTOCK":
+                    return handleReporteStockProyecto(parameters);
+                case "AJUSTARSOBRANTE":
+                    return handleAjustarSobrantePorUsoReal(parameters);
+                case "VERIFICARSTOCK":
+                    return handleVerificarStockMaterial(parameters);
+                    
                 default:
                     return emailResponseService.formatUnknownCommandResponse(command);
             }
@@ -1966,6 +1979,86 @@ public class CommandProcessor {
             return emailResponseService.formatPagarSuccess(pago, "PAGAR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al procesar pago: " + e.getMessage(), "PAGAR");
+        }
+    }
+    
+    // --- Métodos de gestión de stock para MaterialProject ---
+    
+    private String handleDevolverMaterialSobrante(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("DEVOLVERSOBRANTE", "DEVOLVERSOBRANTE[\"idMaterialProject\",\"cantidadDevolver\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            Integer cantidadDevolver = Integer.parseInt(parameters[1]);
+            
+            MaterialProject materialProject = materialProjectService.devolverMaterialSobrante(id, cantidadDevolver);
+            return emailResponseService.formatSuccessResponse("DEVOLUCIÓN SOBRANTE", materialProject, "DEVOLVERSOBRANTE");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al devolver material sobrante: " + e.getMessage(), "DEVOLVERSOBRANTE");
+        }
+    }
+    
+    private String handleDevolverTodoSobrante(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("DEVOLVERTODO", "DEVOLVERTODO[\"idMaterialProject\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            
+            MaterialProject materialProject = materialProjectService.devolverTodoSobrante(id);
+            return emailResponseService.formatSuccessResponse("DEVOLUCIÓN TOTAL SOBRANTE", materialProject, "DEVOLVERTODO");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al devolver todo el sobrante: " + e.getMessage(), "DEVOLVERTODO");
+        }
+    }
+    
+    private String handleReporteStockProyecto(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("REPORTESTOCK", "REPORTESTOCK[\"idProject\"]");
+        }
+        try {
+            Long idProject = Long.parseLong(parameters[0]);
+            
+            String reporte = materialProjectService.obtenerReporteStockProyecto(idProject);
+            return emailResponseService.formatSuccessResponse("REPORTE DE STOCK", reporte, "REPORTESTOCK");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al generar reporte de stock: " + e.getMessage(), "REPORTESTOCK");
+        }
+    }
+    
+    private String handleAjustarSobrantePorUsoReal(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("AJUSTARSOBRANTE", "AJUSTARSOBRANTE[\"idMaterialProject\",\"cantidadRealmenteUsada\"]");
+        }
+        try {
+            Long id = Long.parseLong(parameters[0]);
+            Integer cantidadRealUsada = Integer.parseInt(parameters[1]);
+            
+            MaterialProject materialProject = materialProjectService.ajustarSobrantePorUsoReal(id, cantidadRealUsada);
+            return emailResponseService.formatSuccessResponse("AJUSTE DE SOBRANTE", materialProject, "AJUSTARSOBRANTE");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al ajustar sobrante: " + e.getMessage(), "AJUSTARSOBRANTE");
+        }
+    }
+    
+    private String handleVerificarStockMaterial(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("VERIFICARSTOCK", "VERIFICARSTOCK[\"idMaterial\",\"cantidadRequerida\"]");
+        }
+        try {
+            Long idMaterial = Long.parseLong(parameters[0]);
+            Integer cantidadRequerida = Integer.parseInt(parameters[1]);
+            
+            boolean disponible = materialProjectService.verificarDisponibilidadMaterial(idMaterial, cantidadRequerida);
+            
+            String mensaje = disponible ? 
+                "Material DISPONIBLE. ID: " + idMaterial + ", Cantidad requerida: " + cantidadRequerida :
+                "Material NO DISPONIBLE. ID: " + idMaterial + ", Cantidad requerida: " + cantidadRequerida;
+                
+            return emailResponseService.formatSuccessResponse("VERIFICACIÓN DE STOCK", mensaje, "VERIFICARSTOCK");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al verificar disponibilidad: " + e.getMessage(), "VERIFICARSTOCK");
         }
     }
 }
