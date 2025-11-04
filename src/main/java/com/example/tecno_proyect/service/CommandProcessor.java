@@ -50,15 +50,20 @@ public class CommandProcessor {
     private EmailResponseService emailResponseService;
 
     public String processCommand(String subject, String senderEmail) {
+        System.out.println("DEBUG: processCommand iniciado - subject: [" + subject + "], sender: [" + senderEmail + "]");
         try {
             if (subject == null || subject.trim().isEmpty()) {
                 return "Error: Comando vacío. Formato esperado: COMANDO[\"parametros\"]";
             }
 
             // Identificar el comando
+            System.out.println("DEBUG: Extrayendo comando...");
             String command = extractCommand(subject);
+            System.out.println("DEBUG: Comando extraído: [" + command + "]");
             String[] parameters = extractParameters(subject);
+            System.out.println("DEBUG: Parámetros extraídos: " + parameters.length);
 
+            System.out.println("DEBUG: Entrando al switch con comando: [" + command.toUpperCase() + "]");
             switch (command.toUpperCase()) {
                 case "LISPER":
                     return handleListPersonas(parameters);
@@ -72,6 +77,7 @@ public class CommandProcessor {
                     return handleBuscarPersona(parameters);
                 // Clientes
                 case "LISCLI":
+                    System.out.println("DEBUG: Ejecutando caso LISCLI...");
                     return handleListClientes(parameters);
                 case "INSCLI":
                     return handleInsertCliente(parameters);
@@ -811,9 +817,15 @@ public class CommandProcessor {
     
     private String handleListClientes(String[] parameters) {
         try {
+            System.out.println("DEBUG: Iniciando handleListClientes");
             List<Client> clientes = clientService.listarTodosLosClientes();
-            return emailResponseService.formatListClientesResponse(clientes, "LISCLI");
+            System.out.println("DEBUG: Clientes obtenidos: " + (clientes != null ? clientes.size() : "null"));
+            String response = emailResponseService.formatListClientesResponse(clientes, "LISCLI");
+            System.out.println("DEBUG: Respuesta generada, longitud: " + (response != null ? response.length() : "null"));
+            return response;
         } catch (Exception e) {
+            System.out.println("DEBUG: Error en handleListClientes: " + e.getMessage());
+            e.printStackTrace();
             return emailResponseService.formatErrorResponse("Error al listar clientes: " + e.getMessage(), "LISCLI");
         }
     }

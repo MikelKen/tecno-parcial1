@@ -77,9 +77,20 @@ public class ClientPOP {
             System.out.println("Procesando comando: " + emailInfo.subject);
             
             // Procesar el comando
-            String response = commandProcessor.processCommand(emailInfo.subject, emailInfo.from);
+            System.out.println("DEBUG: Llamando al CommandProcessor...");
+            String response;
+            try {
+                response = commandProcessor.processCommand(emailInfo.subject, emailInfo.from);
+                System.out.println("DEBUG: Respuesta del CommandProcessor recibida: " + (response != null ? response.substring(0, Math.min(100, response.length())) + "..." : "null"));
+            } catch (Exception e) {
+                System.out.println("DEBUG: ERROR en CommandProcessor: " + e.getMessage());
+                e.printStackTrace();
+                response = "Error interno al procesar comando";
+            }
             
             // Enviar respuesta por SMTP
+            System.out.println("DEBUG: Iniciando envío de respuesta por SMTP...");
+            System.out.println("DEBUG: Host SMTP = " + smtpClient.getServer() + ", Port = " + smtpClient.getPort());
             smtpClient.sendEmail(emailInfo.from, "Re: " + emailInfo.subject, response);
             
             System.out.println("Respuesta enviada a: " + emailInfo.from);

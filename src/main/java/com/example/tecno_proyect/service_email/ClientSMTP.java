@@ -12,8 +12,16 @@ public class ClientSMTP {
     private String emisor = "";
 
     public ClientSMTP() {
-        this.server = "mail.tecnoweb.org.bo"; 
+        this.server = "mail.tecnoweb.org.bo";
         this.emisor = "grupo03sa@tecnoweb.org.bo";
+    }
+
+    public String getServer() {
+        return server;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     private void sendCommand(DataOutputStream output, BufferedReader input, String command) throws IOException {
