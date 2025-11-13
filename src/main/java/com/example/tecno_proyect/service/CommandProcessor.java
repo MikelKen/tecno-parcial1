@@ -65,16 +65,6 @@ public class CommandProcessor {
 
             System.out.println("DEBUG: Entrando al switch con comando: [" + command.toUpperCase() + "]");
             switch (command.toUpperCase()) {
-                case "LISPER":
-                    return handleListPersonas(parameters);
-                case "INSPER":
-                    return handleInsertPersona(parameters);
-                case "UPDPER":
-                    return handleUpdatePersona(parameters);
-                case "DELPER":
-                    return handleDeletePersona(parameters);
-                case "BUSPER":
-                    return handleBuscarPersona(parameters);
                 // Clientes
                 case "LISCLI":
                     System.out.println("DEBUG: Ejecutando caso LISCLI...");
@@ -91,6 +81,23 @@ public class CommandProcessor {
                     return handleBuscarClientesConProyectos(parameters);
                 case "ESTCLIS":
                     return handleObtenerEstadisticasClientes(parameters);
+                
+                // Usuarios
+                case "LISUSR":
+                    return handleListarTodosLosUsuarios(parameters);
+                case "BUSUSRNOM":
+                    return handleBuscarUsuarioPorNombre(parameters);
+                case "BUSUSREMAIL":
+                    return handleBuscarUsuarioPorEmail(parameters);
+                case "INSUSR":
+                    return handleInsertarUsuario(parameters);
+                case "UPDUSR":
+                    return handleActualizarUsuario(parameters);
+                case "DELUSR":
+                    return handleEliminarUsuario(parameters);
+                case "BUSUSRROL":
+                    return handleBuscarUsuariosPorRol(parameters);
+
                 // Proyectos
                 case "LISPROY":
                     return handleListarTodosLosProyectos(parameters);
@@ -108,6 +115,56 @@ public class CommandProcessor {
                     return handleBuscarProyectosPorEstado(parameters);
                 case "ESTPROY":
                     return handleObtenerEstadisticasProyectos(parameters);
+
+                // Comandos de materiales-productos
+                case "LISMAT":
+                    return handleListarTodosLosMateriales(parameters);
+                case "BUSMATNOM":
+                    return handleBuscarMaterialPorNombre(parameters);
+                case "INSMAT":
+                    return handleInsertarMaterial(parameters);
+                case "UPDMAT":
+                    return handleActualizarMaterial(parameters);
+                case "BUSMATTIPO":
+                    return handleBuscarMaterialesPorTipo(parameters);
+                case "UPDMATPRECIO":
+                    return handleActualizarPrecioMaterial(parameters);
+                case "UPDMATSTOCK":
+                    return handleActualizarStockMaterial(parameters);
+                case "REDMATSTOCK":
+                    return handleReducirStockMaterial(parameters);
+                case "AUMMATSTOCK":
+                    return handleAumentarStockMaterial(parameters);
+                case "VERMATDISP":
+                    return handleVerificarDisponibilidadMaterial(parameters);
+                
+                // Diseños
+                case "LISDESIGN":
+                    return handleListarTodosLosDisenos(parameters);
+                case "BUSDESIGNID":
+                    return handleBuscarDisenoPorId(parameters);
+                case "BUSDESIGNQUOTE":
+                    return handleBuscarDisenoPorCotizacion(parameters);
+                case "INSDESIGN":
+                    return handleInsertarDiseno(parameters);
+                case "UPDDESIGN":
+                    return handleActualizarDiseno(parameters);
+                case "DELDESIGN":
+                    return handleEliminarDiseno(parameters);
+                case "BUSDESIGNUSR":
+                    return handleBuscarDisenosPorUsuario(parameters);
+                case "DESIGNAPPR":
+                    return handleBuscarDisenosAprobados(parameters);
+                case "APPRDESIGN":
+                    return handleAprobarDiseno(parameters);
+                case "REJDESIGN":
+                    return handleRechazarDiseno(parameters);
+                case "DESIGNAPPRUSR":
+                    return handleObtenerDisenosAprobadosPorUsuario(parameters);
+                case "DESIGNPENDUSR":
+                    return handleObtenerDisenosPendientesPorUsuario(parameters);
+                
+
                 // Cronogramas
                 case "LISSCH":
                     return handleListarTodosLosCronogramas(parameters);
@@ -146,21 +203,7 @@ public class CommandProcessor {
                     return handleBuscarTareasCompletadas(parameters);
                 case "TASKPEND":
                     return handleBuscarTareasPendientes(parameters);
-                // Usuarios
-                case "LISUSR":
-                    return handleListarTodosLosUsuarios(parameters);
-                case "BUSUSRNOM":
-                    return handleBuscarUsuarioPorNombre(parameters);
-                case "BUSUSREMAIL":
-                    return handleBuscarUsuarioPorEmail(parameters);
-                case "INSUSR":
-                    return handleInsertarUsuario(parameters);
-                case "UPDUSR":
-                    return handleActualizarUsuario(parameters);
-                case "DELUSR":
-                    return handleEliminarUsuario(parameters);
-                case "BUSUSRROL":
-                    return handleBuscarUsuariosPorRol(parameters);
+
                 // Cotizaciones
                 case "LISQUOTE":
                     return handleListarTodasLasCotizaciones(parameters);
@@ -186,31 +229,6 @@ public class CommandProcessor {
                     return handleAprobarCotizacion(parameters);
                 case "REJQUOTE":
                     return handleRechazarCotizacion(parameters);
-                // Diseños
-                case "LISDESIGN":
-                    return handleListarTodosLosDisenos(parameters);
-                case "BUSDESIGNID":
-                    return handleBuscarDisenoPorId(parameters);
-                case "BUSDESIGNQUOTE":
-                    return handleBuscarDisenoPorCotizacion(parameters);
-                case "INSDESIGN":
-                    return handleInsertarDiseno(parameters);
-                case "UPDDESIGN":
-                    return handleActualizarDiseno(parameters);
-                case "DELDESIGN":
-                    return handleEliminarDiseno(parameters);
-                case "BUSDESIGNUSR":
-                    return handleBuscarDisenosPorUsuario(parameters);
-                case "DESIGNAPPR":
-                    return handleBuscarDisenosAprobados(parameters);
-                case "APPRDESIGN":
-                    return handleAprobarDiseno(parameters);
-                case "REJDESIGN":
-                    return handleRechazarDiseno(parameters);
-                case "DESIGNAPPRUSR":
-                    return handleObtenerDisenosAprobadosPorUsuario(parameters);
-                case "DESIGNPENDUSR":
-                    return handleObtenerDisenosPendientesPorUsuario(parameters);
                 
                 // Comandos de planes de pago
                 case "LISPAYPLAN":
@@ -264,28 +282,6 @@ public class CommandProcessor {
                 case "PAGAR":
                     return handlePagar(parameters);
                 
-                // Comandos de materiales
-                case "LISMAT":
-                    return handleListarTodosLosMateriales(parameters);
-                case "BUSMATNOM":
-                    return handleBuscarMaterialPorNombre(parameters);
-                case "INSMAT":
-                    return handleInsertarMaterial(parameters);
-                case "UPDMAT":
-                    return handleActualizarMaterial(parameters);
-                case "BUSMATTIPO":
-                    return handleBuscarMaterialesPorTipo(parameters);
-                case "UPDMATPRECIO":
-                    return handleActualizarPrecioMaterial(parameters);
-                case "UPDMATSTOCK":
-                    return handleActualizarStockMaterial(parameters);
-                case "REDMATSTOCK":
-                    return handleReducirStockMaterial(parameters);
-                case "AUMMATSTOCK":
-                    return handleAumentarStockMaterial(parameters);
-                case "VERMATDISP":
-                    return handleVerificarDisponibilidadMaterial(parameters);
-                
                 // Comandos de materiales-proyecto
                 case "LISMATPROY":
                     return handleListarTodosMaterialesProyecto(parameters);
@@ -300,7 +296,7 @@ public class CommandProcessor {
                 case "BUSPROYPORMAT":
                     return handleBuscarProyectosPorMaterial(parameters);
                     
-                // --- Nuevos comandos de gestión de stock ---
+                // --- Comandos de gestión de stock ---
                 case "DEVOLVERSOBRANTE":
                     return handleDevolverMaterialSobrante(parameters);
                 case "DEVOLVERTODO":
