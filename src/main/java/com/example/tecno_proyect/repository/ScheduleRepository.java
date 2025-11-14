@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.repository;
 
-import com.example.tecno_proyect.model.Schedule;
+import com.example.tecno_proyect.model.Cronograma;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,85 +10,85 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
+public interface ScheduleRepository extends JpaRepository<Cronograma, Long> {
     
     // Buscar cronogramas por proyecto
-    List<Schedule> findByIdProject(Long idProject);
+    List<Cronograma> findByIdProyecto(Long idProyecto);
     
     // Buscar cronogramas por usuario
-    List<Schedule> findByUserId(Long userId);
+    List<Cronograma> findByUsuarioId(Long usuarioId);
     
     // Buscar cronogramas por estado
-    List<Schedule> findByState(String state);
+    List<Cronograma> findByEstado(String estado);
     
     // Buscar cronogramas por fecha de inicio
-    List<Schedule> findByInitDate(LocalDate initDate);
+    List<Cronograma> findByFechaInicio(LocalDate fechaInicio);
     
     // Buscar cronogramas por fecha de finalización
-    List<Schedule> findByFinalDate(LocalDate finalDate);
+    List<Cronograma> findByFechaFinal(LocalDate fechaFinal);
     
     // Buscar cronogramas por días estimados
-    List<Schedule> findByEstimateDays(Integer estimateDays);
+    List<Cronograma> findByDiasEstimados(Integer diasEstimados);
     
     // Buscar cronogramas por rango de fechas de inicio
-    @Query("SELECT s FROM Schedule s WHERE s.initDate BETWEEN :startDate AND :endDate")
-    List<Schedule> findByInitDateBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    @Query("SELECT s FROM Cronograma s WHERE s.fechaInicio BETWEEN :startDate AND :endDate")
+    List<Cronograma> findByFechaInicioBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
     
     // Buscar cronogramas por rango de fechas de finalización
-    @Query("SELECT s FROM Schedule s WHERE s.finalDate BETWEEN :startDate AND :endDate")
-    List<Schedule> findByFinalDateBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    @Query("SELECT s FROM Cronograma s WHERE s.fechaFinal BETWEEN :startDate AND :endDate")
+    List<Cronograma> findByFechaFinalBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
     
     // Buscar cronogramas activos (en progreso)
-    @Query("SELECT s FROM Schedule s WHERE s.state = 'En Progreso' OR s.state = 'Activo'")
-    List<Schedule> findActiveSchedules();
+    @Query("SELECT s FROM Cronograma s WHERE s.estado = 'En Progreso' OR s.estado = 'Activo'")
+    List<Cronograma> findActiveSchedules();
     
     // Buscar cronogramas completados
-    @Query("SELECT s FROM Schedule s WHERE s.state = 'Completado' OR s.state = 'Terminado'")
-    List<Schedule> findCompletedSchedules();
+    @Query("SELECT s FROM Cronograma s WHERE s.estado = 'Completado' OR s.estado = 'Terminado'")
+    List<Cronograma> findCompletedSchedules();
     
     // Buscar cronogramas pendientes
-    @Query("SELECT s FROM Schedule s WHERE s.state = 'Pendiente' OR s.state = 'No Iniciado'")
-    List<Schedule> findPendingSchedules();
+    @Query("SELECT s FROM Cronograma s WHERE s.estado = 'Pendiente' OR s.estado = 'No Iniciado'")
+    List<Cronograma> findPendingSchedules();
     
     // Buscar cronogramas que terminan hoy
-    @Query("SELECT s FROM Schedule s WHERE s.finalDate = CURRENT_DATE")
-    List<Schedule> findSchedulesEndingToday();
+    @Query("SELECT s FROM Cronograma s WHERE s.fechaFinal = CURRENT_DATE")
+    List<Cronograma> findSchedulesEndingToday();
     
     // Buscar cronogramas que inician hoy
-    @Query("SELECT s FROM Schedule s WHERE s.initDate = CURRENT_DATE")
-    List<Schedule> findSchedulesStartingToday();
+    @Query("SELECT s FROM Cronograma s WHERE s.fechaInicio = CURRENT_DATE")
+    List<Cronograma> findSchedulesStartingToday();
     
     // Buscar cronogramas vencidos (fecha final pasada y no completados)
-    @Query("SELECT s FROM Schedule s WHERE s.finalDate < CURRENT_DATE AND s.state != 'Completado' AND s.state != 'Terminado'")
-    List<Schedule> findOverdueSchedules();
+    @Query("SELECT s FROM Cronograma s WHERE s.fechaFinal < CURRENT_DATE AND s.estado != 'Completado' AND s.estado != 'Terminado'")
+    List<Cronograma> findOverdueSchedules();
     
     // Buscar cronogramas por proyecto y estado
-    List<Schedule> findByIdProjectAndState(Long idProject, String state);
+    List<Cronograma> findByIdProyectoAndEstado(Long idProyecto, String estado);
     
     // Buscar cronogramas por usuario y estado
-    List<Schedule> findByUserIdAndState(Long userId, String state);
+    List<Cronograma> findByUsuarioIdAndEstado(Long usuarioId, String estado);
     
     // Contar cronogramas por estado
-    @Query("SELECT COUNT(s) FROM Schedule s WHERE s.state = :state")
-    long countByState(@Param("state") String state);
+    @Query("SELECT COUNT(s) FROM Cronograma s WHERE s.estado = :estado")
+    long countByEstado(@Param("estado") String estado);
     
     // Contar cronogramas por usuario
-    @Query("SELECT COUNT(s) FROM Schedule s WHERE s.userId = :userId")
-    long countByUserId(@Param("userId") Long userId);
+    @Query("SELECT COUNT(s) FROM Cronograma s WHERE s.usuarioId = :usuarioId")
+    long countByUsuarioId(@Param("usuarioId") Long usuarioId);
     
     // Buscar cronogramas con duración mayor a días específicos
-    @Query("SELECT s FROM Schedule s WHERE s.estimateDays > :days")
-    List<Schedule> findLongSchedules(@Param("days") Integer days);
+    @Query("SELECT s FROM Cronograma s WHERE s.diasEstimados > :dias")
+    List<Cronograma> findLongSchedules(@Param("dias") Integer dias);
     
     // Buscar cronogramas ordenados por fecha de inicio
-    @Query("SELECT s FROM Schedule s ORDER BY s.initDate ASC")
-    List<Schedule> findSchedulesOrderedByStartDate();
+    @Query("SELECT s FROM Cronograma s ORDER BY s.fechaInicio ASC")
+    List<Cronograma> findSchedulesOrderedByStartDate();
     
     // Obtener promedio de días estimados
-    @Query("SELECT AVG(s.estimateDays) FROM Schedule s")
+    @Query("SELECT AVG(s.diasEstimados) FROM Cronograma s")
     Double getAverageEstimatedDays();
     
     // Buscar cronogramas del mes actual
-    @Query("SELECT s FROM Schedule s WHERE MONTH(s.initDate) = MONTH(CURRENT_DATE) AND YEAR(s.initDate) = YEAR(CURRENT_DATE)")
-    List<Schedule> findCurrentMonthSchedules();
+    @Query("SELECT s FROM Cronograma s WHERE MONTH(s.fechaInicio) = MONTH(CURRENT_DATE) AND YEAR(s.fechaInicio) = YEAR(CURRENT_DATE)")
+    List<Cronograma> findCurrentMonthSchedules();
 }

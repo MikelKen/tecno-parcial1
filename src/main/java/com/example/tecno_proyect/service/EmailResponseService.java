@@ -1,7 +1,7 @@
 package com.example.tecno_proyect.service;
 
 import com.example.tecno_proyect.model.Persona;
-import com.example.tecno_proyect.model.Client;
+import com.example.tecno_proyect.model.Cliente;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -158,7 +158,7 @@ public class EmailResponseService {
     /**
      * Formatea respuesta para listado de clientes
      */
-    public String formatListClientesResponse(List<Client> clientes, String command) {
+    public String formatListClientesResponse(List<Cliente> clientes, String command) {
         StringBuilder response = new StringBuilder();
         response.append(generateHeader(command));
 
@@ -172,12 +172,12 @@ public class EmailResponseService {
             response.append("Total de registros encontrados: ").append(clientes.size()).append("\n\n");
 
             int contador = 1;
-            for (Client cliente : clientes) {
+            for (Cliente cliente : clientes) {
                 response.append(" CLIENTE #").append(contador).append("\n");
-                response.append("   • Nombre: ").append(cliente.getName()).append("\n");
+                response.append("   • Nombre: ").append(cliente.getNombre()).append("\n");
                 response.append("   • Email: ").append(cliente.getEmail()).append("\n");
-                response.append("   • Teléfono: ").append(cliente.getPhone()).append("\n");
-                response.append("   • Dirección: ").append(cliente.getAddress()).append("\n");
+                response.append("   • Teléfono: ").append(cliente.getTelefono()).append("\n");
+                response.append("   • Dirección: ").append(cliente.getDireccion()).append("\n");
                 response.append("\n");
                 contador++;
             }
@@ -189,7 +189,7 @@ public class EmailResponseService {
     /**
      * Formatea respuesta para inserción exitosa de cliente
      */
-    public String formatInsertClienteSuccess(Client cliente, String command) {
+    public String formatInsertClienteSuccess(Cliente cliente, String command) {
         StringBuilder response = new StringBuilder();
         response.append(generateHeader(command));
         
@@ -198,10 +198,10 @@ public class EmailResponseService {
         response.append("El cliente ha sido registrado correctamente en el sistema.\n\n");
         
         response.append(" DATOS REGISTRADOS:\n");
-        response.append("   • Nombre: ").append(cliente.getName()).append("\n");
+        response.append("   • Nombre: ").append(cliente.getNombre()).append("\n");
         response.append("   • Email: ").append(cliente.getEmail()).append("\n");
-        response.append("   • Teléfono: ").append(cliente.getPhone()).append("\n");
-        response.append("   • Dirección: ").append(cliente.getAddress()).append("\n");
+        response.append("   • Teléfono: ").append(cliente.getTelefono()).append("\n");
+        response.append("   • Dirección: ").append(cliente.getDireccion()).append("\n");
 
         return response.toString();
     }

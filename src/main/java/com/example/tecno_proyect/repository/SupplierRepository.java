@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.repository;
 
-import com.example.tecno_proyect.model.Supplier;
+import com.example.tecno_proyect.model.Proveedor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,45 +10,41 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SupplierRepository extends JpaRepository<Supplier, String> {
+public interface SupplierRepository extends JpaRepository<Proveedor, String> {
     
     // Buscar proveedor por email
-    Optional<Supplier> findByEmail(String email);
+    Optional<Proveedor> findByEmail(String email);
     
     // Buscar proveedor por teléfono
-    Optional<Supplier> findByPhone(String phone);
+    Optional<Proveedor> findByTelefono(String telefono);
     
     // Buscar proveedor por contacto
-    Optional<Supplier> findByContact(String contact);
+    Optional<Proveedor> findByContacto(String contacto);
     
     // Verificar si existe un proveedor con ese email
     boolean existsByEmail(String email);
     
     // Buscar proveedores por nombre (parcial, ignorando mayúsculas)
-    @Query("SELECT s FROM Supplier s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :name, '%'))")
-    List<Supplier> findByNameContainingIgnoreCase(@Param("name") String name);
+    @Query("SELECT s FROM Proveedor s WHERE LOWER(s.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))")
+    List<Proveedor> findByNombreContainingIgnoreCase(@Param("nombre") String nombre);
     
     // Buscar proveedores por contacto (parcial, ignorando mayúsculas)
-    @Query("SELECT s FROM Supplier s WHERE LOWER(s.contact) LIKE LOWER(CONCAT('%', :contact, '%'))")
-    List<Supplier> findByContactContainingIgnoreCase(@Param("contact") String contact);
+    @Query("SELECT s FROM Proveedor s WHERE LOWER(s.contacto) LIKE LOWER(CONCAT('%', :contacto, '%'))")
+    List<Proveedor> findByContactoContainingIgnoreCase(@Param("contacto") String contacto);
     
     // Buscar proveedores por dirección
-    @Query("SELECT s FROM Supplier s WHERE LOWER(s.address) LIKE LOWER(CONCAT('%', :address, '%'))")
-    List<Supplier> findByAddressContainingIgnoreCase(@Param("address") String address);
+    @Query("SELECT s FROM Proveedor s WHERE LOWER(s.direccion) LIKE LOWER(CONCAT('%', :direccion, '%'))")
+    List<Proveedor> findByDireccionContainingIgnoreCase(@Param("direccion") String direccion);
     
-    // Buscar proveedores que suministran materiales
-    @Query("SELECT DISTINCT s FROM Supplier s JOIN s.materialSuppliers ms")
-    List<Supplier> findSuppliersWithMaterials();
+    // Buscar proveedores que suministran productos
+    @Query("SELECT DISTINCT s FROM Proveedor s JOIN s.productoProveedores ms")
+    List<Proveedor> findProvidersWithProducts();
     
-    // Buscar proveedores que suministran un material específico
-    @Query("SELECT DISTINCT s FROM Supplier s JOIN s.materialSuppliers ms WHERE ms.idMaterial = :idMaterial")
-    List<Supplier> findSuppliersByMaterial(@Param("idMaterial") String idMaterial);
-    
-    // Contar materiales suministrados por proveedor
-    @Query("SELECT COUNT(ms) FROM MaterialSupplier ms WHERE ms.idSupplier = :supplierId")
-    long countMaterialsBySupplier(@Param("supplierId") String supplierId);
+    // Buscar proveedores que suministran un producto específico
+    @Query("SELECT DISTINCT s FROM Proveedor s JOIN s.productoProveedores ms WHERE ms.idProducto = :idProducto")
+    List<Proveedor> findProvidersByProduct(@Param("idProducto") Long idProducto);
     
     // Buscar proveedores ordenados por nombre
-    @Query("SELECT s FROM Supplier s ORDER BY s.name ASC")
-    List<Supplier> findAllOrderByName();
+    @Query("SELECT s FROM Proveedor s ORDER BY s.nombre ASC")
+    List<Proveedor> findAllOrderByName();
 }

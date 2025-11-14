@@ -1,50 +1,51 @@
 package com.example.tecno_proyect.repository;
 
-import com.example.tecno_proyect.model.Project;
+import com.example.tecno_proyect.model.Proyecto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, Long> {
+public interface ProjectRepository extends JpaRepository<Proyecto, Long> {
     
     // Buscar proyecto por nombre (único)
-    java.util.Optional<Project> findByName(String name);
+    Optional<Proyecto> findByNombre(String nombre);
     
     // Verificar si existe por nombre
-    boolean existsByName(String name);
+    boolean existsByNombre(String nombre);
     
     // Buscar proyectos por cliente
-    List<Project> findByIdClient(Long idClient);
+    List<Proyecto> findByIdCliente(Long idCliente);
     
     // Buscar proyectos por usuario
-    List<Project> findByUserId(Long userId);
+    List<Proyecto> findByUsuarioId(Long usuarioId);
     
     // Buscar proyectos por estado
-    List<Project> findByState(String state);
+    List<Proyecto> findByEstado(String estado);
     
     // Buscar proyectos por ubicación
-    @Query("SELECT p FROM Project p WHERE LOWER(p.location) LIKE LOWER(CONCAT('%', :location, '%'))")
-    List<Project> findByLocationContainingIgnoreCase(@Param("location") String location);
+    @Query("SELECT p FROM Proyecto p WHERE LOWER(p.ubicacion) LIKE LOWER(CONCAT('%', :ubicacion, '%'))")
+    List<Proyecto> findByUbicacionContainingIgnoreCase(@Param("ubicacion") String ubicacion);
     
     // Buscar proyectos por descripción
-    @Query("SELECT p FROM Project p WHERE LOWER(p.description) LIKE LOWER(CONCAT('%', :description, '%'))")
-    List<Project> findByDescriptionContainingIgnoreCase(@Param("description") String description);
+    @Query("SELECT p FROM Proyecto p WHERE LOWER(p.descripcion) LIKE LOWER(CONCAT('%', :descripcion, '%'))")
+    List<Proyecto> findByDescripcionContainingIgnoreCase(@Param("descripcion") String descripcion);
     
     // Contar proyectos por estado
-    @Query("SELECT COUNT(p) FROM Project p WHERE p.state = :state")
-    long countByState(@Param("state") String state);
+    @Query("SELECT COUNT(p) FROM Proyecto p WHERE p.estado = :estado")
+    long countByEstado(@Param("estado") String estado);
     
     // Buscar proyectos activos (no terminados)
-    @Query("SELECT p FROM Project p WHERE p.state NOT IN ('Terminado', 'Cancelado')")
-    List<Project> findActiveProjects();
+    @Query("SELECT p FROM Proyecto p WHERE p.estado NOT IN ('Terminado', 'Cancelado')")
+    List<Proyecto> findActiveProjects();
     
     // Buscar proyectos por cliente y estado
-    List<Project> findByIdClientAndState(Long idClient, String state);
+    List<Proyecto> findByIdClienteAndEstado(Long idCliente, String estado);
     
     // Buscar proyectos por usuario y estado
-    List<Project> findByUserIdAndState(Long userId, String state);
+    List<Proyecto> findByUsuarioIdAndEstado(Long usuarioId, String estado);
 }

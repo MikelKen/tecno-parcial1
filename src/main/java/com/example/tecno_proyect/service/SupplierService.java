@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.service;
 
-import com.example.tecno_proyect.model.Supplier;
+import com.example.tecno_proyect.model.Proveedor;
 import com.example.tecno_proyect.repository.SupplierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,50 +19,50 @@ public class SupplierService {
     /**
      * Listar todos los proveedores
      */
-    public List<Supplier> listarTodosLosProveedores() {
+    public List<Proveedor> listarTodosLosProveedores() {
         return supplierRepository.findAll();
     }
     
     /**
-     * Buscar proveedor por nombre (ID)
+     * Buscar proveedor por nombre
      */
-    public Optional<Supplier> buscarProveedorPorNombre(String name) {
-        return supplierRepository.findById(name);
+    public Optional<Proveedor> buscarProveedorPorNombre(String nombre) {
+        return supplierRepository.findById(nombre);
     }
     
     /**
      * Insertar nuevo proveedor
      */
-    public Supplier insertarProveedor(String name, String contact, String phone, String email, String address) {
-        Supplier supplier = new Supplier(name, contact, phone, email, address);
-        return supplierRepository.save(supplier);
+    public Proveedor insertarProveedor(String nombre, String contacto, String telefono, String email, String direccion) {
+        Proveedor proveedor = new Proveedor(nombre, contacto, telefono, email, direccion);
+        return supplierRepository.save(proveedor);
     }
     
     /**
      * Actualizar proveedor existente
      */
-    public Supplier actualizarProveedor(String name, String contact, String phone, String email, String address) {
-        Optional<Supplier> proveedorExistente = supplierRepository.findById(name);
+    public Proveedor actualizarProveedor(String nombre, String contacto, String telefono, String email, String direccion) {
+        Optional<Proveedor> proveedorExistente = supplierRepository.findById(nombre);
         
         if (proveedorExistente.isEmpty()) {
-            throw new RuntimeException("No se encontró proveedor con nombre: " + name);
+            throw new RuntimeException("No se encontró proveedor con nombre: " + nombre);
         }
         
-        Supplier supplier = proveedorExistente.get();
-        supplier.setContact(contact);
-        supplier.setPhone(phone);
-        supplier.setEmail(email);
-        supplier.setAddress(address);
+        Proveedor proveedor = proveedorExistente.get();
+        proveedor.setContacto(contacto);
+        proveedor.setTelefono(telefono);
+        proveedor.setEmail(email);
+        proveedor.setDireccion(direccion);
         
-        return supplierRepository.save(supplier);
+        return supplierRepository.save(proveedor);
     }
     
     /**
      * Eliminar proveedor por nombre
      */
-    public boolean eliminarProveedor(String name) {
-        if (supplierRepository.existsById(name)) {
-            supplierRepository.deleteById(name);
+    public boolean eliminarProveedor(String nombre) {
+        if (supplierRepository.existsById(nombre)) {
+            supplierRepository.deleteById(nombre);
             return true;
         }
         return false;
@@ -71,78 +71,71 @@ public class SupplierService {
     /**
      * Buscar proveedores por nombre (contiene texto)
      */
-    public List<Supplier> buscarProveedoresPorNombreParcial(String name) {
-        return supplierRepository.findByNameContainingIgnoreCase(name);
+    public List<Proveedor> buscarProveedoresPorNombreParcial(String nombre) {
+        return supplierRepository.findByNombreContainingIgnoreCase(nombre);
     }
     
     /**
      * Buscar proveedor por email
      */
-    public Optional<Supplier> buscarProveedorPorEmail(String email) {
+    public Optional<Proveedor> buscarProveedorPorEmail(String email) {
         return supplierRepository.findByEmail(email);
     }
     
     /**
      * Buscar proveedor por teléfono
      */
-    public Optional<Supplier> buscarProveedorPorTelefono(String phone) {
-        return supplierRepository.findByPhone(phone);
+    public Optional<Proveedor> buscarProveedorPorTelefono(String telefono) {
+        return supplierRepository.findByTelefono(telefono);
     }
     
     /**
      * Buscar proveedor por contacto
      */
-    public Optional<Supplier> buscarProveedorPorContacto(String contact) {
-        return supplierRepository.findByContact(contact);
+    public Optional<Proveedor> buscarProveedorPorContacto(String contacto) {
+        return supplierRepository.findByContacto(contacto);
     }
     
     /**
      * Buscar proveedores por contacto (contiene texto)
      */
-    public List<Supplier> buscarProveedoresPorContactoParcial(String contact) {
-        return supplierRepository.findByContactContainingIgnoreCase(contact);
+    public List<Proveedor> buscarProveedoresPorContactoParcial(String contacto) {
+        return supplierRepository.findByContactoContainingIgnoreCase(contacto);
     }
     
     /**
      * Buscar proveedores por dirección (contiene texto)
      */
-    public List<Supplier> buscarProveedoresPorDireccion(String address) {
-        return supplierRepository.findByAddressContainingIgnoreCase(address);
+    public List<Proveedor> buscarProveedoresPorDireccion(String direccion) {
+        return supplierRepository.findByDireccionContainingIgnoreCase(direccion);
     }
     
     /**
      * Buscar proveedores ordenados por nombre
      */
-    public List<Supplier> buscarProveedoresOrdenadosPorNombre() {
+    public List<Proveedor> buscarProveedoresOrdenadosPorNombre() {
         return supplierRepository.findAllOrderByName();
     }
     
     /**
-     * Buscar proveedores que suministran materiales
+     * Buscar proveedores que suministran productos
      */
-    public List<Supplier> buscarProveedoresConMateriales() {
-        return supplierRepository.findSuppliersWithMaterials();
+    public List<Proveedor> buscarProveedoresConProductos() {
+        return supplierRepository.findProvidersWithProducts();
     }
     
     /**
-     * Buscar proveedores que suministran un material específico
+     * Buscar proveedores que suministran un producto específico
      */
-    public List<Supplier> buscarProveedoresPorMaterial(String idMaterial) {
-        return supplierRepository.findSuppliersByMaterial(idMaterial);
-    }
-    
-    /**
-     * Contar materiales suministrados por proveedor
-     */
-    public long contarMaterialesPorProveedor(String name) {
-        return supplierRepository.countMaterialsBySupplier(name);
+    public List<Proveedor> buscarProveedoresPorProducto(Long idProducto) {
+        return supplierRepository.findProvidersByProduct(idProducto);
     }
     
     /**
      * Verificar si existe un proveedor
      */
-    public boolean existeProveedor(String name) {
-        return supplierRepository.existsById(name);
+    public boolean existeProveedor(String nombre) {
+        return supplierRepository.existsById(nombre);
     }
     
     /**
@@ -162,72 +155,72 @@ public class SupplierService {
     /**
      * Actualizar email de proveedor
      */
-    public Supplier actualizarEmailProveedor(String name, String nuevoEmail) {
-        Optional<Supplier> proveedorOpt = supplierRepository.findById(name);
+    public Proveedor actualizarEmailProveedor(String nombre, String nuevoEmail) {
+        Optional<Proveedor> proveedorOpt = supplierRepository.findById(nombre);
         if (proveedorOpt.isPresent()) {
-            Supplier supplier = proveedorOpt.get();
-            supplier.setEmail(nuevoEmail);
-            return supplierRepository.save(supplier);
+            Proveedor proveedor = proveedorOpt.get();
+            proveedor.setEmail(nuevoEmail);
+            return supplierRepository.save(proveedor);
         }
-        throw new RuntimeException("No se encontró proveedor con nombre: " + name);
+        throw new RuntimeException("No se encontró proveedor con nombre: " + nombre);
     }
     
     /**
      * Actualizar teléfono de proveedor
      */
-    public Supplier actualizarTelefonoProveedor(String name, String nuevoTelefono) {
-        Optional<Supplier> proveedorOpt = supplierRepository.findById(name);
+    public Proveedor actualizarTelefonoProveedor(String nombre, String nuevoTelefono) {
+        Optional<Proveedor> proveedorOpt = supplierRepository.findById(nombre);
         if (proveedorOpt.isPresent()) {
-            Supplier supplier = proveedorOpt.get();
-            supplier.setPhone(nuevoTelefono);
-            return supplierRepository.save(supplier);
+            Proveedor proveedor = proveedorOpt.get();
+            proveedor.setTelefono(nuevoTelefono);
+            return supplierRepository.save(proveedor);
         }
-        throw new RuntimeException("No se encontró proveedor con nombre: " + name);
+        throw new RuntimeException("No se encontró proveedor con nombre: " + nombre);
     }
     
     /**
      * Actualizar contacto de proveedor
      */
-    public Supplier actualizarContactoProveedor(String name, String nuevoContacto) {
-        Optional<Supplier> proveedorOpt = supplierRepository.findById(name);
+    public Proveedor actualizarContactoProveedor(String nombre, String nuevoContacto) {
+        Optional<Proveedor> proveedorOpt = supplierRepository.findById(nombre);
         if (proveedorOpt.isPresent()) {
-            Supplier supplier = proveedorOpt.get();
-            supplier.setContact(nuevoContacto);
-            return supplierRepository.save(supplier);
+            Proveedor proveedor = proveedorOpt.get();
+            proveedor.setContacto(nuevoContacto);
+            return supplierRepository.save(proveedor);
         }
-        throw new RuntimeException("No se encontró proveedor con nombre: " + name);
+        throw new RuntimeException("No se encontró proveedor con nombre: " + nombre);
     }
     
     /**
      * Actualizar dirección de proveedor
      */
-    public Supplier actualizarDireccionProveedor(String name, String nuevaDireccion) {
-        Optional<Supplier> proveedorOpt = supplierRepository.findById(name);
+    public Proveedor actualizarDireccionProveedor(String nombre, String nuevaDireccion) {
+        Optional<Proveedor> proveedorOpt = supplierRepository.findById(nombre);
         if (proveedorOpt.isPresent()) {
-            Supplier supplier = proveedorOpt.get();
-            supplier.setAddress(nuevaDireccion);
-            return supplierRepository.save(supplier);
+            Proveedor proveedor = proveedorOpt.get();
+            proveedor.setDireccion(nuevaDireccion);
+            return supplierRepository.save(proveedor);
         }
-        throw new RuntimeException("No se encontró proveedor con nombre: " + name);
+        throw new RuntimeException("No se encontró proveedor con nombre: " + nombre);
     }
     
     /**
      * Validar datos de proveedor
      */
-    public boolean validarDatosProveedor(String name, String contact, String phone, String email, String address) {
-        if (name == null || name.trim().isEmpty()) {
+    public boolean validarDatosProveedor(String nombre, String contacto, String telefono, String email, String direccion) {
+        if (nombre == null || nombre.trim().isEmpty()) {
             return false;
         }
-        if (contact == null || contact.trim().isEmpty()) {
+        if (contacto == null || contacto.trim().isEmpty()) {
             return false;
         }
-        if (phone == null || phone.trim().isEmpty()) {
+        if (telefono == null || telefono.trim().isEmpty()) {
             return false;
         }
         if (email == null || email.trim().isEmpty() || !email.contains("@")) {
             return false;
         }
-        if (address == null || address.trim().isEmpty()) {
+        if (direccion == null || direccion.trim().isEmpty()) {
             return false;
         }
         return true;
@@ -236,9 +229,9 @@ public class SupplierService {
     /**
      * Verificar si email ya existe (para otro proveedor)
      */
-    public boolean existeEmailEnOtroProveedor(String name, String email) {
-        Optional<Supplier> proveedorConEmail = supplierRepository.findByEmail(email);
-        return proveedorConEmail.isPresent() && !proveedorConEmail.get().getName().equals(name);
+    public boolean existeEmailEnOtroProveedor(String nombre, String email) {
+        Optional<Proveedor> proveedorConEmail = supplierRepository.findByEmail(email);
+        return proveedorConEmail.isPresent() && !proveedorConEmail.get().getNombre().equals(nombre);
     }
     
     /**
@@ -255,37 +248,31 @@ public class SupplierService {
     /**
      * Verificar formato de teléfono
      */
-    public boolean validarFormatoTelefono(String phone) {
-        if (phone == null || phone.trim().isEmpty()) {
+    public boolean validarFormatoTelefono(String telefono) {
+        if (telefono == null || telefono.trim().isEmpty()) {
             return false;
         }
         // Validación básica: números, espacios, guiones y paréntesis
-        return phone.matches("^[0-9\\s\\-\\(\\)\\+]{7,15}$");
+        return telefono.matches("^[0-9\\s\\-\\(\\)\\+]{7,15}$");
     }
     
     /**
-     * Verificar si un proveedor tiene materiales asignados
+     * Buscar proveedores activos (con productos)
      */
-    public boolean proveedorTieneMateriales(String name) {
-        return contarMaterialesPorProveedor(name) > 0;
+    public List<Proveedor> buscarProveedoresActivos() {
+        return buscarProveedoresConProductos();
     }
     
     /**
-     * Buscar proveedores activos (con materiales)
+     * Buscar proveedores inactivos (sin productos)
      */
-    public List<Supplier> buscarProveedoresActivos() {
-        return buscarProveedoresConMateriales();
-    }
-    
-    /**
-     * Buscar proveedores inactivos (sin materiales)
-     */
-    public List<Supplier> buscarProveedoresInactivos() {
-        List<Supplier> todosProveedores = listarTodosLosProveedores();
-        List<Supplier> proveedoresActivos = buscarProveedoresConMateriales();
+    public List<Proveedor> buscarProveedoresInactivos() {
+        List<Proveedor> todosProveedores = listarTodosLosProveedores();
+        List<Proveedor> proveedoresActivos = buscarProveedoresConProductos();
         
         return todosProveedores.stream()
                 .filter(proveedor -> !proveedoresActivos.contains(proveedor))
                 .toList();
     }
 }
+

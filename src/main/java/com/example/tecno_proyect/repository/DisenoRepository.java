@@ -8,37 +8,36 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface DisenoRepository extends JpaRepository<Diseno, Long> {
     
-    // Buscar diseño por cotización (relación uno a uno)
-    Optional<Diseno> findByIdQuote(Long idQuote);
+    // Buscar diseño por cuota (relación muchos a uno)
+    List<Diseno> findByIdCuota(Long idCuota);
     
     // Buscar diseños por usuario
-    List<Diseno> findByUserId(Long userId);
+    List<Diseno> findByUsuarioId(Long usuarioId);
     
     // Buscar diseños aprobados
-    List<Diseno> findByApproved(Boolean approved);
+    List<Diseno> findByAprobado(Boolean aprobado);
     
     // Buscar diseños por fecha de aprobación
-    List<Diseno> findByApprovedDate(LocalDate approvedDate);
+    List<Diseno> findByFechaAprobacion(LocalDate fechaAprobacion);
     
     // Buscar diseños por rango de fechas de aprobación
-    @Query("SELECT d FROM Diseno d WHERE d.approvedDate BETWEEN :startDate AND :endDate")
-    List<Diseno> findByApprovedDateBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    @Query("SELECT d FROM Diseno d WHERE d.fechaAprobacion BETWEEN :startDate AND :endDate")
+    List<Diseno> findByFechaAprobacionBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
     
     // Buscar diseños que contengan comentarios específicos
-    @Query("SELECT d FROM Diseno d WHERE LOWER(d.comments) LIKE LOWER(CONCAT('%', :comment, '%'))")
-    List<Diseno> findByCommentsContainingIgnoreCase(@Param("comment") String comment);
+    @Query("SELECT d FROM Diseno d WHERE LOWER(d.comentarios) LIKE LOWER(CONCAT('%', :comment, '%'))")
+    List<Diseno> findByComentariosContainingIgnoreCase(@Param("comment") String comment);
     
     // Contar diseños aprobados
-    @Query("SELECT COUNT(d) FROM Diseno d WHERE d.approved = true")
+    @Query("SELECT COUNT(d) FROM Diseno d WHERE d.aprobado = true")
     long countApprovedDisenos();
     
     // Contar diseños pendientes de aprobación
-    @Query("SELECT COUNT(d) FROM Diseno d WHERE d.approved = false OR d.approved IS NULL")
+    @Query("SELECT COUNT(d) FROM Diseno d WHERE d.aprobado = false OR d.aprobado IS NULL")
     long countPendingDisenos();
     
     // Buscar diseños con URL de render
@@ -46,6 +45,6 @@ public interface DisenoRepository extends JpaRepository<Diseno, Long> {
     List<Diseno> findDisenosWithRender();
     
     // Buscar diseños con plano laminado
-    @Query("SELECT d FROM Diseno d WHERE d.laminatedPlane IS NOT NULL AND d.laminatedPlane != ''")
+    @Query("SELECT d FROM Diseno d WHERE d.planoLaminar IS NOT NULL AND d.planoLaminar != ''")
     List<Diseno> findDisenosWithLaminatedPlane();
 }

@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.repository;
 
-import com.example.tecno_proyect.model.Quote;
+import com.example.tecno_proyect.model.Cuota;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,35 +10,35 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public interface QuoteRepository extends JpaRepository<Quote, Long> {
+public interface QuoteRepository extends JpaRepository<Cuota, Long> {
     
     // Buscar cotizaciones por proyecto
-    List<Quote> findByIdProject(Long idProject);
+    List<Cuota> findByIdProyecto(Long idProyecto);
     
     // Buscar cotizaciones por usuario
-    List<Quote> findByUserId(Long userId);
+    List<Cuota> findByUsuarioId(Long usuarioId);
     
     // Buscar cotizaciones por estado
-    List<Quote> findByState(String state);
+    List<Cuota> findByEstado(String estado);
     
     // Buscar cotizaciones por tipo de metro
-    List<Quote> findByTypeMetro(String typeMetro);
+    List<Cuota> findByTipoMetro(String tipoMetro);
     
     // Buscar cotizaciones por rango de total
-    @Query("SELECT q FROM Quote q WHERE q.total BETWEEN :minTotal AND :maxTotal")
-    List<Quote> findByTotalBetween(@Param("minTotal") BigDecimal minTotal, @Param("maxTotal") BigDecimal maxTotal);
+    @Query("SELECT q FROM Cuota q WHERE q.total BETWEEN :minTotal AND :maxTotal")
+    List<Cuota> findByTotalBetween(@Param("minTotal") BigDecimal minTotal, @Param("maxTotal") BigDecimal maxTotal);
     
     // Contar cotizaciones por estado
-    @Query("SELECT COUNT(q) FROM Quote q WHERE q.state = :state")
-    long countByState(@Param("state") String state);
+    @Query("SELECT COUNT(q) FROM Cuota q WHERE q.estado = :estado")
+    long countByEstado(@Param("estado") String estado);
     
     // Buscar cotizaciones por proyecto y estado
-    List<Quote> findByIdProjectAndState(Long idProject, String state);
+    List<Cuota> findByIdProyectoAndEstado(Long idProyecto, String estado);
     
     // Obtener el total de cotizaciones por proyecto
-    @Query("SELECT SUM(q.total) FROM Quote q WHERE q.idProject = :idProject AND q.state = 'Aprobada'")
-    BigDecimal getTotalApprovedQuotesByProject(@Param("idProject") Long idProject);
+    @Query("SELECT SUM(q.total) FROM Cuota q WHERE q.idProyecto = :idProyecto AND q.estado = 'Aprobada'")
+    BigDecimal getTotalApprovedQuotesByProject(@Param("idProyecto") Long idProyecto);
     
     // Buscar cotizaciones con número de muebles específico
-    List<Quote> findByFurnitureNumber(Integer furnitureNumber);
+    List<Cuota> findByNumeroMuebles(Integer numeroMuebles);
 }

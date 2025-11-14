@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.service;
 
-import com.example.tecno_proyect.model.User;
+import com.example.tecno_proyect.model.Usuario;
 import com.example.tecno_proyect.repository.UserRepository;
 import com.example.tecno_proyect.util.PasswordEncoderUtil;
 import com.example.tecno_proyect.util.ValidationUtil;
@@ -24,37 +24,37 @@ public class UserService {
     /**
      * Listar todos los usuarios
      */
-    public List<User> listarTodosLosUsuarios() {
+    public List<Usuario> listarTodosLosUsuarios() {
         return userRepository.findAll();
     }
     
     /**
      * Buscar usuario por ID
      */
-    public Optional<User> buscarUsuarioPorId(Long id) {
+    public Optional<Usuario> buscarUsuarioPorId(Long id) {
         return userRepository.findById(id);
     }
     
     /**
      * Buscar usuario por nombre
      */
-    public Optional<User> buscarUsuarioPorNombre(String name) {
-        return userRepository.findByName(name);
+    public Optional<Usuario> buscarUsuarioPorNombre(String nombre) {
+        return userRepository.findByNombre(nombre);
     }
     
     /**
      * Buscar usuario por email
      */
-    public Optional<User> buscarUsuarioPorEmail(String email) {
+    public Optional<Usuario> buscarUsuarioPorEmail(String email) {
         return userRepository.findByEmail(email);
     }
     
     /**
      * Insertar nuevo usuario con validaciones
      */
-    public User insertarUsuario(String name, String email, String phone, String address, String password, String role) {
+    public Usuario insertarUsuario(String nombre, String email, String telefono, String direccion, String password, String rol) {
         // Validar nombre
-        if (!ValidationUtil.isValidName(name)) {
+        if (!ValidationUtil.isValidName(nombre)) {
             throw new RuntimeException("El nombre es inválido. Debe tener entre 3 y 100 caracteres.");
         }
         
@@ -64,12 +64,12 @@ public class UserService {
         }
         
         // Validar teléfono
-        if (!ValidationUtil.isValidPhone(phone)) {
+        if (!ValidationUtil.isValidPhone(telefono)) {
             throw new RuntimeException("El teléfono tiene un formato inválido. Debe tener al menos 8 dígitos.");
         }
         
         // Validar dirección
-        if (!ValidationUtil.isValidAddress(address)) {
+        if (!ValidationUtil.isValidAddress(direccion)) {
             throw new RuntimeException("La dirección es inválida. Debe tener entre 5 y 255 caracteres.");
         }
         
@@ -79,13 +79,13 @@ public class UserService {
         }
         
         // Validar rol
-        if (!ValidationUtil.isValidRole(role)) {
+        if (!ValidationUtil.isValidRole(rol)) {
             throw new RuntimeException("El rol es inválido. Roles válidos: " + String.join(", ", ValidationUtil.getValidRoles()));
         }
         
         // Verificar si ya existe un usuario con ese nombre
-        if (userRepository.existsByName(name)) {
-            throw new RuntimeException("Ya existe un usuario con nombre: " + name);
+        if (userRepository.existsByNombre(nombre)) {
+            throw new RuntimeException("Ya existe un usuario con nombre: " + nombre);
         }
         
         // Verificar si ya existe un usuario con ese email
@@ -96,16 +96,16 @@ public class UserService {
         // Codificar la contraseña antes de guardar
         String encodedPassword = passwordEncoderUtil.encodePassword(password);
         
-        User user = new User(name, email, phone, address, encodedPassword, role.toUpperCase());
-        return userRepository.save(user);
+        Usuario usuario = new Usuario(nombre, email, telefono, direccion, encodedPassword, rol.toUpperCase());
+        return userRepository.save(usuario);
     }
     
     /**
      * Actualizar usuario existente por ID con validaciones
      */
-    public User actualizarUsuario(Long id, String name, String email, String phone, String address, String password, String role) {
+    public Usuario actualizarUsuario(Long id, String nombre, String email, String telefono, String direccion, String password, String rol) {
         // Validar nombre
-        if (!ValidationUtil.isValidName(name)) {
+        if (!ValidationUtil.isValidName(nombre)) {
             throw new RuntimeException("El nombre es inválido. Debe tener entre 3 y 100 caracteres.");
         }
         
@@ -115,12 +115,12 @@ public class UserService {
         }
         
         // Validar teléfono
-        if (!ValidationUtil.isValidPhone(phone)) {
+        if (!ValidationUtil.isValidPhone(telefono)) {
             throw new RuntimeException("El teléfono tiene un formato inválido. Debe tener al menos 8 dígitos.");
         }
         
         // Validar dirección
-        if (!ValidationUtil.isValidAddress(address)) {
+        if (!ValidationUtil.isValidAddress(direccion)) {
             throw new RuntimeException("La dirección es inválida. Debe tener entre 5 y 255 caracteres.");
         }
         
@@ -134,53 +134,53 @@ public class UserService {
         }
         
         // Validar rol
-        if (!ValidationUtil.isValidRole(role)) {
+        if (!ValidationUtil.isValidRole(rol)) {
             throw new RuntimeException("El rol es inválido. Roles válidos: " + String.join(", ", ValidationUtil.getValidRoles()));
         }
         
-        Optional<User> userExistente = userRepository.findById(id);
+        Optional<Usuario> usuarioExistente = userRepository.findById(id);
         
-        if (userExistente.isEmpty()) {
+        if (usuarioExistente.isEmpty()) {
             throw new RuntimeException("No se encontró usuario con ID: " + id);
         }
         
-        User user = userExistente.get();
+        Usuario usuario = usuarioExistente.get();
         
         // Verificar si el nuevo nombre ya existe en otro usuario
-        if (!user.getName().equals(name) && userRepository.existsByName(name)) {
-            throw new RuntimeException("Ya existe otro usuario con nombre: " + name);
+        if (!usuario.getNombre().equals(nombre) && userRepository.existsByNombre(nombre)) {
+            throw new RuntimeException("Ya existe otro usuario con nombre: " + nombre);
         }
         
         // Verificar si el nuevo email ya existe en otro usuario
-        if (!user.getEmail().equals(email) && userRepository.existsByEmail(email)) {
+        if (!usuario.getEmail().equals(email) && userRepository.existsByEmail(email)) {
             throw new RuntimeException("Ya existe otro usuario con email: " + email);
         }
         
-        user.setName(name);
-        user.setEmail(email);
-        user.setPhone(phone);
-        user.setAddress(address);
+        usuario.setNombre(nombre);
+        usuario.setEmail(email);
+        usuario.setTelefono(telefono);
+        usuario.setDireccion(direccion);
         if (password != null && !password.trim().isEmpty()) {
-            user.setPassword(passwordToUse);
+            usuario.setPassword(passwordToUse);
         }
-        user.setRole(role.toUpperCase());
+        usuario.setRol(rol.toUpperCase());
         
-        return userRepository.save(user);
+        return userRepository.save(usuario);
     }
     
     /**
      * Actualizar usuario existente por nombre con validaciones
      */
-    public User actualizarUsuarioPorNombre(String name, String email, String phone, String address, String password, String role) {
+    public Usuario actualizarUsuarioPorNombre(String nombre, String email, String telefono, String direccion, String password, String rol) {
         // Validar nombre actual
-        if (!ValidationUtil.isValidName(name)) {
+        if (!ValidationUtil.isValidName(nombre)) {
             throw new RuntimeException("El nombre es inválido. Debe tener entre 3 y 100 caracteres.");
         }
         
-        Optional<User> userExistente = userRepository.findByName(name);
+        Optional<Usuario> usuarioExistente = userRepository.findByNombre(nombre);
         
-        if (userExistente.isEmpty()) {
-            throw new RuntimeException("No se encontró usuario con nombre: " + name);
+        if (usuarioExistente.isEmpty()) {
+            throw new RuntimeException("No se encontró usuario con nombre: " + nombre);
         }
         
         // Validar email
@@ -189,12 +189,12 @@ public class UserService {
         }
         
         // Validar teléfono
-        if (!ValidationUtil.isValidPhone(phone)) {
+        if (!ValidationUtil.isValidPhone(telefono)) {
             throw new RuntimeException("El teléfono tiene un formato inválido. Debe tener al menos 8 dígitos.");
         }
         
         // Validar dirección
-        if (!ValidationUtil.isValidAddress(address)) {
+        if (!ValidationUtil.isValidAddress(direccion)) {
             throw new RuntimeException("La dirección es inválida. Debe tener entre 5 y 255 caracteres.");
         }
         
@@ -208,26 +208,26 @@ public class UserService {
         }
         
         // Validar rol
-        if (!ValidationUtil.isValidRole(role)) {
+        if (!ValidationUtil.isValidRole(rol)) {
             throw new RuntimeException("El rol es inválido. Roles válidos: " + String.join(", ", ValidationUtil.getValidRoles()));
         }
         
-        User user = userExistente.get();
+        Usuario usuario = usuarioExistente.get();
         
         // Verificar si el nuevo email ya existe en otro usuario
-        if (!user.getEmail().equals(email) && userRepository.existsByEmail(email)) {
+        if (!usuario.getEmail().equals(email) && userRepository.existsByEmail(email)) {
             throw new RuntimeException("Ya existe otro usuario con email: " + email);
         }
         
-        user.setEmail(email);
-        user.setPhone(phone);
-        user.setAddress(address);
+        usuario.setEmail(email);
+        usuario.setTelefono(telefono);
+        usuario.setDireccion(direccion);
         if (passwordToUse != null) {
-            user.setPassword(passwordToUse);
+            usuario.setPassword(passwordToUse);
         }
-        user.setRole(role.toUpperCase());
+        usuario.setRol(rol.toUpperCase());
         
-        return userRepository.save(user);
+        return userRepository.save(usuario);
     }
     
     /**
@@ -244,10 +244,10 @@ public class UserService {
     /**
      * Eliminar usuario por nombre
      */
-    public boolean eliminarUsuarioPorNombre(String name) {
-        Optional<User> userOpt = userRepository.findByName(name);
-        if (userOpt.isPresent()) {
-            userRepository.delete(userOpt.get());
+    public boolean eliminarUsuarioPorNombre(String nombre) {
+        Optional<Usuario> usuarioOpt = userRepository.findByNombre(nombre);
+        if (usuarioOpt.isPresent()) {
+            userRepository.delete(usuarioOpt.get());
             return true;
         }
         return false;
@@ -256,15 +256,15 @@ public class UserService {
     /**
      * Buscar usuarios por rol
      */
-    public List<User> buscarUsuariosPorRol(String role) {
-        return userRepository.findByRole(role);
+    public List<Usuario> buscarUsuariosPorRol(String rol) {
+        return userRepository.findByRol(rol);
     }
     
     /**
      * Buscar usuarios por nombre (parcial)
      */
-    public List<User> buscarUsuariosPorNombreParcial(String name) {
-        return userRepository.findByNameContainingIgnoreCase(name);
+    public List<Usuario> buscarUsuariosPorNombreParcial(String nombre) {
+        return userRepository.findByNombreContainingIgnoreCase(nombre);
     }
     
     /**
@@ -277,15 +277,15 @@ public class UserService {
     /**
      * Verificar si existe un usuario por nombre
      */
-    public boolean existeUsuarioPorNombre(String name) {
-        return userRepository.existsByName(name);
+    public boolean existeUsuarioPorNombre(String nombre) {
+        return userRepository.existsByNombre(nombre);
     }
     
     /**
      * Contar usuarios por rol
      */
-    public long contarUsuariosPorRol(String role) {
-        return userRepository.countByRole(role);
+    public long contarUsuariosPorRol(String rol) {
+        return userRepository.countByRol(rol);
     }
     
     /**
@@ -299,7 +299,7 @@ public class UserService {
      * Validar credenciales de usuario (email + contraseña)
      */
     public boolean validarCredenciales(String email, String password) {
-        Optional<User> user = userRepository.findByEmail(email);
+        Optional<Usuario> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
             return false;
         }
@@ -316,9 +316,9 @@ public class UserService {
             throw new RuntimeException(ValidationUtil.getPasswordRequirements());
         }
         
-        Optional<User> userOpt = userRepository.findByEmail(email);
+        Optional<Usuario> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
-            User user = userOpt.get();
+            Usuario user = userOpt.get();
             // Codificar la nueva contraseña antes de guardar
             user.setPassword(passwordEncoderUtil.encodePassword(nuevaContrasena));
             userRepository.save(user);

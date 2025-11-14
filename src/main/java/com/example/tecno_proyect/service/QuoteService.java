@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.service;
 
-import com.example.tecno_proyect.model.Quote;
+import com.example.tecno_proyect.model.Cuota;
 import com.example.tecno_proyect.repository.QuoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,53 +20,53 @@ public class QuoteService {
     /**
      * Listar todas las cotizaciones
      */
-    public List<Quote> listarTodasLasCotizaciones() {
+    public List<Cuota> listarTodasLasCotizaciones() {
         return quoteRepository.findAll();
     }
     
     /**
      * Buscar cotización por ID
      */
-    public Optional<Quote> buscarCotizacionPorId(Long id) {
+    public Optional<Cuota> buscarCotizacionPorId(Long id) {
         return quoteRepository.findById(id);
     }
     
     /**
      * Insertar nueva cotización
      */
-    public Quote insertarCotizacion(String typeMetro, BigDecimal costMetro, BigDecimal quantityMetro,
-                                   BigDecimal costFurniture, BigDecimal total, String state,
-                                   Integer furnitureNumber, String comments, Long idProject, Long userId) {
-        Quote quote = new Quote(typeMetro, costMetro, quantityMetro, costFurniture, total, 
-                               state, furnitureNumber, comments, idProject, userId);
-        return quoteRepository.save(quote);
+    public Cuota insertarCotizacion(String tipoMetro, BigDecimal costoMetro, BigDecimal cantidadMetro,
+                                   BigDecimal costoMuebles, BigDecimal total, String estado,
+                                   Integer numeroMuebles, String comentarios, Long idProyecto, Long usuarioId) {
+        Cuota cuota = new Cuota(tipoMetro, costoMetro, cantidadMetro, costoMuebles, total, 
+                               estado, numeroMuebles, comentarios, idProyecto, usuarioId);
+        return quoteRepository.save(cuota);
     }
     
     /**
      * Actualizar cotización existente
      */
-    public Quote actualizarCotizacion(Long id, String typeMetro, BigDecimal costMetro, BigDecimal quantityMetro,
-                                     BigDecimal costFurniture, BigDecimal total, String state,
-                                     Integer furnitureNumber, String comments, Long idProject, Long userId) {
-        Optional<Quote> cotizacionExistente = quoteRepository.findById(id);
+    public Cuota actualizarCotizacion(Long id, String tipoMetro, BigDecimal costoMetro, BigDecimal cantidadMetro,
+                                     BigDecimal costoMuebles, BigDecimal total, String estado,
+                                     Integer numeroMuebles, String comentarios, Long idProyecto, Long usuarioId) {
+        Optional<Cuota> cotizacionExistente = quoteRepository.findById(id);
         
         if (cotizacionExistente.isEmpty()) {
             throw new RuntimeException("No se encontró cotización con ID: " + id);
         }
         
-        Quote quote = cotizacionExistente.get();
-        quote.setTypeMetro(typeMetro);
-        quote.setCostMetro(costMetro);
-        quote.setQuantityMetro(quantityMetro);
-        quote.setCostFurniture(costFurniture);
-        quote.setTotal(total);
-        quote.setState(state);
-        quote.setFurnitureNumber(furnitureNumber);
-        quote.setComments(comments);
-        quote.setIdProject(idProject);
-        quote.setUserId(userId);
+        Cuota cuota = cotizacionExistente.get();
+        cuota.setTipoMetro(tipoMetro);
+        cuota.setCostoMetro(costoMetro);
+        cuota.setCantidadMetro(cantidadMetro);
+        cuota.setCostoMuebles(costoMuebles);
+        cuota.setTotal(total);
+        cuota.setEstado(estado);
+        cuota.setNumeroMuebles(numeroMuebles);
+        cuota.setComentarios(comentarios);
+        cuota.setIdProyecto(idProyecto);
+        cuota.setUsuarioId(usuarioId);
         
-        return quoteRepository.save(quote);
+        return quoteRepository.save(cuota);
     }
     
     /**
@@ -83,55 +83,55 @@ public class QuoteService {
     /**
      * Buscar cotizaciones por proyecto
      */
-    public List<Quote> buscarCotizacionesPorProyecto(Long idProject) {
-        return quoteRepository.findByIdProject(idProject);
+    public List<Cuota> buscarCotizacionesPorProyecto(Long idProyecto) {
+        return quoteRepository.findByIdProyecto(idProyecto);
     }
     
     /**
      * Buscar cotizaciones por usuario
      */
-    public List<Quote> buscarCotizacionesPorUsuario(Long userId) {
-        return quoteRepository.findByUserId(userId);
+    public List<Cuota> buscarCotizacionesPorUsuario(Long usuarioId) {
+        return quoteRepository.findByUsuarioId(usuarioId);
     }
     
     /**
      * Buscar cotizaciones por estado
      */
-    public List<Quote> buscarCotizacionesPorEstado(String state) {
-        return quoteRepository.findByState(state);
+    public List<Cuota> buscarCotizacionesPorEstado(String estado) {
+        return quoteRepository.findByEstado(estado);
     }
     
     /**
      * Buscar cotizaciones por tipo de metro
      */
-    public List<Quote> buscarCotizacionesPorTipoMetro(String typeMetro) {
-        return quoteRepository.findByTypeMetro(typeMetro);
+    public List<Cuota> buscarCotizacionesPorTipoMetro(String tipoMetro) {
+        return quoteRepository.findByTipoMetro(tipoMetro);
     }
     
     /**
      * Buscar cotizaciones por rango de total
      */
-    public List<Quote> buscarCotizacionesPorRangoTotal(BigDecimal minTotal, BigDecimal maxTotal) {
+    public List<Cuota> buscarCotizacionesPorRangoTotal(BigDecimal minTotal, BigDecimal maxTotal) {
         return quoteRepository.findByTotalBetween(minTotal, maxTotal);
     }
     
     /**
      * Obtener total de cotizaciones aprobadas por proyecto
      */
-    public BigDecimal obtenerTotalCotizacionesAprobadasPorProyecto(String idProject) {
-        BigDecimal total = quoteRepository.getTotalApprovedQuotesByProject(Long.parseLong(idProject));
+    public BigDecimal obtenerTotalCotizacionesAprobadasPorProyecto(String idProyecto) {
+        BigDecimal total = quoteRepository.getTotalApprovedQuotesByProject(Long.parseLong(idProyecto));
         return total != null ? total : BigDecimal.ZERO;
     }
     
     /**
      * Cambiar estado de cotización
      */
-    public Quote cambiarEstadoCotizacion(Long id, String nuevoEstado) {
-        Optional<Quote> cotizacionOpt = quoteRepository.findById(id);
+    public Cuota cambiarEstadoCotizacion(Long id, String nuevoEstado) {
+        Optional<Cuota> cotizacionOpt = quoteRepository.findById(id);
         if (cotizacionOpt.isPresent()) {
-            Quote quote = cotizacionOpt.get();
-            quote.setState(nuevoEstado);
-            return quoteRepository.save(quote);
+            Cuota cuota = cotizacionOpt.get();
+            cuota.setEstado(nuevoEstado);
+            return quoteRepository.save(cuota);
         }
         throw new RuntimeException("No se encontró cotización con ID: " + id);
     }
@@ -139,16 +139,16 @@ public class QuoteService {
     /**
      * Calcular total de cotización
      */
-    public BigDecimal calcularTotalCotizacion(BigDecimal costMetro, BigDecimal quantityMetro, BigDecimal costFurniture) {
-        BigDecimal totalMetros = costMetro.multiply(quantityMetro);
-        return totalMetros.add(costFurniture);
+    public BigDecimal calcularTotalCotizacion(BigDecimal costoMetro, BigDecimal cantidadMetro, BigDecimal costoMuebles) {
+        BigDecimal totalMetros = costoMetro.multiply(cantidadMetro);
+        return totalMetros.add(costoMuebles);
     }
     
     /**
      * Contar cotizaciones por estado
      */
-    public long contarCotizacionesPorEstado(String state) {
-        return quoteRepository.countByState(state);
+    public long contarCotizacionesPorEstado(String estado) {
+        return quoteRepository.countByEstado(estado);
     }
     
     /**
@@ -168,14 +168,14 @@ public class QuoteService {
     /**
      * Aprobar cotización
      */
-    public Quote aprobarCotizacion(Long id) {
+    public Cuota aprobarCotizacion(Long id) {
         return cambiarEstadoCotizacion(id, "Aprobada");
     }
     
     /**
      * Rechazar cotización
      */
-    public Quote rechazarCotizacion(Long id) {
+    public Cuota rechazarCotizacion(Long id) {
         return cambiarEstadoCotizacion(id, "Rechazada");
     }
 }

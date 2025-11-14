@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.service;
 
-import com.example.tecno_proyect.model.Material;
+import com.example.tecno_proyect.model.Producto;
 import com.example.tecno_proyect.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,69 +20,69 @@ public class MaterialService {
     /**
      * Listar todos los materiales
      */
-    public List<Material> listarTodosLosMateriales() {
+    public List<Producto> listarTodosLosMateriales() {
         return materialRepository.findAll();
     }
     
     /**
      * Buscar material por ID
      */
-    public Optional<Material> buscarMaterialPorId(Long id) {
+    public Optional<Producto> buscarMaterialPorId(Long id) {
         return materialRepository.findById(id);
     }
     
     /**
      * Buscar material por nombre
      */
-    public Optional<Material> buscarMaterialPorNombre(String name) {
-        return materialRepository.findByName(name);
+    public Optional<Producto> buscarMaterialPorNombre(String nombre) {
+        return materialRepository.findByNombre(nombre);
     }
     
     /**
      * Insertar nuevo material
      */
-    public Material insertarMaterial(String name, String type, String unitMeasure, BigDecimal unitPrice, Integer stock) {
-        Material material = new Material(name, type, unitMeasure, unitPrice, stock);
-        return materialRepository.save(material);
+    public Producto insertarMaterial(String nombre, String tipo, String unidadMedida, BigDecimal precioUnitario, Integer stock) {
+        Producto producto = new Producto(nombre, tipo, unidadMedida, precioUnitario, stock);
+        return materialRepository.save(producto);
     }
     
     /**
      * Actualizar material existente por ID
      */
-    public Material actualizarMaterial(Long id, String name, String type, String unitMeasure, BigDecimal unitPrice, Integer stock) {
-        Optional<Material> materialExistente = materialRepository.findById(id);
+    public Producto actualizarMaterial(Long id, String nombre, String tipo, String unidadMedida, BigDecimal precioUnitario, Integer stock) {
+        Optional<Producto> productoExistente = materialRepository.findById(id);
         
-        if (materialExistente.isEmpty()) {
+        if (productoExistente.isEmpty()) {
             throw new RuntimeException("No se encontró material con ID: " + id);
         }
         
-        Material material = materialExistente.get();
-        material.setName(name);
-        material.setType(type);
-        material.setUnitMeasure(unitMeasure);
-        material.setUnitPrice(unitPrice);
-        material.setStock(stock);
+        Producto producto = productoExistente.get();
+        producto.setNombre(nombre);
+        producto.setTipo(tipo);
+        producto.setUnidadMedida(unidadMedida);
+        producto.setPrecioUnitario(precioUnitario);
+        producto.setStock(stock);
         
-        return materialRepository.save(material);
+        return materialRepository.save(producto);
     }
     
     /**
      * Actualizar material existente por nombre
      */
-    public Material actualizarMaterialPorNombre(String name, String type, String unitMeasure, BigDecimal unitPrice, Integer stock) {
-        Optional<Material> materialExistente = materialRepository.findByName(name);
+    public Producto actualizarMaterialPorNombre(String nombre, String tipo, String unidadMedida, BigDecimal precioUnitario, Integer stock) {
+        Optional<Producto> productoExistente = materialRepository.findByNombre(nombre);
         
-        if (materialExistente.isEmpty()) {
-            throw new RuntimeException("No se encontró material con nombre: " + name);
+        if (productoExistente.isEmpty()) {
+            throw new RuntimeException("No se encontró material con nombre: " + nombre);
         }
         
-        Material material = materialExistente.get();
-        material.setType(type);
-        material.setUnitMeasure(unitMeasure);
-        material.setUnitPrice(unitPrice);
-        material.setStock(stock);
+        Producto producto = productoExistente.get();
+        producto.setTipo(tipo);
+        producto.setUnidadMedida(unidadMedida);
+        producto.setPrecioUnitario(precioUnitario);
+        producto.setStock(stock);
         
-        return materialRepository.save(material);
+        return materialRepository.save(producto);
     }
     
     /**
@@ -99,10 +99,10 @@ public class MaterialService {
     /**
      * Eliminar material por nombre
      */
-    public boolean eliminarMaterialPorNombre(String name) {
-        Optional<Material> materialOpt = materialRepository.findByName(name);
-        if (materialOpt.isPresent()) {
-            materialRepository.delete(materialOpt.get());
+    public boolean eliminarMaterialPorNombre(String nombre) {
+        Optional<Producto> productoOpt = materialRepository.findByNombre(nombre);
+        if (productoOpt.isPresent()) {
+            materialRepository.delete(productoOpt.get());
             return true;
         }
         return false;
@@ -111,57 +111,57 @@ public class MaterialService {
     /**
      * Buscar materiales por tipo
      */
-    public List<Material> buscarMaterialesPorTipo(String type) {
-        return materialRepository.findByType(type);
+    public List<Producto> buscarMaterialesPorTipo(String tipo) {
+        return materialRepository.findByTipo(tipo);
     }
     
     /**
      * Buscar materiales por unidad de medida
      */
-    public List<Material> buscarMaterialesPorUnidadMedida(String unitMeasure) {
-        return materialRepository.findByUnitMeasure(unitMeasure);
+    public List<Producto> buscarMaterialesPorUnidadMedida(String unidadMedida) {
+        return materialRepository.findByUnidadMedida(unidadMedida);
     }
     
     /**
      * Buscar materiales por rango de precio
      */
-    public List<Material> buscarMaterialesPorRangoPrecio(BigDecimal minPrice, BigDecimal maxPrice) {
-        return materialRepository.findByUnitPriceBetween(minPrice, maxPrice);
+    public List<Producto> buscarMaterialesPorRangoPrecio(BigDecimal precioMin, BigDecimal precioMax) {
+        return materialRepository.findByPrecioUnitarioBetween(precioMin, precioMax);
     }
     
     /**
      * Buscar materiales por nombre (contiene texto)
      */
-    public List<Material> buscarMaterialesPorNombre(String nombre) {
-        return materialRepository.findByNameContainingIgnoreCase(nombre);
+    public List<Producto> buscarMaterialesPorNombre(String nombre) {
+        return materialRepository.findByNombreContainingIgnoreCase(nombre);
     }
     
     /**
      * Buscar materiales con stock bajo
      */
-    public List<Material> buscarMaterialesStockBajo(Integer minStock) {
-        return materialRepository.findLowStockMaterials(minStock);
+    public List<Producto> buscarMaterialesStockBajo(Integer stockMinimo) {
+        return materialRepository.findLowStockProducts(stockMinimo);
     }
     
     /**
      * Buscar materiales sin stock
      */
-    public List<Material> buscarMaterialesSinStock() {
-        return materialRepository.findOutOfStockMaterials();
+    public List<Producto> buscarMaterialesSinStock() {
+        return materialRepository.findOutOfStockProducts();
     }
     
     /**
      * Buscar materiales disponibles
      */
-    public List<Material> buscarMaterialesDisponibles() {
-        return materialRepository.findAvailableMaterials();
+    public List<Producto> buscarMaterialesDisponibles() {
+        return materialRepository.findAvailableProducts();
     }
     
     /**
      * Buscar materiales caros (precio mayor a un valor)
      */
-    public List<Material> buscarMaterialesCaros(BigDecimal precio) {
-        return materialRepository.findExpensiveMaterials(precio);
+    public List<Producto> buscarMaterialesCaros(BigDecimal precio) {
+        return materialRepository.findExpensiveProducts(precio);
     }
     
     /**
@@ -175,29 +175,29 @@ public class MaterialService {
     /**
      * Contar materiales por tipo
      */
-    public long contarMaterialesPorTipo(String type) {
-        return materialRepository.countByType(type);
+    public long contarMaterialesPorTipo(String tipo) {
+        return materialRepository.countByTipo(tipo);
     }
     
     /**
      * Buscar materiales disponibles por tipo
      */
-    public List<Material> buscarMaterialesDisponiblesPorTipo(String type) {
-        return materialRepository.findAvailableMaterialsByType(type);
+    public List<Producto> buscarMaterialesDisponiblesPorTipo(String tipo) {
+        return materialRepository.findAvailableProductsByType(tipo);
     }
     
     /**
      * Buscar materiales ordenados por precio ascendente
      */
-    public List<Material> buscarMaterialesOrdenadosPorPrecio() {
-        return materialRepository.findMaterialsOrderedByPriceAsc();
+    public List<Producto> buscarMaterialesOrdenadosPorPrecio() {
+        return materialRepository.findProductsOrderedByPriceAsc();
     }
     
     /**
      * Buscar materiales ordenados por stock descendente
      */
-    public List<Material> buscarMaterialesOrdenadosPorStock() {
-        return materialRepository.findMaterialsOrderedByStockDesc();
+    public List<Producto> buscarMaterialesOrdenadosPorStock() {
+        return materialRepository.findProductsOrderedByStockDesc();
     }
     
     /**
@@ -210,8 +210,8 @@ public class MaterialService {
     /**
      * Verificar si existe un material por nombre
      */
-    public boolean existeMaterialPorNombre(String name) {
-        return materialRepository.existsByName(name);
+    public boolean existeMaterialPorNombre(String nombre) {
+        return materialRepository.existsByNombre(nombre);
     }
     
     /**
@@ -224,12 +224,12 @@ public class MaterialService {
     /**
      * Actualizar precio de material por ID
      */
-    public Material actualizarPrecioMaterial(Long id, BigDecimal nuevoPrecio) {
-        Optional<Material> materialOpt = materialRepository.findById(id);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            material.setUnitPrice(nuevoPrecio);
-            return materialRepository.save(material);
+    public Producto actualizarPrecioMaterial(Long id, BigDecimal nuevoPrecio) {
+        Optional<Producto> productoOpt = materialRepository.findById(id);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            producto.setPrecioUnitario(nuevoPrecio);
+            return materialRepository.save(producto);
         }
         throw new RuntimeException("No se encontró material con ID: " + id);
     }
@@ -237,25 +237,25 @@ public class MaterialService {
     /**
      * Actualizar precio de material por nombre
      */
-    public Material actualizarPrecioMaterialPorNombre(String name, BigDecimal nuevoPrecio) {
-        Optional<Material> materialOpt = materialRepository.findByName(name);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            material.setUnitPrice(nuevoPrecio);
-            return materialRepository.save(material);
+    public Producto actualizarPrecioMaterialPorNombre(String nombre, BigDecimal nuevoPrecio) {
+        Optional<Producto> productoOpt = materialRepository.findByNombre(nombre);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            producto.setPrecioUnitario(nuevoPrecio);
+            return materialRepository.save(producto);
         }
-        throw new RuntimeException("No se encontró material con nombre: " + name);
+        throw new RuntimeException("No se encontró material con nombre: " + nombre);
     }
     
     /**
      * Actualizar stock de material por ID
      */
-    public Material actualizarStockMaterial(Long id, Integer nuevoStock) {
-        Optional<Material> materialOpt = materialRepository.findById(id);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            material.setStock(nuevoStock);
-            return materialRepository.save(material);
+    public Producto actualizarStockMaterial(Long id, Integer nuevoStock) {
+        Optional<Producto> productoOpt = materialRepository.findById(id);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            producto.setStock(nuevoStock);
+            return materialRepository.save(producto);
         }
         throw new RuntimeException("No se encontró material con ID: " + id);
     }
@@ -263,27 +263,27 @@ public class MaterialService {
     /**
      * Actualizar stock de material por nombre
      */
-    public Material actualizarStockMaterialPorNombre(String name, Integer nuevoStock) {
-        Optional<Material> materialOpt = materialRepository.findByName(name);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            material.setStock(nuevoStock);
-            return materialRepository.save(material);
+    public Producto actualizarStockMaterialPorNombre(String nombre, Integer nuevoStock) {
+        Optional<Producto> productoOpt = materialRepository.findByNombre(nombre);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            producto.setStock(nuevoStock);
+            return materialRepository.save(producto);
         }
-        throw new RuntimeException("No se encontró material con nombre: " + name);
+        throw new RuntimeException("No se encontró material con nombre: " + nombre);
     }
     
     /**
      * Reducir stock de material por ID
      */
-    public Material reducirStockMaterial(Long id, Integer cantidad) {
-        Optional<Material> materialOpt = materialRepository.findById(id);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            int stockActual = material.getStock() != null ? material.getStock() : 0;
+    public Producto reducirStockMaterial(Long id, Integer cantidad) {
+        Optional<Producto> productoOpt = materialRepository.findById(id);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            int stockActual = producto.getStock() != null ? producto.getStock() : 0;
             int nuevoStock = Math.max(0, stockActual - cantidad);
-            material.setStock(nuevoStock);
-            return materialRepository.save(material);
+            producto.setStock(nuevoStock);
+            return materialRepository.save(producto);
         }
         throw new RuntimeException("No se encontró material con ID: " + id);
     }
@@ -291,28 +291,28 @@ public class MaterialService {
     /**
      * Reducir stock de material por nombre
      */
-    public Material reducirStockMaterialPorNombre(String name, Integer cantidad) {
-        Optional<Material> materialOpt = materialRepository.findByName(name);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            int stockActual = material.getStock() != null ? material.getStock() : 0;
+    public Producto reducirStockMaterialPorNombre(String nombre, Integer cantidad) {
+        Optional<Producto> productoOpt = materialRepository.findByNombre(nombre);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            int stockActual = producto.getStock() != null ? producto.getStock() : 0;
             int nuevoStock = Math.max(0, stockActual - cantidad);
-            material.setStock(nuevoStock);
-            return materialRepository.save(material);
+            producto.setStock(nuevoStock);
+            return materialRepository.save(producto);
         }
-        throw new RuntimeException("No se encontró material con nombre: " + name);
+        throw new RuntimeException("No se encontró material con nombre: " + nombre);
     }
     
     /**
      * Aumentar stock de material por ID
      */
-    public Material aumentarStockMaterial(Long id, Integer cantidad) {
-        Optional<Material> materialOpt = materialRepository.findById(id);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            int stockActual = material.getStock() != null ? material.getStock() : 0;
-            material.setStock(stockActual + cantidad);
-            return materialRepository.save(material);
+    public Producto aumentarStockMaterial(Long id, Integer cantidad) {
+        Optional<Producto> productoOpt = materialRepository.findById(id);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            int stockActual = producto.getStock() != null ? producto.getStock() : 0;
+            producto.setStock(stockActual + cantidad);
+            return materialRepository.save(producto);
         }
         throw new RuntimeException("No se encontró material con ID: " + id);
     }
@@ -320,31 +320,31 @@ public class MaterialService {
     /**
      * Aumentar stock de material por nombre
      */
-    public Material aumentarStockMaterialPorNombre(String name, Integer cantidad) {
-        Optional<Material> materialOpt = materialRepository.findByName(name);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            int stockActual = material.getStock() != null ? material.getStock() : 0;
-            material.setStock(stockActual + cantidad);
-            return materialRepository.save(material);
+    public Producto aumentarStockMaterialPorNombre(String nombre, Integer cantidad) {
+        Optional<Producto> productoOpt = materialRepository.findByNombre(nombre);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            int stockActual = producto.getStock() != null ? producto.getStock() : 0;
+            producto.setStock(stockActual + cantidad);
+            return materialRepository.save(producto);
         }
-        throw new RuntimeException("No se encontró material con nombre: " + name);
+        throw new RuntimeException("No se encontró material con nombre: " + nombre);
     }
     
     /**
      * Validar datos de material
      */
-    public boolean validarDatosMaterial(String name, String type, String unitMeasure, BigDecimal unitPrice, Integer stock) {
-        if (name == null || name.trim().isEmpty()) {
+    public boolean validarDatosMaterial(String nombre, String tipo, String unidadMedida, BigDecimal precioUnitario, Integer stock) {
+        if (nombre == null || nombre.trim().isEmpty()) {
             return false;
         }
-        if (type == null || type.trim().isEmpty()) {
+        if (tipo == null || tipo.trim().isEmpty()) {
             return false;
         }
-        if (unitMeasure == null || unitMeasure.trim().isEmpty()) {
+        if (unidadMedida == null || unidadMedida.trim().isEmpty()) {
             return false;
         }
-        if (unitPrice == null || unitPrice.compareTo(BigDecimal.ZERO) < 0) {
+        if (precioUnitario == null || precioUnitario.compareTo(BigDecimal.ZERO) < 0) {
             return false;
         }
         if (stock == null || stock < 0) {
@@ -357,10 +357,10 @@ public class MaterialService {
      * Verificar disponibilidad de material por ID
      */
     public boolean verificarDisponibilidadMaterial(Long id, Integer cantidadRequerida) {
-        Optional<Material> materialOpt = materialRepository.findById(id);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            int stockActual = material.getStock() != null ? material.getStock() : 0;
+        Optional<Producto> productoOpt = materialRepository.findById(id);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            int stockActual = producto.getStock() != null ? producto.getStock() : 0;
             return stockActual >= cantidadRequerida;
         }
         return false;
@@ -369,13 +369,14 @@ public class MaterialService {
     /**
      * Verificar disponibilidad de material por nombre
      */
-    public boolean verificarDisponibilidadMaterialPorNombre(String name, Integer cantidadRequerida) {
-        Optional<Material> materialOpt = materialRepository.findByName(name);
-        if (materialOpt.isPresent()) {
-            Material material = materialOpt.get();
-            int stockActual = material.getStock() != null ? material.getStock() : 0;
+    public boolean verificarDisponibilidadMaterialPorNombre(String nombre, Integer cantidadRequerida) {
+        Optional<Producto> productoOpt = materialRepository.findByNombre(nombre);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            int stockActual = producto.getStock() != null ? producto.getStock() : 0;
             return stockActual >= cantidadRequerida;
         }
         return false;
     }
 }
+

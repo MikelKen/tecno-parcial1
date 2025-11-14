@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.repository;
 
-import com.example.tecno_proyect.model.Task;
+import com.example.tecno_proyect.model.Tarea;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,73 +10,73 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Tarea, Long> {
     
     // Buscar tareas por cronograma
-    List<Task> findByIdSchedule(Long idSchedule);
+    List<Tarea> findByIdCronograma(Long idCronograma);
     
     // Buscar tareas por usuario
-    List<Task> findByUserId(Long userId);
+    List<Tarea> findByUsuarioId(Long usuarioId);
     
     // Buscar tareas por estado
-    List<Task> findByState(String state);
+    List<Tarea> findByEstado(String estado);
     
     // Buscar tareas por descripción (parcial, ignorando mayúsculas)
-    @Query("SELECT t FROM Task t WHERE LOWER(t.description) LIKE LOWER(CONCAT('%', :description, '%'))")
-    List<Task> findByDescriptionContainingIgnoreCase(@Param("description") String description);
+    @Query("SELECT t FROM Tarea t WHERE LOWER(t.descripcion) LIKE LOWER(CONCAT('%', :descripcion, '%'))")
+    List<Tarea> findByDescripcionContainingIgnoreCase(@Param("descripcion") String descripcion);
     
     // Buscar tareas por hora de inicio
-    List<Task> findByInitHour(LocalTime initHour);
+    List<Tarea> findByHoraInicio(LocalTime horaInicio);
     
     // Buscar tareas por hora de finalización
-    List<Task> findByFinalHour(LocalTime finalHour);
+    List<Tarea> findByHoraFinal(LocalTime horaFinal);
     
     // Buscar tareas por rango de horas
-    @Query("SELECT t FROM Task t WHERE t.initHour >= :startTime AND t.finalHour <= :endTime")
-    List<Task> findByTimeRange(@Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
+    @Query("SELECT t FROM Tarea t WHERE t.horaInicio >= :startTime AND t.horaFinal <= :endTime")
+    List<Tarea> findByTimeRange(@Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
     
     // Buscar tareas activas (en progreso)
-    @Query("SELECT t FROM Task t WHERE t.state = 'En Progreso' OR t.state = 'Iniciada'")
-    List<Task> findActiveTasks();
+    @Query("SELECT t FROM Tarea t WHERE t.estado = 'En Progreso' OR t.estado = 'Iniciada'")
+    List<Tarea> findActiveTasks();
     
     // Buscar tareas completadas
-    @Query("SELECT t FROM Task t WHERE t.state = 'Completada' OR t.state = 'Terminada'")
-    List<Task> findCompletedTasks();
+    @Query("SELECT t FROM Tarea t WHERE t.estado = 'Completada' OR t.estado = 'Terminada'")
+    List<Tarea> findCompletedTasks();
     
     // Buscar tareas pendientes
-    @Query("SELECT t FROM Task t WHERE t.state = 'Pendiente' OR t.state = 'No Iniciada'")
-    List<Task> findPendingTasks();
+    @Query("SELECT t FROM Tarea t WHERE t.estado = 'Pendiente' OR t.estado = 'No Iniciada'")
+    List<Tarea> findPendingTasks();
     
     // Buscar tareas por usuario y estado
-    List<Task> findByUserIdAndState(Long userId, String state);
+    List<Tarea> findByUsuarioIdAndEstado(Long usuarioId, String estado);
     
     // Buscar tareas por cronograma y estado
-    List<Task> findByIdScheduleAndState(Long idSchedule, String state);
+    List<Tarea> findByIdCronogramaAndEstado(Long idCronograma, String estado);
     
     // Contar tareas por estado
-    @Query("SELECT COUNT(t) FROM Task t WHERE t.state = :state")
-    long countByState(@Param("state") String state);
+    @Query("SELECT COUNT(t) FROM Tarea t WHERE t.estado = :estado")
+    long countByEstado(@Param("estado") String estado);
     
     // Contar tareas por usuario
-    @Query("SELECT COUNT(t) FROM Task t WHERE t.userId = :userId")
-    long countByUserId(@Param("userId") Long userId);
+    @Query("SELECT COUNT(t) FROM Tarea t WHERE t.usuarioId = :usuarioId")
+    long countByUsuarioId(@Param("usuarioId") Long usuarioId);
     
     // Buscar tareas ordenadas por hora de inicio
-    @Query("SELECT t FROM Task t ORDER BY t.initHour ASC")
-    List<Task> findTasksOrderedByStartTime();
+    @Query("SELECT t FROM Tarea t ORDER BY t.horaInicio ASC")
+    List<Tarea> findTasksOrderedByStartTime();
     
     // Buscar tareas con duración mayor a un tiempo específico
-    @Query("SELECT t FROM Task t WHERE FUNCTION('TIMESTAMPDIFF', HOUR, t.initHour, t.finalHour) > :hours")
-    List<Task> findTasksLongerThan(@Param("hours") Integer hours);
+    @Query("SELECT t FROM Tarea t WHERE FUNCTION('TIMESTAMPDIFF', HOUR, t.horaInicio, t.horaFinal) > :hours")
+    List<Tarea> findTasksLongerThan(@Param("hours") Integer hours);
     
     // Buscar tareas por usuario ordenadas por hora de inicio
-    @Query("SELECT t FROM Task t WHERE t.userId = :userId ORDER BY t.initHour ASC")
-    List<Task> findByUserIdOrderedByStartTime(@Param("userId") Long userId);
+    @Query("SELECT t FROM Tarea t WHERE t.usuarioId = :usuarioId ORDER BY t.horaInicio ASC")
+    List<Tarea> findByUsuarioIdOrderedByStartTime(@Param("usuarioId") Long usuarioId);
     
     // Buscar tareas que se superponen en tiempo
-    @Query("SELECT t FROM Task t WHERE t.userId = :userId AND " +
-           "((t.initHour <= :endTime AND t.finalHour >= :startTime))")
-    List<Task> findOverlappingTasks(@Param("userId") Long userId, 
+    @Query("SELECT t FROM Tarea t WHERE t.usuarioId = :usuarioId AND " +
+           "((t.horaInicio <= :endTime AND t.horaFinal >= :startTime))")
+    List<Tarea> findOverlappingTasks(@Param("usuarioId") Long usuarioId, 
                                    @Param("startTime") LocalTime startTime, 
                                    @Param("endTime") LocalTime endTime);
 }

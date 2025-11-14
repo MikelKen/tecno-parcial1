@@ -1,7 +1,7 @@
 package com.example.tecno_proyect.service;
 
-import com.example.tecno_proyect.model.Design;
-import com.example.tecno_proyect.repository.DesignRepository;
+import com.example.tecno_proyect.model.Diseno;
+import com.example.tecno_proyect.repository.DisenoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,59 +15,60 @@ import java.util.Optional;
 public class DesignService {
     
     @Autowired
-    private DesignRepository designRepository;
+    private DisenoRepository designRepository;
     
     /**
      * Listar todos los diseños
      */
-    public List<Design> listarTodosLosDisenos() {
+    public List<Diseno> listarTodosLosDisenos() {
         return designRepository.findAll();
     }
     
     /**
      * Buscar diseño por ID
      */
-    public Optional<Design> buscarDisenoPorId(Long id) {
+    public Optional<Diseno> buscarDisenoPorId(Long id) {
         return designRepository.findById(id);
     }
     
     /**
      * Buscar diseño por ID de cotización
      */
-    public Optional<Design> buscarDisenoPorCotizacion(Long idQuote) {
-        return designRepository.findByIdQuote(idQuote);
+    public Optional<Diseno> buscarDisenoPorCotizacion(Long idCuota) {
+        List<Diseno> disenos = designRepository.findByIdCuota(idCuota);
+        return disenos.isEmpty() ? Optional.empty() : Optional.of(disenos.get(0));
     }
     
     /**
      * Insertar nuevo diseño
      */
-    public Design insertarDiseno(Long idQuote, String urlRender, String laminatedPlane, Boolean approved, 
-                                LocalDate approvedDate, String comments, Long userId) {
-        Design design = new Design(idQuote, urlRender, laminatedPlane, approved, approvedDate, comments, userId);
-        return designRepository.save(design);
+    public Diseno insertarDiseno(Long idCuota, String urlRender, String planoLaminar, Boolean aprobado, 
+                                LocalDate fechaAprobacion, String comentarios, Long usuarioId) {
+        Diseno diseno = new Diseno(idCuota, urlRender, planoLaminar, aprobado, fechaAprobacion, comentarios, usuarioId);
+        return designRepository.save(diseno);
     }
     
     /**
      * Actualizar diseño existente
      */
-    public Design actualizarDiseno(Long idDesign, Long idQuote, String urlRender, String laminatedPlane, Boolean approved, 
-                                  LocalDate approvedDate, String comments, Long userId) {
-        Optional<Design> disenoExistente = designRepository.findById(idDesign);
+    public Diseno actualizarDiseno(Long idDiseno, Long idCuota, String urlRender, String planoLaminar, Boolean aprobado, 
+                                  LocalDate fechaAprobacion, String comentarios, Long usuarioId) {
+        Optional<Diseno> disenoExistente = designRepository.findById(idDiseno);
         
         if (disenoExistente.isEmpty()) {
-            throw new RuntimeException("No se encontró diseño con ID: " + idDesign);
+            throw new RuntimeException("No se encontró diseño con ID: " + idDiseno);
         }
         
-        Design design = disenoExistente.get();
-        design.setIdQuote(idQuote);
-        design.setUrlRender(urlRender);
-        design.setLaminatedPlane(laminatedPlane);
-        design.setApproved(approved);
-        design.setApprovedDate(approvedDate);
-        design.setComments(comments);
-        design.setUserId(userId);
+        Diseno diseno = disenoExistente.get();
+        diseno.setIdCuota(idCuota);
+        diseno.setUrlRender(urlRender);
+        diseno.setPlanoLaminar(planoLaminar);
+        diseno.setAprobado(aprobado);
+        diseno.setFechaAprobacion(fechaAprobacion);
+        diseno.setComentarios(comentarios);
+        diseno.setUsuarioId(usuarioId);
         
-        return designRepository.save(design);
+        return designRepository.save(diseno);
     }
     
     /**
@@ -84,71 +85,71 @@ public class DesignService {
     /**
      * Buscar diseños por usuario
      */
-    public List<Design> buscarDisenosPorUsuario(Long userId) {
-        return designRepository.findByUserId(userId);
+    public List<Diseno> buscarDisenosPorUsuario(Long usuarioId) {
+        return designRepository.findByUsuarioId(usuarioId);
     }
     
     /**
      * Buscar diseños aprobados
      */
-    public List<Design> buscarDisenosAprobados() {
-        return designRepository.findByApproved(true);
+    public List<Diseno> buscarDisenosAprobados() {
+        return designRepository.findByAprobado(true);
     }
     
     /**
      * Buscar diseños pendientes (no aprobados)
      */
-    public List<Design> buscarDisenosPendientes() {
-        return designRepository.findByApproved(false);
+    public List<Diseno> buscarDisenosPendientes() {
+        return designRepository.findByAprobado(false);
     }
     
     /**
      * Buscar diseños por fecha de aprobación
      */
-    public List<Design> buscarDisenosPorFechaAprobacion(LocalDate approvedDate) {
-        return designRepository.findByApprovedDate(approvedDate);
+    public List<Diseno> buscarDisenosPorFechaAprobacion(LocalDate fechaAprobacion) {
+        return designRepository.findByFechaAprobacion(fechaAprobacion);
     }
     
     /**
      * Buscar diseños por rango de fechas de aprobación
      */
-    public List<Design> buscarDisenosPorRangoFechasAprobacion(LocalDate startDate, LocalDate endDate) {
-        return designRepository.findByApprovedDateBetween(startDate, endDate);
+    public List<Diseno> buscarDisenosPorRangoFechasAprobacion(LocalDate fechaInicio, LocalDate fechaFinal) {
+        return designRepository.findByFechaAprobacionBetween(fechaInicio, fechaFinal);
     }
     
     /**
      * Buscar diseños por comentarios (contiene texto)
      */
-    public List<Design> buscarDisenosPorComentarios(String comentario) {
-        return designRepository.findByCommentsContainingIgnoreCase(comentario);
+    public List<Diseno> buscarDisenosPorComentarios(String comentario) {
+        return designRepository.findByComentariosContainingIgnoreCase(comentario);
     }
     
     /**
      * Buscar diseños con render
      */
-    public List<Design> buscarDisenosConRender() {
-        return designRepository.findDesignsWithRender();
+    public List<Diseno> buscarDisenosConRender() {
+        return designRepository.findDisenosWithRender();
     }
     
     /**
      * Buscar diseños con plano laminado
      */
-    public List<Design> buscarDisenosConPlanoLaminado() {
-        return designRepository.findDesignsWithLaminatedPlane();
+    public List<Diseno> buscarDisenosConPlanoLaminado() {
+        return designRepository.findDisenosWithLaminatedPlane();
     }
     
     /**
      * Contar diseños aprobados
      */
     public long contarDisenosAprobados() {
-        return designRepository.countApprovedDesigns();
+        return designRepository.countApprovedDisenos();
     }
     
     /**
      * Contar diseños pendientes
      */
     public long contarDisenosPendientes() {
-        return designRepository.countPendingDesigns();
+        return designRepository.countPendingDisenos();
     }
     
     /**
@@ -168,13 +169,13 @@ public class DesignService {
     /**
      * Aprobar diseño
      */
-    public Design aprobarDiseno(Long id) {
-        Optional<Design> disenoOpt = designRepository.findById(id);
+    public Diseno aprobarDiseno(Long id) {
+        Optional<Diseno> disenoOpt = designRepository.findById(id);
         if (disenoOpt.isPresent()) {
-            Design design = disenoOpt.get();
-            design.setApproved(true);
-            design.setApprovedDate(LocalDate.now());
-            return designRepository.save(design);
+            Diseno diseno = disenoOpt.get();
+            diseno.setAprobado(true);
+            diseno.setFechaAprobacion(LocalDate.now());
+            return designRepository.save(diseno);
         }
         throw new RuntimeException("No se encontró diseño con ID: " + id);
     }
@@ -182,13 +183,13 @@ public class DesignService {
     /**
      * Rechazar diseño
      */
-    public Design rechazarDiseno(Long id) {
-        Optional<Design> disenoOpt = designRepository.findById(id);
+    public Diseno rechazarDiseno(Long id) {
+        Optional<Diseno> disenoOpt = designRepository.findById(id);
         if (disenoOpt.isPresent()) {
-            Design design = disenoOpt.get();
-            design.setApproved(false);
-            design.setApprovedDate(LocalDate.now());
-            return designRepository.save(design);
+            Diseno diseno = disenoOpt.get();
+            diseno.setAprobado(false);
+            diseno.setFechaAprobacion(LocalDate.now());
+            return designRepository.save(diseno);
         }
         throw new RuntimeException("No se encontró diseño con ID: " + id);
     }
@@ -196,12 +197,12 @@ public class DesignService {
     /**
      * Actualizar URL de render
      */
-    public Design actualizarUrlRender(Long id, String nuevaUrl) {
-        Optional<Design> disenoOpt = designRepository.findById(id);
+    public Diseno actualizarUrlRender(Long id, String nuevaUrl) {
+        Optional<Diseno> disenoOpt = designRepository.findById(id);
         if (disenoOpt.isPresent()) {
-            Design design = disenoOpt.get();
-            design.setUrlRender(nuevaUrl);
-            return designRepository.save(design);
+            Diseno diseno = disenoOpt.get();
+            diseno.setUrlRender(nuevaUrl);
+            return designRepository.save(diseno);
         }
         throw new RuntimeException("No se encontró diseño con ID: " + id);
     }
@@ -209,12 +210,12 @@ public class DesignService {
     /**
      * Actualizar plano laminado
      */
-    public Design actualizarPlanoLaminado(Long id, String nuevoPlano) {
-        Optional<Design> disenoOpt = designRepository.findById(id);
+    public Diseno actualizarPlanoLaminado(Long id, String nuevoPlano) {
+        Optional<Diseno> disenoOpt = designRepository.findById(id);
         if (disenoOpt.isPresent()) {
-            Design design = disenoOpt.get();
-            design.setLaminatedPlane(nuevoPlano);
-            return designRepository.save(design);
+            Diseno diseno = disenoOpt.get();
+            diseno.setPlanoLaminar(nuevoPlano);
+            return designRepository.save(diseno);
         }
         throw new RuntimeException("No se encontró diseño con ID: " + id);
     }
@@ -222,12 +223,12 @@ public class DesignService {
     /**
      * Actualizar comentarios del diseño
      */
-    public Design actualizarComentarios(Long id, String nuevosComentarios) {
-        Optional<Design> disenoOpt = designRepository.findById(id);
+    public Diseno actualizarComentarios(Long id, String nuevosComentarios) {
+        Optional<Diseno> disenoOpt = designRepository.findById(id);
         if (disenoOpt.isPresent()) {
-            Design design = disenoOpt.get();
-            design.setComments(nuevosComentarios);
-            return designRepository.save(design);
+            Diseno diseno = disenoOpt.get();
+            diseno.setComentarios(nuevosComentarios);
+            return designRepository.save(diseno);
         }
         throw new RuntimeException("No se encontró diseño con ID: " + id);
     }
@@ -235,8 +236,8 @@ public class DesignService {
     /**
      * Validar datos de diseño
      */
-    public boolean validarDatosDiseno(String urlRender, String laminatedPlane, String comments, Long userId) {
-        if (userId == null) {
+    public boolean validarDatosDiseno(String urlRender, String planoLaminar, String comentarios, Long usuarioId) {
+        if (usuarioId == null) {
             return false;
         }
         // URL render y plano laminado pueden ser opcionales
@@ -248,10 +249,10 @@ public class DesignService {
      * Verificar si un diseño está aprobado
      */
     public boolean estaAprobado(Long id) {
-        Optional<Design> disenoOpt = designRepository.findById(id);
+        Optional<Diseno> disenoOpt = designRepository.findById(id);
         if (disenoOpt.isPresent()) {
-            Design design = disenoOpt.get();
-            return design.getApproved() != null && design.getApproved();
+            Diseno diseno = disenoOpt.get();
+            return diseno.getAprobado() != null && diseno.getAprobado();
         }
         return false;
     }
@@ -260,10 +261,10 @@ public class DesignService {
      * Verificar si un diseño tiene render
      */
     public boolean tieneRender(Long id) {
-        Optional<Design> disenoOpt = designRepository.findById(id);
+        Optional<Diseno> disenoOpt = designRepository.findById(id);
         if (disenoOpt.isPresent()) {
-            Design design = disenoOpt.get();
-            return design.getUrlRender() != null && !design.getUrlRender().trim().isEmpty();
+            Diseno diseno = disenoOpt.get();
+            return diseno.getUrlRender() != null && !diseno.getUrlRender().trim().isEmpty();
         }
         return false;
     }
@@ -272,10 +273,10 @@ public class DesignService {
      * Verificar si un diseño tiene plano laminado
      */
     public boolean tienePlanoLaminado(Long id) {
-        Optional<Design> disenoOpt = designRepository.findById(id);
+        Optional<Diseno> disenoOpt = designRepository.findById(id);
         if (disenoOpt.isPresent()) {
-            Design design = disenoOpt.get();
-            return design.getLaminatedPlane() != null && !design.getLaminatedPlane().trim().isEmpty();
+            Diseno diseno = disenoOpt.get();
+            return diseno.getPlanoLaminar() != null && !diseno.getPlanoLaminar().trim().isEmpty();
         }
         return false;
     }
@@ -283,32 +284,32 @@ public class DesignService {
     /**
      * Obtener diseños aprobados por usuario
      */
-    public List<Design> obtenerDisenosAprobadosPorUsuario(Long userId) {
-        return buscarDisenosPorUsuario(userId).stream()
-                .filter(design -> design.getApproved() != null && design.getApproved())
+    public List<Diseno> obtenerDisenosAprobadosPorUsuario(Long usuarioId) {
+        return buscarDisenosPorUsuario(usuarioId).stream()
+                .filter(diseno -> diseno.getAprobado() != null && diseno.getAprobado())
                 .toList();
     }
     
     /**
      * Obtener diseños pendientes por usuario
      */
-    public List<Design> obtenerDisenosPendientesPorUsuario(Long userId) {
-        return buscarDisenosPorUsuario(userId).stream()
-                .filter(design -> design.getApproved() == null || !design.getApproved())
+    public List<Diseno> obtenerDisenosPendientesPorUsuario(Long usuarioId) {
+        return buscarDisenosPorUsuario(usuarioId).stream()
+                .filter(diseno -> diseno.getAprobado() == null || !diseno.getAprobado())
                 .toList();
     }
     
     /**
      * Contar diseños por usuario
      */
-    public long contarDisenosPorUsuario(Long userId) {
-        return buscarDisenosPorUsuario(userId).size();
+    public long contarDisenosPorUsuario(Long usuarioId) {
+        return buscarDisenosPorUsuario(usuarioId).size();
     }
     
     /**
      * Verificar si un usuario tiene diseños
      */
-    public boolean usuarioTieneDisenos(Long userId) {
-        return contarDisenosPorUsuario(userId) > 0;
+    public boolean usuarioTieneDisenos(Long usuarioId) {
+        return contarDisenosPorUsuario(usuarioId) > 0;
     }
 }

@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.service;
 
-import com.example.tecno_proyect.model.Project;
+import com.example.tecno_proyect.model.Proyecto;
 import com.example.tecno_proyect.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,79 +19,79 @@ public class ProjectService {
     /**
      * Listar todos los proyectos
      */
-    public List<Project> listarTodosLosProyectos() {
+    public List<Proyecto> listarTodosLosProyectos() {
         return projectRepository.findAll();
     }
     
     /**
      * Buscar proyecto por ID
      */
-    public Optional<Project> buscarProyectoPorId(Long id) {
+    public Optional<Proyecto> buscarProyectoPorId(Long id) {
         return projectRepository.findById(id);
     }
     
     /**
      * Buscar proyecto por nombre
      */
-    public Optional<Project> buscarProyectoPorNombre(String name) {
-        return projectRepository.findByName(name);
+    public Optional<Proyecto> buscarProyectoPorNombre(String nombre) {
+        return projectRepository.findByNombre(nombre);
     }
     
     /**
      * Insertar nuevo proyecto
      */
-    public Project insertarProyecto(String name, String description, String location, 
-                                  String state, Long idClient, Long userId) {
+    public Proyecto insertarProyecto(String nombre, String descripcion, String ubicacion, 
+                                  String estado, Long idCliente, Long usuarioId) {
         // Verificar si ya existe un proyecto con ese nombre
-        if (projectRepository.existsByName(name)) {
-            throw new RuntimeException("Ya existe un proyecto con nombre: " + name);
+        if (projectRepository.existsByNombre(nombre)) {
+            throw new RuntimeException("Ya existe un proyecto con nombre: " + nombre);
         }
         
-        Project project = new Project(name, description, location, state, idClient, userId);
-        return projectRepository.save(project);
+        Proyecto proyecto = new Proyecto(nombre, descripcion, ubicacion, estado, idCliente, usuarioId);
+        return projectRepository.save(proyecto);
     }
     
     /**
      * Actualizar proyecto existente por ID
      */
-    public Project actualizarProyecto(Long id, String name, String description, String location, 
-                                     String state, Long idClient, Long userId) {
-        Optional<Project> proyectoExistente = projectRepository.findById(id);
+    public Proyecto actualizarProyecto(Long id, String nombre, String descripcion, String ubicacion, 
+                                     String estado, Long idCliente, Long usuarioId) {
+        Optional<Proyecto> proyectoExistente = projectRepository.findById(id);
         
         if (proyectoExistente.isEmpty()) {
             throw new RuntimeException("No se encontró proyecto con ID: " + id);
         }
         
-        Project project = proyectoExistente.get();
-        project.setName(name);
-        project.setDescription(description);
-        project.setLocation(location);
-        project.setState(state);
-        project.setIdClient(idClient);
-        project.setUserId(userId);
+        Proyecto proyecto = proyectoExistente.get();
+        proyecto.setNombre(nombre);
+        proyecto.setDescripcion(descripcion);
+        proyecto.setUbicacion(ubicacion);
+        proyecto.setEstado(estado);
+        proyecto.setIdCliente(idCliente);
+        proyecto.setUsuarioId(usuarioId);
         
-        return projectRepository.save(project);
+        return projectRepository.save(proyecto);
     }
     
     /**
      * Actualizar proyecto existente por nombre
      */
-    public Project actualizarProyectoPorNombre(String name, String description, String location, 
-                                             String state, Long idClient, Long userId) {
-        Optional<Project> proyectoExistente = projectRepository.findByName(name);
+    public Proyecto actualizarProyectoPorNombre(String nombre, String descripcion, String ubicacion, 
+                                             String estado, Long idCliente, Long usuarioId) {
+        Optional<Proyecto> proyectoExistente = projectRepository.findByNombre(nombre);
         
         if (proyectoExistente.isEmpty()) {
-            throw new RuntimeException("No se encontró proyecto con nombre: " + name);
+            throw new RuntimeException("No se encontró proyecto con nombre: " + nombre);
         }
         
-        Project project = proyectoExistente.get();
-        project.setDescription(description);
-        project.setLocation(location);
-        project.setState(state);
-        project.setIdClient(idClient);
-        project.setUserId(userId);
+        Proyecto proyecto = proyectoExistente.get();
+        proyecto.setDescripcion(descripcion);
+        proyecto.setUbicacion(ubicacion);
+        proyecto.setEstado(estado);
+        proyecto.setIdCliente(idCliente);
+        proyecto.setUsuarioId(usuarioId);
         
-        return projectRepository.save(project);
+        return projectRepository.save(proyecto);
     }
     
     /**
@@ -108,8 +108,8 @@ public class ProjectService {
     /**
      * Eliminar proyecto por nombre
      */
-    public boolean eliminarProyectoPorNombre(String name) {
-        Optional<Project> proyectoOpt = projectRepository.findByName(name);
+    public boolean eliminarProyectoPorNombre(String nombre) {
+        Optional<Proyecto> proyectoOpt = projectRepository.findByNombre(nombre);
         if (proyectoOpt.isPresent()) {
             projectRepository.delete(proyectoOpt.get());
             return true;
@@ -120,50 +120,50 @@ public class ProjectService {
     /**
      * Buscar proyectos por cliente
      */
-    public List<Project> buscarProyectosPorCliente(Long idClient) {
-        return projectRepository.findByIdClient(idClient);
+    public List<Proyecto> buscarProyectosPorCliente(Long idCliente) {
+        return projectRepository.findByIdCliente(idCliente);
     }
     
     /**
      * Buscar proyectos por usuario
      */
-    public List<Project> buscarProyectosPorUsuario(Long userId) {
-        return projectRepository.findByUserId(userId);
+    public List<Proyecto> buscarProyectosPorUsuario(Long usuarioId) {
+        return projectRepository.findByUsuarioId(usuarioId);
     }
     
     /**
      * Buscar proyectos por estado
      */
-    public List<Project> buscarProyectosPorEstado(String state) {
-        return projectRepository.findByState(state);
+    public List<Proyecto> buscarProyectosPorEstado(String estado) {
+        return projectRepository.findByEstado(estado);
     }
     
     /**
      * Buscar proyectos activos
      */
-    public List<Project> buscarProyectosActivos() {
+    public List<Proyecto> buscarProyectosActivos() {
         return projectRepository.findActiveProjects();
     }
     
     /**
      * Buscar proyectos por ubicación
      */
-    public List<Project> buscarProyectosPorUbicacion(String location) {
-        return projectRepository.findByLocationContainingIgnoreCase(location);
+    public List<Proyecto> buscarProyectosPorUbicacion(String ubicacion) {
+        return projectRepository.findByUbicacionContainingIgnoreCase(ubicacion);
     }
     
     /**
      * Buscar proyectos por descripción
      */
-    public List<Project> buscarProyectosPorDescripcion(String description) {
-        return projectRepository.findByDescriptionContainingIgnoreCase(description);
+    public List<Proyecto> buscarProyectosPorDescripcion(String descripcion) {
+        return projectRepository.findByDescripcionContainingIgnoreCase(descripcion);
     }
     
     /**
      * Contar proyectos por estado
      */
-    public long contarProyectosPorEstado(String state) {
-        return projectRepository.countByState(state);
+    public long contarProyectosPorEstado(String estado) {
+        return projectRepository.countByEstado(estado);
     }
     
     /**
@@ -176,8 +176,8 @@ public class ProjectService {
     /**
      * Verificar si existe un proyecto por nombre
      */
-    public boolean existeProyectoPorNombre(String name) {
-        return projectRepository.existsByName(name);
+    public boolean existeProyectoPorNombre(String nombre) {
+        return projectRepository.existsByNombre(nombre);
     }
     
     /**
@@ -190,12 +190,12 @@ public class ProjectService {
     /**
      * Cambiar estado de proyecto por ID
      */
-    public Project cambiarEstadoProyecto(Long id, String nuevoEstado) {
-        Optional<Project> proyectoOpt = projectRepository.findById(id);
+    public Proyecto cambiarEstadoProyecto(Long id, String nuevoEstado) {
+        Optional<Proyecto> proyectoOpt = projectRepository.findById(id);
         if (proyectoOpt.isPresent()) {
-            Project project = proyectoOpt.get();
-            project.setState(nuevoEstado);
-            return projectRepository.save(project);
+            Proyecto proyecto = proyectoOpt.get();
+            proyecto.setEstado(nuevoEstado);
+            return projectRepository.save(proyecto);
         }
         throw new RuntimeException("No se encontró proyecto con ID: " + id);
     }
@@ -203,25 +203,25 @@ public class ProjectService {
     /**
      * Cambiar estado de proyecto por nombre
      */
-    public Project cambiarEstadoProyectoPorNombre(String name, String nuevoEstado) {
-        Optional<Project> proyectoOpt = projectRepository.findByName(name);
+    public Proyecto cambiarEstadoProyectoPorNombre(String nombre, String nuevoEstado) {
+        Optional<Proyecto> proyectoOpt = projectRepository.findByNombre(nombre);
         if (proyectoOpt.isPresent()) {
-            Project project = proyectoOpt.get();
-            project.setState(nuevoEstado);
-            return projectRepository.save(project);
+            Proyecto proyecto = proyectoOpt.get();
+            proyecto.setEstado(nuevoEstado);
+            return projectRepository.save(proyecto);
         }
-        throw new RuntimeException("No se encontró proyecto con nombre: " + name);
+        throw new RuntimeException("No se encontró proyecto con nombre: " + nombre);
     }
     
     /**
      * Asignar proyecto a usuario por ID
      */
-    public Project asignarProyectoAUsuario(Long id, Long userId) {
-        Optional<Project> proyectoOpt = projectRepository.findById(id);
+    public Proyecto asignarProyectoAUsuario(Long id, Long usuarioId) {
+        Optional<Proyecto> proyectoOpt = projectRepository.findById(id);
         if (proyectoOpt.isPresent()) {
-            Project project = proyectoOpt.get();
-            project.setUserId(userId);
-            return projectRepository.save(project);
+            Proyecto proyecto = proyectoOpt.get();
+            proyecto.setUsuarioId(usuarioId);
+            return projectRepository.save(proyecto);
         }
         throw new RuntimeException("No se encontró proyecto con ID: " + id);
     }
@@ -229,14 +229,14 @@ public class ProjectService {
     /**
      * Asignar proyecto a usuario por nombre
      */
-    public Project asignarProyectoAUsuarioPorNombre(String name, Long userId) {
-        Optional<Project> proyectoOpt = projectRepository.findByName(name);
+    public Proyecto asignarProyectoAUsuarioPorNombre(String nombre, Long usuarioId) {
+        Optional<Proyecto> proyectoOpt = projectRepository.findByNombre(nombre);
         if (proyectoOpt.isPresent()) {
-            Project project = proyectoOpt.get();
-            project.setUserId(userId);
-            return projectRepository.save(project);
+            Proyecto proyecto = proyectoOpt.get();
+            proyecto.setUsuarioId(usuarioId);
+            return projectRepository.save(proyecto);
         }
-        throw new RuntimeException("No se encontró proyecto con nombre: " + name);
+        throw new RuntimeException("No se encontró proyecto con nombre: " + nombre);
     }
     
     /**

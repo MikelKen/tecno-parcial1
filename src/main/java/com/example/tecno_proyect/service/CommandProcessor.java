@@ -346,7 +346,7 @@ public class CommandProcessor {
     // --- Métodos de tareas ---
     private String handleListarTodasLasTareas(String[] parameters) {
         try {
-            List<Task> tareas = taskService.listarTodasLasTareas();
+            List<Tarea> tareas = taskService.listarTodasLasTareas();
             return emailResponseService.formatListTareasResponse(tareas, "LISTASK");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al listar tareas: " + e.getMessage(), "LISTASK");
@@ -359,7 +359,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Optional<Task> tareaOpt = taskService.buscarTareaPorId(id);
+            Optional<Tarea> tareaOpt = taskService.buscarTareaPorId(id);
             if (tareaOpt.isPresent()) {
                 return emailResponseService.formatSearchTareaSuccess(tareaOpt.get(), "BUSTASKID");
             } else {
@@ -375,7 +375,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("INSTASK", "INSTASK[\"initHour\",\"finalHour\",\"description\",\"state\",\"idSchedule\",\"userId\"]");
         }
         try {
-            Task task = new Task(
+            Tarea Tarea = new Tarea(
                 java.time.LocalTime.parse(parameters[0]), // initHour
                 java.time.LocalTime.parse(parameters[1]), // finalHour
                 parameters[2], // description
@@ -383,7 +383,7 @@ public class CommandProcessor {
                 Long.parseLong(parameters[4]), // idSchedule
                 Long.parseLong(parameters[5])  // userId
             );
-            Task nueva = taskService.insertarTarea(task);
+            Tarea nueva = taskService.insertarTarea(Tarea);
             return emailResponseService.formatInsertTareaSuccess(nueva, "INSTASK");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al insertar tarea: " + e.getMessage(), "INSTASK");
@@ -396,7 +396,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Task datos = new Task(
+            Tarea datos = new Tarea(
                 java.time.LocalTime.parse(parameters[1]), // initHour
                 java.time.LocalTime.parse(parameters[2]), // finalHour
                 parameters[3], // description
@@ -404,7 +404,7 @@ public class CommandProcessor {
                 Long.parseLong(parameters[5]), // idSchedule
                 Long.parseLong(parameters[6])  // userId
             );
-            Task actualizado = taskService.actualizarTarea(id, datos);
+            Tarea actualizado = taskService.actualizarTarea(id, datos);
             return emailResponseService.formatUpdateTareaSuccess(actualizado, "UPDTASK");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al actualizar tarea: " + e.getMessage(), "UPDTASK");
@@ -434,7 +434,7 @@ public class CommandProcessor {
         }
         try {
             Long idSchedule = Long.parseLong(parameters[0]);
-            List<Task> tareas = taskService.buscarPorCronograma(idSchedule);
+            List<Tarea> tareas = taskService.buscarPorCronograma(idSchedule);
             return emailResponseService.formatListTareasPorCronogramaResponse(tareas, "BUSTASKSCH");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar tareas por cronograma: " + e.getMessage(), "BUSTASKSCH");
@@ -447,7 +447,7 @@ public class CommandProcessor {
         }
         try {
             Long userId = Long.parseLong(parameters[0]);
-            List<Task> tareas = taskService.buscarPorUsuario(userId);
+            List<Tarea> tareas = taskService.buscarPorUsuario(userId);
             return emailResponseService.formatListTareasPorUsuarioResponse(tareas, "BUSTASKUSR");
         } catch (NumberFormatException e) {
             return emailResponseService.formatErrorResponse("ID de usuario inválido: " + parameters[0], "BUSTASKUSR");
@@ -458,7 +458,7 @@ public class CommandProcessor {
 
     private String handleBuscarTareasActivas(String[] parameters) {
         try {
-            List<Task> tareas = taskService.buscarTareasActivas();
+            List<Tarea> tareas = taskService.buscarTareasActivas();
             return emailResponseService.formatListTareasActivasResponse(tareas, "TASKACT");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar tareas activas: " + e.getMessage(), "TASKACT");
@@ -467,7 +467,7 @@ public class CommandProcessor {
 
     private String handleBuscarTareasCompletadas(String[] parameters) {
         try {
-            List<Task> tareas = taskService.buscarTareasCompletadas();
+            List<Tarea> tareas = taskService.buscarTareasCompletadas();
             return emailResponseService.formatListTareasCompletadasResponse(tareas, "TASKCOMP");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar tareas completadas: " + e.getMessage(), "TASKCOMP");
@@ -476,7 +476,7 @@ public class CommandProcessor {
 
     private String handleBuscarTareasPendientes(String[] parameters) {
         try {
-            List<Task> tareas = taskService.buscarTareasPendientes();
+            List<Tarea> tareas = taskService.buscarTareasPendientes();
             return emailResponseService.formatListTareasPendientesResponse(tareas, "TASKPEND");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar tareas pendientes: " + e.getMessage(), "TASKPEND");
@@ -486,7 +486,7 @@ public class CommandProcessor {
     // --- Métodos de cronogramas ---
     private String handleListarTodosLosCronogramas(String[] parameters) {
         try {
-            List<Schedule> cronogramas = scheduleService.listarTodosLosCronogramas();
+            List<Cronograma> cronogramas = scheduleService.listarTodosLosCronogramas();
             return emailResponseService.formatListCronogramasResponse(cronogramas, "LISSCH");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al listar cronogramas: " + e.getMessage(), "LISSCH");
@@ -499,7 +499,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Optional<Schedule> cronogramaOpt = scheduleService.buscarCronogramaPorId(id);
+            Optional<Cronograma> cronogramaOpt = scheduleService.buscarCronogramaPorId(id);
             if (cronogramaOpt.isPresent()) {
                 return emailResponseService.formatSearchCronogramaSuccess(cronogramaOpt.get(), "BUSSCHID");
             } else {
@@ -515,7 +515,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("INSSCH", "INSSCH[\"initDate\",\"finalDate\",\"estimateDays\",\"state\",\"idProject\",\"userId\"]");
         }
         try {
-            Schedule schedule = new Schedule(
+            Cronograma Cronograma = new Cronograma(
                 java.time.LocalDate.parse(parameters[0]), // initDate
                 java.time.LocalDate.parse(parameters[1]), // finalDate
                 Integer.parseInt(parameters[2]), // estimateDays
@@ -523,7 +523,7 @@ public class CommandProcessor {
                 Long.parseLong(parameters[4]), // idProject
                 Long.parseLong(parameters[5])  // userId
             );
-            Schedule nuevo = scheduleService.insertarCronograma(schedule);
+            Cronograma nuevo = scheduleService.insertarCronograma(Cronograma);
             return emailResponseService.formatInsertCronogramaSuccess(nuevo, "INSSCH");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al insertar cronograma: " + e.getMessage(), "INSSCH");
@@ -536,7 +536,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Schedule datos = new Schedule(
+            Cronograma datos = new Cronograma(
                 java.time.LocalDate.parse(parameters[1]), // initDate
                 java.time.LocalDate.parse(parameters[2]), // finalDate
                 Integer.parseInt(parameters[3]), // estimateDays
@@ -544,7 +544,7 @@ public class CommandProcessor {
                 Long.parseLong(parameters[5]), // idProject
                 Long.parseLong(parameters[6])  // userId
             );
-            Schedule actualizado = scheduleService.actualizarCronograma(id, datos);
+            Cronograma actualizado = scheduleService.actualizarCronograma(id, datos);
             return emailResponseService.formatUpdateCronogramaSuccess(actualizado, "UPDSCH");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al actualizar cronograma: " + e.getMessage(), "UPDSCH");
@@ -556,7 +556,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSSCHPROY", "BUSSCHPROY[\"idProject\"]");
         }
         try {
-            List<Schedule> cronogramas = scheduleService.buscarPorProyecto(Long.parseLong(parameters[0]));
+            List<Cronograma> cronogramas = scheduleService.buscarPorProyecto(Long.parseLong(parameters[0]));
             return emailResponseService.formatListCronogramasPorProyectoResponse(cronogramas, "BUSSCHPROY");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cronogramas por proyecto: " + e.getMessage(), "BUSSCHPROY");
@@ -569,7 +569,7 @@ public class CommandProcessor {
         }
         try {
             Long userId = Long.parseLong(parameters[0]);
-            List<Schedule> cronogramas = scheduleService.buscarPorUsuario(userId);
+            List<Cronograma> cronogramas = scheduleService.buscarPorUsuario(userId);
             return emailResponseService.formatListCronogramasPorUsuarioResponse(cronogramas, "BUSSCHUSR");
         } catch (NumberFormatException e) {
             return emailResponseService.formatErrorResponse("ID de usuario inválido: " + parameters[0], "BUSSCHUSR");
@@ -580,7 +580,7 @@ public class CommandProcessor {
 
     private String handleBuscarCronogramasActivos(String[] parameters) {
         try {
-            List<Schedule> cronogramas = scheduleService.buscarCronogramasActivos();
+            List<Cronograma> cronogramas = scheduleService.buscarCronogramasActivos();
             return emailResponseService.formatListCronogramasActivosResponse(cronogramas, "SCHACT");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cronogramas activos: " + e.getMessage(), "SCHACT");
@@ -589,7 +589,7 @@ public class CommandProcessor {
 
     private String handleBuscarCronogramasCompletados(String[] parameters) {
         try {
-            List<Schedule> cronogramas = scheduleService.buscarCronogramasCompletados();
+            List<Cronograma> cronogramas = scheduleService.buscarCronogramasCompletados();
             return emailResponseService.formatListCronogramasCompletadosResponse(cronogramas, "SCHCOMP");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cronogramas completados: " + e.getMessage(), "SCHCOMP");
@@ -598,7 +598,7 @@ public class CommandProcessor {
     // --- Métodos de proyectos ---
     private String handleListarTodosLosProyectos(String[] parameters) {
         try {
-            List<Project> proyectos = projectService.listarTodosLosProyectos();
+            List<Proyecto> proyectos = projectService.listarTodosLosProyectos();
             return emailResponseService.formatListProyectosResponse(proyectos, "LISPROY");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al listar proyectos: " + e.getMessage(), "LISPROY");
@@ -610,7 +610,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("INSPROY", "INSPROY[\"nombre\",\"descripcion\",\"ubicacion\",\"estado\",\"idCliente\",\"idUsuario\"]");
         }
         try {
-            Project proyecto = projectService.insertarProyecto(
+            Proyecto proyecto = projectService.insertarProyecto(
                 parameters[0], // nombre
                 parameters[1], // descripcion
                 parameters[2], // ubicacion
@@ -629,7 +629,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPROYNOM", "BUSPROYNOM[\"nombre\"]");
         }
         try {
-            Optional<Project> proyectoOpt = projectService.buscarProyectoPorNombre(parameters[0]);
+            Optional<Proyecto> proyectoOpt = projectService.buscarProyectoPorNombre(parameters[0]);
             if (proyectoOpt.isPresent()) {
                 return emailResponseService.formatSearchProyectoSuccess(proyectoOpt.get(), "BUSPROYNOM");
             } else {
@@ -645,7 +645,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("UPDPROY", "UPDPROY[\"nombre\",\"descripcion\",\"ubicacion\",\"estado\",\"idCliente\",\"idUsuario\"]");
         }
         try {
-            Project proyecto = projectService.actualizarProyectoPorNombre(
+            Proyecto proyecto = projectService.actualizarProyectoPorNombre(
                 parameters[0], // nombre
                 parameters[1], // descripcion
                 parameters[2], // ubicacion
@@ -664,7 +664,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPROYCLI", "BUSPROYCLI[\"idCliente\"]");
         }
         try {
-            List<Project> proyectos = projectService.buscarProyectosPorCliente(Long.parseLong(parameters[0]));
+            List<Proyecto> proyectos = projectService.buscarProyectosPorCliente(Long.parseLong(parameters[0]));
             return emailResponseService.formatListProyectosPorClienteResponse(proyectos, "BUSPROYCLI");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar proyectos por cliente: " + e.getMessage(), "BUSPROYCLI");
@@ -676,7 +676,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPROYUSR", "BUSPROYUSR[\"idUsuario\"]");
         }
         try {
-            List<Project> proyectos = projectService.buscarProyectosPorUsuario(Long.parseLong(parameters[0]));
+            List<Proyecto> proyectos = projectService.buscarProyectosPorUsuario(Long.parseLong(parameters[0]));
             return emailResponseService.formatListProyectosPorUsuarioResponse(proyectos, "BUSPROYUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar proyectos por usuario: " + e.getMessage(), "BUSPROYUSR");
@@ -688,7 +688,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPROYEST", "BUSPROYEST[\"estado\"]");
         }
         try {
-            List<Project> proyectos = projectService.buscarProyectosPorEstado(parameters[0]);
+            List<Proyecto> proyectos = projectService.buscarProyectosPorEstado(parameters[0]);
             return emailResponseService.formatListProyectosPorEstadoResponse(proyectos, "BUSPROYEST");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar proyectos por estado: " + e.getMessage(), "BUSPROYEST");
@@ -871,7 +871,7 @@ public class CommandProcessor {
     private String handleListClientes(String[] parameters) {
         try {
             System.out.println("DEBUG: Iniciando handleListClientes");
-            List<Client> clientes = clientService.listarTodosLosClientes();
+            List<Cliente> clientes = clientService.listarTodosLosClientes();
             System.out.println("DEBUG: Clientes obtenidos: " + (clientes != null ? clientes.size() : "null"));
             String response = emailResponseService.formatListClientesResponse(clientes, "LISCLI");
             System.out.println("DEBUG: Respuesta generada, longitud: " + (response != null ? response.length() : "null"));
@@ -889,7 +889,7 @@ public class CommandProcessor {
             }
             try {
                 String email = parameters[0];
-                Optional<Client> clientOpt = clientService.buscarClientePorEmail(email);
+                Optional<Cliente> clientOpt = clientService.buscarClientePorEmail(email);
                 if (clientOpt.isPresent()) {
                     return emailResponseService.formatSearchClienteSuccess(clientOpt.get(), "BUSCLIEMAIL");
                 } else {
@@ -909,7 +909,7 @@ public class CommandProcessor {
                 return emailResponseService.formatInsufficientParametersResponse("INSCLI", "INSCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"]");
             }
             try {
-                Client cliente = clientService.insertarCliente(
+                Cliente cliente = clientService.insertarCliente(
                     parameters[0], // nombre
                     parameters[1], // email
                     parameters[2], // teléfono
@@ -926,7 +926,7 @@ public class CommandProcessor {
                 return emailResponseService.formatInsufficientParametersResponse("UPDCLI", "UPDCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"]");
             }
             try {
-                Client cliente = clientService.actualizarCliente(
+                Cliente cliente = clientService.actualizarCliente(
                     parameters[0], // nombre
                     parameters[1], // email
                     parameters[2], // teléfono
@@ -957,7 +957,7 @@ public class CommandProcessor {
 
         private String handleBuscarClientesConProyectos(String[] parameters) {
             try {
-                List<Client> clientes = clientService.buscarClientesConProyectos();
+                List<Cliente> clientes = clientService.buscarClientesConProyectos();
                 return emailResponseService.formatListClientesConProyectosResponse(clientes, "BUSCLIPROY");
             } catch (Exception e) {
                 return emailResponseService.formatErrorResponse("Error al buscar clientes con proyectos: " + e.getMessage(), "BUSCLIPROY");
@@ -1035,10 +1035,10 @@ public class CommandProcessor {
                 parameters[4], // password
                 parameters[5]  // rol
             );
-            System.out.println("DEBUG handleInsertarUsuario: Usuario creado exitosamente: " + usuario.getName());
+            System.out.println("DEBUG handleInsertarUsuario: Usuario creado exitosamente: " + usuario.getNombre());
             return emailResponseService.formatInsertUsuarioSuccess(usuario, "INSUSR");
         } catch (Exception e) {
-            System.out.println("DEBUG handleInsertarUsuario: Excepción capturada: " + e.getClass().getName() + " - " + e.getMessage());
+            System.out.println("DEBUG handleInsertarUsuario: Excepción capturada: " + e.getClass().getNombre() + " - " + e.getMessage());
             return emailResponseService.formatErrorResponse("Error al insertar usuario: " + e.getMessage(), "INSUSR");
         }
     }
@@ -1141,7 +1141,7 @@ public class CommandProcessor {
     // --- Métodos de cotizaciones ---
     private String handleListarTodasLasCotizaciones(String[] parameters) {
         try {
-            List<Quote> cotizaciones = quoteService.listarTodasLasCotizaciones();
+            List<Cuota> cotizaciones = quoteService.listarTodasLasCotizaciones();
             return emailResponseService.formatListCotizacionesResponse(cotizaciones, "LISQUOTE");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al listar cotizaciones: " + e.getMessage(), "LISQUOTE");
@@ -1154,7 +1154,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Optional<Quote> cotizacionOpt = quoteService.buscarCotizacionPorId(id);
+            Optional<Cuota> cotizacionOpt = quoteService.buscarCotizacionPorId(id);
             if (cotizacionOpt.isPresent()) {
                 return emailResponseService.formatSearchCotizacionSuccess(cotizacionOpt.get(), "BUSQUOTEID");
             } else {
@@ -1170,7 +1170,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("INSQUOTE", "INSQUOTE[\"typeMetro\",\"costMetro\",\"quantityMetro\",\"costFurniture\",\"total\",\"state\",\"furnitureNumber\",\"comments\",\"idProject\",\"userId\"]");
         }
         try {
-            Quote cotizacion = quoteService.insertarCotizacion(
+            Cuota cotizacion = quoteService.insertarCotizacion(
                 parameters[0], // typeMetro
                 new java.math.BigDecimal(parameters[1]), // costMetro
                 new java.math.BigDecimal(parameters[2]), // quantityMetro
@@ -1193,7 +1193,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("UPDQUOTE", "UPDQUOTE[\"id\",\"typeMetro\",\"costMetro\",\"quantityMetro\",\"costFurniture\",\"total\",\"state\",\"furnitureNumber\",\"comments\",\"idProject\",\"userId\"]");
         }
         try {
-            Quote cotizacion = quoteService.actualizarCotizacion(
+            Cuota cotizacion = quoteService.actualizarCotizacion(
                 Long.parseLong(parameters[0]), // id
                 parameters[1], // typeMetro
                 new java.math.BigDecimal(parameters[2]), // costMetro
@@ -1234,7 +1234,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSQUOTEPROY", "BUSQUOTEPROY[\"idProject\"]");
         }
         try {
-            List<Quote> cotizaciones = quoteService.buscarCotizacionesPorProyecto(Long.parseLong(parameters[0]));
+            List<Cuota> cotizaciones = quoteService.buscarCotizacionesPorProyecto(Long.parseLong(parameters[0]));
             return emailResponseService.formatListCotizacionesPorProyectoResponse(cotizaciones, "BUSQUOTEPROY");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cotizaciones por proyecto: " + e.getMessage(), "BUSQUOTEPROY");
@@ -1246,7 +1246,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSQUOTEUSR", "BUSQUOTEUSR[\"userId\"]");
         }
         try {
-            List<Quote> cotizaciones = quoteService.buscarCotizacionesPorUsuario(Long.parseLong(parameters[0]));
+            List<Cuota> cotizaciones = quoteService.buscarCotizacionesPorUsuario(Long.parseLong(parameters[0]));
             return emailResponseService.formatListCotizacionesPorUsuarioResponse(cotizaciones, "BUSQUOTEUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cotizaciones por usuario: " + e.getMessage(), "BUSQUOTEUSR");
@@ -1258,7 +1258,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSQUOTETYPE", "BUSQUOTETYPE[\"typeMetro\"]");
         }
         try {
-            List<Quote> cotizaciones = quoteService.buscarCotizacionesPorTipoMetro(parameters[0]);
+            List<Cuota> cotizaciones = quoteService.buscarCotizacionesPorTipoMetro(parameters[0]);
             return emailResponseService.formatListCotizacionesPorTipoMetroResponse(cotizaciones, "BUSQUOTETYPE");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar cotizaciones por tipo metro: " + e.getMessage(), "BUSQUOTETYPE");
@@ -1299,7 +1299,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Quote cotizacion = quoteService.aprobarCotizacion(id);
+            Cuota cotizacion = quoteService.aprobarCotizacion(id);
             return emailResponseService.formatAprobarCotizacionSuccess(cotizacion, "APPRQUOTE");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al aprobar cotización: " + e.getMessage(), "APPRQUOTE");
@@ -1312,7 +1312,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Quote cotizacion = quoteService.rechazarCotizacion(id);
+            Cuota cotizacion = quoteService.rechazarCotizacion(id);
             return emailResponseService.formatRechazarCotizacionSuccess(cotizacion, "REJQUOTE");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al rechazar cotización: " + e.getMessage(), "REJQUOTE");
@@ -1322,7 +1322,7 @@ public class CommandProcessor {
     // --- Métodos de diseños ---
     private String handleListarTodosLosDisenos(String[] parameters) {
         try {
-            List<Design> disenos = designService.listarTodosLosDisenos();
+            List<Diseno> disenos = designService.listarTodosLosDisenos();
             return emailResponseService.formatListDisenosResponse(disenos, "LISDESIGN");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al listar diseños: " + e.getMessage(), "LISDESIGN");
@@ -1335,7 +1335,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Optional<Design> disenoOpt = designService.buscarDisenoPorId(id);
+            Optional<Diseno> disenoOpt = designService.buscarDisenoPorId(id);
             if (disenoOpt.isPresent()) {
                 return emailResponseService.formatSearchDisenoSuccess(disenoOpt.get(), "BUSDESIGNID");
             } else {
@@ -1352,7 +1352,7 @@ public class CommandProcessor {
         }
         try {
             Long idQuote = Long.parseLong(parameters[0]);
-            Optional<Design> disenoOpt = designService.buscarDisenoPorCotizacion(idQuote);
+            Optional<Diseno> disenoOpt = designService.buscarDisenoPorCotizacion(idQuote);
             if (disenoOpt.isPresent()) {
                 return emailResponseService.formatSearchDisenoSuccess(disenoOpt.get(), "BUSDESIGNQUOTE");
             } else {
@@ -1368,7 +1368,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("INSDESIGN", "INSDESIGN[\"idQuote\",\"urlRender\",\"laminatedPlane\",\"approved\",\"approvedDate\",\"comments\",\"userId\"]");
         }
         try {
-            Design diseno = designService.insertarDiseno(
+            Diseno diseno = designService.insertarDiseno(
                 Long.parseLong(parameters[0]), // idQuote
                 parameters[1], // urlRender
                 parameters[2], // laminatedPlane
@@ -1388,7 +1388,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("UPDDESIGN", "UPDDESIGN[\"idDesign\",\"idQuote\",\"urlRender\",\"laminatedPlane\",\"approved\",\"approvedDate\",\"comments\",\"userId\"]");
         }
         try {
-            Design diseno = designService.actualizarDiseno(
+            Diseno diseno = designService.actualizarDiseno(
                 Long.parseLong(parameters[0]), // idDesign
                 Long.parseLong(parameters[1]), // idQuote
                 parameters[2], // urlRender
@@ -1426,7 +1426,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSDESIGNUSR", "BUSDESIGNUSR[\"userId\"]");
         }
         try {
-            List<Design> disenos = designService.buscarDisenosPorUsuario(Long.parseLong(parameters[0]));
+            List<Diseno> disenos = designService.buscarDisenosPorUsuario(Long.parseLong(parameters[0]));
             return emailResponseService.formatListDisenosPorUsuarioResponse(disenos, "BUSDESIGNUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar diseños por usuario: " + e.getMessage(), "BUSDESIGNUSR");
@@ -1435,7 +1435,7 @@ public class CommandProcessor {
 
     private String handleBuscarDisenosAprobados(String[] parameters) {
         try {
-            List<Design> disenos = designService.buscarDisenosAprobados();
+            List<Diseno> disenos = designService.buscarDisenosAprobados();
             return emailResponseService.formatListDisenosAprobadosResponse(disenos, "DESIGNAPPR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar diseños aprobados: " + e.getMessage(), "DESIGNAPPR");
@@ -1448,7 +1448,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Design diseno = designService.aprobarDiseno(id);
+            Diseno diseno = designService.aprobarDiseno(id);
             return emailResponseService.formatAprobarDisenoSuccess(diseno, "APPRDESIGN");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al aprobar diseño: " + e.getMessage(), "APPRDESIGN");
@@ -1461,7 +1461,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Design diseno = designService.rechazarDiseno(id);
+            Diseno diseno = designService.rechazarDiseno(id);
             return emailResponseService.formatRechazarDisenoSuccess(diseno, "REJDESIGN");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al rechazar diseño: " + e.getMessage(), "REJDESIGN");
@@ -1473,7 +1473,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("DESIGNAPPRUSR", "DESIGNAPPRUSR[\"userId\"]");
         }
         try {
-            List<Design> disenos = designService.obtenerDisenosAprobadosPorUsuario(Long.parseLong(parameters[0]));
+            List<Diseno> disenos = designService.obtenerDisenosAprobadosPorUsuario(Long.parseLong(parameters[0]));
             return emailResponseService.formatListDisenosAprobadosPorUsuarioResponse(disenos, "DESIGNAPPRUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al obtener diseños aprobados por usuario: " + e.getMessage(), "DESIGNAPPRUSR");
@@ -1485,7 +1485,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("DESIGNPENDUSR", "DESIGNPENDUSR[\"userId\"]");
         }
         try {
-            List<Design> disenos = designService.obtenerDisenosPendientesPorUsuario(Long.parseLong(parameters[0]));
+            List<Diseno> disenos = designService.obtenerDisenosPendientesPorUsuario(Long.parseLong(parameters[0]));
             return emailResponseService.formatListDisenosPendientesPorUsuarioResponse(disenos, "DESIGNPENDUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al obtener diseños pendientes por usuario: " + e.getMessage(), "DESIGNPENDUSR");
@@ -1495,7 +1495,7 @@ public class CommandProcessor {
     // --- Métodos de planes de pago ---
     private String handleListarTodosLosPlanesPago(String[] parameters) {
         try {
-            List<PayPlan> planesPago = payPlanService.listarTodosLosPlanesPago();
+            List<PlanPago> planesPago = payPlanService.listarTodosLosPlanesPago();
             return emailResponseService.formatListPlanesPagoResponse(planesPago, "LISPAYPLAN");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al listar planes de pago: " + e.getMessage(), "LISPAYPLAN");
@@ -1508,7 +1508,7 @@ public class CommandProcessor {
         }
         try {
             Long idPayPlan = Long.parseLong(parameters[0]);
-            Optional<PayPlan> planOpt = payPlanService.buscarPlanPagoPorId(idPayPlan);
+            Optional<PlanPago> planOpt = payPlanService.buscarPlanPagoPorId(idPayPlan);
             if (planOpt.isPresent()) {
                 return emailResponseService.formatSearchPlanPagoSuccess(planOpt.get(), "BUSPAYPLANID");
             } else {
@@ -1524,7 +1524,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPAYPLANPROY", "BUSPAYPLANPROY[\"idProject\"]");
         }
         try {
-            Optional<PayPlan> planOpt = payPlanService.buscarPlanPagoPorProyecto(parameters[0]);
+            Optional<PlanPago> planOpt = payPlanService.buscarPlanPagoPorProyecto(parameters[0]);
             if (planOpt.isPresent()) {
                 return emailResponseService.formatSearchPlanPagoSuccess(planOpt.get(), "BUSPAYPLANPROY");
             } else {
@@ -1540,7 +1540,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("INSPAYPLAN", "INSPAYPLAN[\"idProject\",\"totalDebt\",\"totalPayed\",\"numberDebt\",\"numberPays\",\"state\"]");
         }
         try {
-            PayPlan planPago = payPlanService.insertarPlanPago(
+            PlanPago planPago = payPlanService.insertarPlanPago(
                 Long.parseLong(parameters[0]), // idProject
                 new java.math.BigDecimal(parameters[1]), // totalDebt
                 new java.math.BigDecimal(parameters[2]), // totalPayed
@@ -1559,7 +1559,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("UPDPAYPLAN", "UPDPAYPLAN[\"idPayPlan\",\"idProject\",\"totalDebt\",\"totalPayed\",\"numberDebt\",\"numberPays\",\"state\"]");
         }
         try {
-            PayPlan planPago = payPlanService.actualizarPlanPago(
+            PlanPago planPago = payPlanService.actualizarPlanPago(
                 Long.parseLong(parameters[0]), // idPayPlan
                 Long.parseLong(parameters[1]), // idProject
                 new java.math.BigDecimal(parameters[2]), // totalDebt
@@ -1579,7 +1579,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPAYPLANEST", "BUSPAYPLANEST[\"state\"]");
         }
         try {
-            List<PayPlan> planesPago = payPlanService.buscarPlanesPagoPorEstado(parameters[0]);
+            List<PlanPago> planesPago = payPlanService.buscarPlanesPagoPorEstado(parameters[0]);
             return emailResponseService.formatListPlanesPagoPorEstadoResponse(planesPago, "BUSPAYPLANEST");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar planes de pago por estado: " + e.getMessage(), "BUSPAYPLANEST");
@@ -1611,7 +1611,7 @@ public class CommandProcessor {
         try {
             Long idPayPlan = Long.parseLong(parameters[0]);
             java.math.BigDecimal nuevaDeuda = new java.math.BigDecimal(parameters[1]);
-            PayPlan planPago = payPlanService.actualizarDeudaTotal(idPayPlan, nuevaDeuda);
+            PlanPago planPago = payPlanService.actualizarDeudaTotal(idPayPlan, nuevaDeuda);
             return emailResponseService.formatUpdateDeudaTotalSuccess(planPago, "UPDDEUDATOT");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al actualizar deuda total: " + e.getMessage(), "UPDDEUDATOT");
@@ -1637,7 +1637,7 @@ public class CommandProcessor {
         }
         try {
             Long idPayPlan = Long.parseLong(parameters[0]);
-            PayPlan planPago = payPlanService.cambiarEstado(idPayPlan, parameters[1]);
+            PlanPago planPago = payPlanService.cambiarEstado(idPayPlan, parameters[1]);
             return emailResponseService.formatCambiarEstadoSuccess(planPago, "CAMBIOEST");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al cambiar estado: " + e.getMessage(), "CAMBIOEST");
@@ -1647,7 +1647,7 @@ public class CommandProcessor {
     // --- Métodos de pagos ---
     private String handleListarTodosLosPagos(String[] parameters) {
         try {
-            List<Pays> pagos = paysService.listarTodosLosPagos();
+            List<Pago> pagos = paysService.listarTodosLosPagos();
             return emailResponseService.formatListPagosResponse(pagos, "LISPAYS");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al listar pagos: " + e.getMessage(), "LISPAYS");
@@ -1660,7 +1660,7 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Optional<Pays> pagoOpt = paysService.buscarPagoPorId(id);
+            Optional<Pago> pagoOpt = paysService.buscarPagoPorId(id);
             if (pagoOpt.isPresent()) {
                 return emailResponseService.formatSearchPagoSuccess(pagoOpt.get(), "BUSPAYID");
             } else {
@@ -1676,7 +1676,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("INSPAY", "INSPAY[\"date\",\"total\",\"state\",\"idClient\",\"idPayPlan\"]");
         }
         try {
-            Pays pago = paysService.insertarPago(
+            Pago pago = paysService.insertarPago(
                 java.time.LocalDate.parse(parameters[0]), // date
                 new java.math.BigDecimal(parameters[1]), // total
                 parameters[2], // state
@@ -1694,7 +1694,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("UPDPAY", "UPDPAY[\"id\",\"date\",\"total\",\"state\",\"idClient\",\"idPayPlan\"]");
         }
         try {
-            Pays pago = paysService.actualizarPago(
+            Pago pago = paysService.actualizarPago(
                 Long.parseLong(parameters[0]), // id
                 java.time.LocalDate.parse(parameters[1]), // date
                 new java.math.BigDecimal(parameters[2]), // total
@@ -1713,7 +1713,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPAYCLI", "BUSPAYCLI[\"idClient\"]");
         }
         try {
-            List<Pays> pagos = paysService.buscarPagosPorCliente(Long.parseLong(parameters[0]));
+            List<Pago> pagos = paysService.buscarPagosPorCliente(Long.parseLong(parameters[0]));
             return emailResponseService.formatListPagosPorClienteResponse(pagos, "BUSPAYCLI");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar pagos por cliente: " + e.getMessage(), "BUSPAYCLI");
@@ -1761,7 +1761,7 @@ public class CommandProcessor {
     // --- Métodos de materiales ---
     private String handleListarTodosLosMateriales(String[] parameters) {
         try {
-            List<Material> materiales = materialService.listarTodosLosMateriales();
+            List<Producto> materiales = materialService.listarTodosLosMateriales();
             return emailResponseService.formatListMaterialesResponse(materiales, "LISMAT");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al listar materiales: " + e.getMessage(), "LISMAT");
@@ -1773,14 +1773,14 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSMATNOM", "BUSMATNOM[\"name\"]");
         }
         try {
-            Optional<Material> materialOpt = materialService.buscarMaterialPorNombre(parameters[0]);
+            Optional<Producto> materialOpt = materialService.buscarMaterialPorNombre(parameters[0]);
             if (materialOpt.isPresent()) {
                 return emailResponseService.formatSearchMaterialSuccess(materialOpt.get(), "BUSMATNOM");
             } else {
                 return emailResponseService.formatSearchMaterialNotFound(parameters[0], "BUSMATNOM");
             }
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al buscar material por nombre: " + e.getMessage(), "BUSMATNOM");
+            return emailResponseService.formatErrorResponse("Error al buscar Producto por nombre: " + e.getMessage(), "BUSMATNOM");
         }
     }
 
@@ -1789,16 +1789,16 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("INSMAT", "INSMAT[\"name\",\"type\",\"unitMeasure\",\"unitPrice\",\"stock\"]");
         }
         try {
-            Material material = materialService.insertarMaterial(
+            Producto Producto = materialService.insertarMaterial(
                 parameters[0], // name
                 parameters[1], // type
                 parameters[2], // unitMeasure
                 new java.math.BigDecimal(parameters[3]), // unitPrice
                 Integer.parseInt(parameters[4])  // stock
             );
-            return emailResponseService.formatInsertMaterialSuccess(material, "INSMAT");
+            return emailResponseService.formatInsertMaterialSuccess(Producto, "INSMAT");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al insertar material: " + e.getMessage(), "INSMAT");
+            return emailResponseService.formatErrorResponse("Error al insertar Producto: " + e.getMessage(), "INSMAT");
         }
     }
 
@@ -1807,16 +1807,16 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("UPDMAT", "UPDMAT[\"name\",\"type\",\"unitMeasure\",\"unitPrice\",\"stock\"]");
         }
         try {
-            Material material = materialService.actualizarMaterialPorNombre(
+            Producto Producto = materialService.actualizarMaterialPorNombre(
                 parameters[0], // name
                 parameters[1], // type
                 parameters[2], // unitMeasure
                 new java.math.BigDecimal(parameters[3]), // unitPrice
                 Integer.parseInt(parameters[4])  // stock
             );
-            return emailResponseService.formatUpdateMaterialSuccess(material, "UPDMAT");
+            return emailResponseService.formatUpdateMaterialSuccess(Producto, "UPDMAT");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al actualizar material: " + e.getMessage(), "UPDMAT");
+            return emailResponseService.formatErrorResponse("Error al actualizar Producto: " + e.getMessage(), "UPDMAT");
         }
     }
 
@@ -1825,7 +1825,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSMATTIPO", "BUSMATTIPO[\"type\"]");
         }
         try {
-            List<Material> materiales = materialService.buscarMaterialesPorTipo(parameters[0]);
+            List<Producto> materiales = materialService.buscarMaterialesPorTipo(parameters[0]);
             return emailResponseService.formatListMaterialesPorTipoResponse(materiales, "BUSMATTIPO");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar materiales por tipo: " + e.getMessage(), "BUSMATTIPO");
@@ -1838,10 +1838,10 @@ public class CommandProcessor {
         }
         try {
             java.math.BigDecimal nuevoPrecio = new java.math.BigDecimal(parameters[1]);
-            Material material = materialService.actualizarPrecioMaterial(Long.parseLong(parameters[0]), nuevoPrecio);
-            return emailResponseService.formatUpdatePrecioMaterialSuccess(material, "UPDMATPRECIO");
+            Producto Producto = materialService.actualizarPrecioMaterial(Long.parseLong(parameters[0]), nuevoPrecio);
+            return emailResponseService.formatUpdatePrecioMaterialSuccess(Producto, "UPDMATPRECIO");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al actualizar precio de material: " + e.getMessage(), "UPDMATPRECIO");
+            return emailResponseService.formatErrorResponse("Error al actualizar precio de Producto: " + e.getMessage(), "UPDMATPRECIO");
         }
     }
 
@@ -1851,10 +1851,10 @@ public class CommandProcessor {
         }
         try {
             Integer nuevoStock = Integer.parseInt(parameters[1]);
-            Material material = materialService.actualizarStockMaterial(Long.parseLong(parameters[0]), nuevoStock);
-            return emailResponseService.formatUpdateStockMaterialSuccess(material, "UPDMATSTOCK");
+            Producto Producto = materialService.actualizarStockMaterial(Long.parseLong(parameters[0]), nuevoStock);
+            return emailResponseService.formatUpdateStockMaterialSuccess(Producto, "UPDMATSTOCK");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al actualizar stock de material: " + e.getMessage(), "UPDMATSTOCK");
+            return emailResponseService.formatErrorResponse("Error al actualizar stock de Producto: " + e.getMessage(), "UPDMATSTOCK");
         }
     }
 
@@ -1864,10 +1864,10 @@ public class CommandProcessor {
         }
         try {
             Integer cantidad = Integer.parseInt(parameters[1]);
-            Material material = materialService.reducirStockMaterial(Long.parseLong(parameters[0]), cantidad);
-            return emailResponseService.formatReducirStockMaterialSuccess(material, "REDMATSTOCK");
+            Producto Producto = materialService.reducirStockMaterial(Long.parseLong(parameters[0]), cantidad);
+            return emailResponseService.formatReducirStockMaterialSuccess(Producto, "REDMATSTOCK");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al reducir stock de material: " + e.getMessage(), "REDMATSTOCK");
+            return emailResponseService.formatErrorResponse("Error al reducir stock de Producto: " + e.getMessage(), "REDMATSTOCK");
         }
     }
 
@@ -1877,10 +1877,10 @@ public class CommandProcessor {
         }
         try {
             Integer cantidad = Integer.parseInt(parameters[1]);
-            Material material = materialService.aumentarStockMaterial(Long.parseLong(parameters[0]), cantidad);
-            return emailResponseService.formatAumentarStockMaterialSuccess(material, "AUMMATSTOCK");
+            Producto Producto = materialService.aumentarStockMaterial(Long.parseLong(parameters[0]), cantidad);
+            return emailResponseService.formatAumentarStockMaterialSuccess(Producto, "AUMMATSTOCK");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al aumentar stock de material: " + e.getMessage(), "AUMMATSTOCK");
+            return emailResponseService.formatErrorResponse("Error al aumentar stock de Producto: " + e.getMessage(), "AUMMATSTOCK");
         }
     }
 
@@ -1893,14 +1893,14 @@ public class CommandProcessor {
             boolean disponible = materialService.verificarDisponibilidadMaterial(Long.parseLong(parameters[0]), cantidadRequerida);
             return emailResponseService.formatVerificarDisponibilidadMaterialResponse(disponible, parameters[0], cantidadRequerida, "VERMATDISP");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al verificar disponibilidad de material: " + e.getMessage(), "VERMATDISP");
+            return emailResponseService.formatErrorResponse("Error al verificar disponibilidad de Producto: " + e.getMessage(), "VERMATDISP");
         }
     }
 
     // --- Métodos de materiales-proyecto ---
     private String handleListarTodosMaterialesProyecto(String[] parameters) {
         try {
-            List<MaterialProject> materialesProyecto = materialProjectService.listarTodosMaterialesProyecto();
+            List<ProductoProject> materialesProyecto = materialProjectService.listarTodosMaterialesProyecto();
             return emailResponseService.formatListMaterialesProyectoResponse(materialesProyecto, "LISMATPROY");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al listar materiales-proyecto: " + e.getMessage(), "LISMATPROY");
@@ -1913,14 +1913,14 @@ public class CommandProcessor {
         }
         try {
             Long id = Long.parseLong(parameters[0]);
-            Optional<MaterialProject> materialProyectoOpt = materialProjectService.buscarMaterialProyectoPorId(id);
+            Optional<ProductoProject> materialProyectoOpt = materialProjectService.buscarMaterialProyectoPorId(id);
             if (materialProyectoOpt.isPresent()) {
                 return emailResponseService.formatSearchMaterialProyectoSuccess(materialProyectoOpt.get(), "BUSMATPROYID");
             } else {
                 return emailResponseService.formatSearchMaterialProyectoNotFound(id, "BUSMATPROYID");
             }
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al buscar material-proyecto por ID: " + e.getMessage(), "BUSMATPROYID");
+            return emailResponseService.formatErrorResponse("Error al buscar Producto-proyecto por ID: " + e.getMessage(), "BUSMATPROYID");
         }
     }
 
@@ -1929,7 +1929,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("INSMATPROY", "INSMATPROY[\"quantity\",\"leftOver\",\"idProject\",\"idMaterial\"]");
         }
         try {
-            MaterialProject materialProyecto = materialProjectService.insertarMaterialProyecto(
+            ProductoProject materialProyecto = materialProjectService.insertarMaterialProyecto(
                 Integer.parseInt(parameters[0]), // quantity
                 Integer.parseInt(parameters[1]), // leftOver
                 Long.parseLong(parameters[2]), // idProject
@@ -1937,7 +1937,7 @@ public class CommandProcessor {
             );
             return emailResponseService.formatInsertMaterialProyectoSuccess(materialProyecto, "INSMATPROY");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al insertar material-proyecto: " + e.getMessage(), "INSMATPROY");
+            return emailResponseService.formatErrorResponse("Error al insertar Producto-proyecto: " + e.getMessage(), "INSMATPROY");
         }
     }
 
@@ -1946,7 +1946,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("UPDMATPROY", "UPDMATPROY[\"id\",\"quantity\",\"leftOver\",\"idProject\",\"idMaterial\"]");
         }
         try {
-            MaterialProject materialProyecto = materialProjectService.actualizarMaterialProyecto(
+            ProductoProject materialProyecto = materialProjectService.actualizarMaterialProyecto(
                 Long.parseLong(parameters[0]), // id
                 Integer.parseInt(parameters[1]), // quantity
                 Integer.parseInt(parameters[2]), // leftOver
@@ -1955,7 +1955,7 @@ public class CommandProcessor {
             );
             return emailResponseService.formatUpdateMaterialProyectoSuccess(materialProyecto, "UPDMATPROY");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al actualizar material-proyecto: " + e.getMessage(), "UPDMATPROY");
+            return emailResponseService.formatErrorResponse("Error al actualizar Producto-proyecto: " + e.getMessage(), "UPDMATPROY");
         }
     }
 
@@ -1964,7 +1964,7 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSMATPORPROY", "BUSMATPORPROY[\"idProject\"]");
         }
         try {
-            List<MaterialProject> materialesProyecto = materialProjectService.buscarMaterialesPorProyecto(Long.parseLong(parameters[0]));
+            List<ProductoProject> materialesProyecto = materialProjectService.buscarMaterialesPorProyecto(Long.parseLong(parameters[0]));
             return emailResponseService.formatListMaterialesPorProyectoResponse(materialesProyecto, "BUSMATPORPROY");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar materiales por proyecto: " + e.getMessage(), "BUSMATPORPROY");
@@ -1976,14 +1976,14 @@ public class CommandProcessor {
             return emailResponseService.formatInsufficientParametersResponse("BUSPROYPORMAT", "BUSPROYPORMAT[\"idMaterial\"]");
         }
         try {
-            List<MaterialProject> proyectosMaterial = materialProjectService.buscarProyectosPorMaterial(Long.parseLong(parameters[0]));
+            List<ProductoProject> proyectosMaterial = materialProjectService.buscarProyectosPorMaterial(Long.parseLong(parameters[0]));
             return emailResponseService.formatListProyectosPorMaterialResponse(proyectosMaterial, "BUSPROYPORMAT");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al buscar proyectos por material: " + e.getMessage(), "BUSPROYPORMAT");
+            return emailResponseService.formatErrorResponse("Error al buscar proyectos por Producto: " + e.getMessage(), "BUSPROYPORMAT");
         }
     }
     
-    // --- Nuevos métodos para PayPlan y Pays ---
+    // --- Nuevos métodos para PlanPago y Pago ---
     
     private String handleCrearPlanPagoConPagos(String[] parameters) {
         if (parameters.length < 2) {
@@ -1998,7 +1998,7 @@ public class CommandProcessor {
                 montos.add(new java.math.BigDecimal(montoStr.trim()));
             }
             
-            PayPlan plan = payPlanService.crearPlanPagoConPagos(idProject, montos);
+            PlanPago plan = payPlanService.crearPlanPagoConPagos(idProject, montos);
             return emailResponseService.formatCreatePlanPagoSuccess(plan, "CREARPLANPAGOS");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al crear plan de pago: " + e.getMessage(), "CREARPLANPAGOS");
@@ -2011,7 +2011,7 @@ public class CommandProcessor {
         }
         try {
             Long idPayPlan = Long.parseLong(parameters[0]);
-            PayPlan plan = payPlanService.obtenerPlanPagoCompleto(idPayPlan);
+            PlanPago plan = payPlanService.obtenerPlanPagoCompleto(idPayPlan);
             return emailResponseService.formatSearchPlanPagoSuccess(plan, "OBTENERPLANPAGO");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al obtener plan de pago: " + e.getMessage(), "OBTENERPLANPAGO");
@@ -2031,7 +2031,7 @@ public class CommandProcessor {
                 nuevosMontos.add(new java.math.BigDecimal(montoStr.trim()));
             }
             
-            PayPlan plan = payPlanService.recalcularPlanPago(idPayPlan, nuevosMontos);
+            PlanPago plan = payPlanService.recalcularPlanPago(idPayPlan, nuevosMontos);
             return emailResponseService.formatRecalcularPlanPagoSuccess(plan, "RECALCPLANPAGO");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al recalcular plan de pago: " + e.getMessage(), "RECALCPLANPAGO");
@@ -2044,7 +2044,7 @@ public class CommandProcessor {
         }
         try {
             Long idPayPlan = Long.parseLong(parameters[0]);
-            List<Pays> pagos = paysService.obtenerPagosPorPlanPago(idPayPlan);
+            List<Pago> pagos = paysService.obtenerPagosPorPlanPago(idPayPlan);
             return emailResponseService.formatListPagosPorPlanPagoResponse(pagos, "OBTPAGOSPLAN");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al obtener pagos del plan: " + e.getMessage(), "OBTPAGOSPLAN");
@@ -2060,14 +2060,14 @@ public class CommandProcessor {
             java.time.LocalDate fechaPago = java.time.LocalDate.parse(parameters[1]);
             Long idClient = parameters.length > 2 ? Long.parseLong(parameters[2]) : null;
             
-            Pays pago = paysService.pagar(idPago, fechaPago, idClient);
+            Pago pago = paysService.pagar(idPago, fechaPago, idClient);
             return emailResponseService.formatPagarSuccess(pago, "PAGAR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al procesar pago: " + e.getMessage(), "PAGAR");
         }
     }
     
-    // --- Métodos de gestión de stock para MaterialProject ---
+    // --- Métodos de gestión de stock para ProductoProject ---
     
     private String handleDevolverMaterialSobrante(String[] parameters) {
         if (parameters.length < 2) {
@@ -2077,10 +2077,10 @@ public class CommandProcessor {
             Long id = Long.parseLong(parameters[0]);
             Integer cantidadDevolver = Integer.parseInt(parameters[1]);
             
-            MaterialProject materialProject = materialProjectService.devolverMaterialSobrante(id, cantidadDevolver);
-            return emailResponseService.formatSuccessResponse("DEVOLUCIÓN SOBRANTE", materialProject, "DEVOLVERSOBRANTE");
+            ProductoProject ProductoProject = materialProjectService.devolverMaterialSobrante(id, cantidadDevolver);
+            return emailResponseService.formatSuccessResponse("DEVOLUCIÓN SOBRANTE", ProductoProject, "DEVOLVERSOBRANTE");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al devolver material sobrante: " + e.getMessage(), "DEVOLVERSOBRANTE");
+            return emailResponseService.formatErrorResponse("Error al devolver Producto sobrante: " + e.getMessage(), "DEVOLVERSOBRANTE");
         }
     }
     
@@ -2091,8 +2091,8 @@ public class CommandProcessor {
         try {
             Long id = Long.parseLong(parameters[0]);
             
-            MaterialProject materialProject = materialProjectService.devolverTodoSobrante(id);
-            return emailResponseService.formatSuccessResponse("DEVOLUCIÓN TOTAL SOBRANTE", materialProject, "DEVOLVERTODO");
+            ProductoProject ProductoProject = materialProjectService.devolverTodoSobrante(id);
+            return emailResponseService.formatSuccessResponse("DEVOLUCIÓN TOTAL SOBRANTE", ProductoProject, "DEVOLVERTODO");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al devolver todo el sobrante: " + e.getMessage(), "DEVOLVERTODO");
         }
@@ -2120,8 +2120,8 @@ public class CommandProcessor {
             Long id = Long.parseLong(parameters[0]);
             Integer cantidadRealUsada = Integer.parseInt(parameters[1]);
             
-            MaterialProject materialProject = materialProjectService.ajustarSobrantePorUsoReal(id, cantidadRealUsada);
-            return emailResponseService.formatSuccessResponse("AJUSTE DE SOBRANTE", materialProject, "AJUSTARSOBRANTE");
+            ProductoProject ProductoProject = materialProjectService.ajustarSobrantePorUsoReal(id, cantidadRealUsada);
+            return emailResponseService.formatSuccessResponse("AJUSTE DE SOBRANTE", ProductoProject, "AJUSTARSOBRANTE");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al ajustar sobrante: " + e.getMessage(), "AJUSTARSOBRANTE");
         }
@@ -2138,8 +2138,8 @@ public class CommandProcessor {
             boolean disponible = materialProjectService.verificarDisponibilidadMaterial(idMaterial, cantidadRequerida);
             
             String mensaje = disponible ? 
-                "Material DISPONIBLE. ID: " + idMaterial + ", Cantidad requerida: " + cantidadRequerida :
-                "Material NO DISPONIBLE. ID: " + idMaterial + ", Cantidad requerida: " + cantidadRequerida;
+                "Producto DISPONIBLE. ID: " + idMaterial + ", Cantidad requerida: " + cantidadRequerida :
+                "Producto NO DISPONIBLE. ID: " + idMaterial + ", Cantidad requerida: " + cantidadRequerida;
                 
             return emailResponseService.formatSuccessResponse("VERIFICACIÓN DE STOCK", mensaje, "VERIFICARSTOCK");
         } catch (Exception e) {
@@ -2157,74 +2157,74 @@ public class CommandProcessor {
             StringBuilder reporte = new StringBuilder();
             
             // Buscar cliente
-            Optional<Client> clienteOpt = clientService.buscarClientePorNombre(nombreCliente);
+            Optional<Cliente> clienteOpt = clientService.buscarClientePorNombre(nombreCliente);
             if (!clienteOpt.isPresent()) {
                 return emailResponseService.formatErrorResponse("Cliente no encontrado: " + nombreCliente, "REPORTECLIENTE");
             }
             
-            Client cliente = clienteOpt.get();
+            Cliente cliente = clienteOpt.get();
             reporte.append("=== REPORTE COMPLETO DEL CLIENTE ===\n\n");
             reporte.append("📋 INFORMACIÓN DEL CLIENTE:\n");
-            reporte.append("• Nombre: ").append(cliente.getName()).append("\n");
+            reporte.append("• Nombre: ").append(cliente.getNombre()).append("\n");
             reporte.append("• Email: ").append(cliente.getEmail()).append("\n");
             reporte.append("• Teléfono: ").append(cliente.getPhone()).append("\n");
             reporte.append("• Dirección: ").append(cliente.getAddress()).append("\n\n");
             
             // Buscar proyectos del cliente
-            List<Project> proyectos = projectService.buscarProyectosPorCliente(cliente.getId());
+            List<Proyecto> proyectos = projectService.buscarProyectosPorCliente(cliente.getId());
             reporte.append("🏗️ PROYECTOS (Total: ").append(proyectos.size()).append("):\n");
             
             if (proyectos.isEmpty()) {
                 reporte.append("• No hay proyectos registrados para este cliente\n\n");
             } else {
-                for (Project proyecto : proyectos) {
+                for (Proyecto proyecto : proyectos) {
                     reporte.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-                    reporte.append("📌 Proyecto: ").append(proyecto.getName()).append("\n");
+                    reporte.append("📌 Proyecto: ").append(proyecto.getNombre()).append("\n");
                     reporte.append("• Descripción: ").append(proyecto.getDescription()).append("\n");
                     reporte.append("• Ubicación: ").append(proyecto.getLocation()).append("\n");
-                    reporte.append("• Estado: ").append(proyecto.getState()).append("\n\n");
+                    reporte.append("• Estado: ").append(proyecto.getEstado()).append("\n\n");
                     
                     // Cotizaciones del proyecto
-                    List<Quote> cotizaciones = quoteService.buscarCotizacionesPorProyecto(proyecto.getId());
+                    List<Cuota> cotizaciones = quoteService.buscarCotizacionesPorProyecto(proyecto.getId());
                     reporte.append("💰 COTIZACIONES (").append(cotizaciones.size()).append("):\n");
                     if (cotizaciones.isEmpty()) {
                         reporte.append("  • Sin cotizaciones\n");
                     } else {
                         java.math.BigDecimal totalCotizaciones = java.math.BigDecimal.ZERO;
-                        for (Quote cotizacion : cotizaciones) {
+                        for (Cuota cotizacion : cotizaciones) {
                             reporte.append("  • ID ").append(cotizacion.getIdQuote())
                                    .append(" - Tipo: ").append(cotizacion.getTypeMetro())
                                    .append(" - Total: $").append(cotizacion.getTotal())
-                                   .append(" - Estado: ").append(cotizacion.getState()).append("\n");
+                                   .append(" - Estado: ").append(cotizacion.getEstado()).append("\n");
                             totalCotizaciones = totalCotizaciones.add(cotizacion.getTotal());
                         }
                         reporte.append("  💵 TOTAL COTIZADO: $").append(totalCotizaciones).append("\n");
                     }
                     
                     // Cronogramas del proyecto
-                    List<Schedule> cronogramas = scheduleService.buscarPorProyecto(proyecto.getId());
+                    List<Cronograma> cronogramas = scheduleService.buscarPorProyecto(proyecto.getId());
                     reporte.append("📅 CRONOGRAMAS (").append(cronogramas.size()).append("):\n");
                     if (cronogramas.isEmpty()) {
                         reporte.append("  • Sin cronogramas\n");
                     } else {
-                        for (Schedule cronograma : cronogramas) {
-                            reporte.append("  • ").append(cronograma.getInitDate())
-                                   .append(" a ").append(cronograma.getFinalDate())
+                        for (Cronograma cronograma : cronogramas) {
+                            reporte.append("  • ").append(cronograma.getFechaInicio())
+                                   .append(" a ").append(cronograma.getFechaFinal())
                                    .append(" (").append(cronograma.getEstimateDays()).append(" días)")
-                                   .append(" - Estado: ").append(cronograma.getState()).append("\n");
+                                   .append(" - Estado: ").append(cronograma.getEstado()).append("\n");
                         }
                     }
                     
                     // Planes de pago del proyecto
-                    Optional<PayPlan> planPagoOpt = payPlanService.buscarPlanPagoPorProyecto(proyecto.getId().toString());
+                    Optional<PlanPago> planPagoOpt = payPlanService.buscarPlanPagoPorProyecto(proyecto.getId().toString());
                     reporte.append("💳 PLANES DE PAGO:\n");
                     if (!planPagoOpt.isPresent()) {
                         reporte.append("  • Sin planes de pago\n");
                     } else {
-                        PayPlan plan = planPagoOpt.get();
+                        PlanPago plan = planPagoOpt.get();
                         reporte.append("  • Deuda Total: $").append(plan.getTotalDebt())
                                .append(" - Total Pagado: $").append(plan.getTotalPayed())
-                               .append(" - Estado: ").append(plan.getState()).append("\n");
+                               .append(" - Estado: ").append(plan.getEstado()).append("\n");
                     }
                     reporte.append("\n");
                 }
@@ -2246,23 +2246,23 @@ public class CommandProcessor {
             StringBuilder reporte = new StringBuilder();
             
             // Buscar proyecto
-            Optional<Project> proyectoOpt = projectService.buscarProyectoPorNombre(nombreProyecto);
+            Optional<Proyecto> proyectoOpt = projectService.buscarProyectoPorNombre(nombreProyecto);
             if (!proyectoOpt.isPresent()) {
                 return emailResponseService.formatErrorResponse("Proyecto no encontrado: " + nombreProyecto, "REPORTEPROYECTO");
             }
             
-            Project proyecto = proyectoOpt.get();
+            Proyecto proyecto = proyectoOpt.get();
             reporte.append("=== REPORTE COMPLETO DEL PROYECTO ===\n\n");
             reporte.append("🏗️ INFORMACIÓN DEL PROYECTO:\n");
-            reporte.append("• Nombre: ").append(proyecto.getName()).append("\n");
+            reporte.append("• Nombre: ").append(proyecto.getNombre()).append("\n");
             reporte.append("• Descripción: ").append(proyecto.getDescription()).append("\n");
             reporte.append("• Ubicación: ").append(proyecto.getLocation()).append("\n");
-            reporte.append("• Estado: ").append(proyecto.getState()).append("\n");
+            reporte.append("• Estado: ").append(proyecto.getEstado()).append("\n");
             reporte.append("• ID Cliente: ").append(proyecto.getIdClient()).append("\n");
             reporte.append("• ID Usuario: ").append(proyecto.getUserId()).append("\n\n");
             
             // Cotizaciones del proyecto
-            List<Quote> cotizaciones = quoteService.buscarCotizacionesPorProyecto(proyecto.getId());
+            List<Cuota> cotizaciones = quoteService.buscarCotizacionesPorProyecto(proyecto.getId());
             reporte.append("💰 COTIZACIONES DETALLADAS (Total: ").append(cotizaciones.size()).append("):\n");
             
             if (cotizaciones.isEmpty()) {
@@ -2272,7 +2272,7 @@ public class CommandProcessor {
                 java.math.BigDecimal totalAprobado = java.math.BigDecimal.ZERO;
                 int aprobadas = 0, pendientes = 0, rechazadas = 0;
                 
-                for (Quote cotizacion : cotizaciones) {
+                for (Cuota cotizacion : cotizaciones) {
                     reporte.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
                     reporte.append("📋 Cotización ID: ").append(cotizacion.getIdQuote()).append("\n");
                     reporte.append("• Tipo Metro: ").append(cotizacion.getTypeMetro()).append("\n");
@@ -2281,23 +2281,23 @@ public class CommandProcessor {
                     reporte.append("• Costo Mobiliario: $").append(cotizacion.getCostFurniture()).append("\n");
                     reporte.append("• Número Muebles: ").append(cotizacion.getFurnitureNumber()).append("\n");
                     reporte.append("• TOTAL: $").append(cotizacion.getTotal()).append("\n");
-                    reporte.append("• Estado: ").append(cotizacion.getState()).append("\n");
+                    reporte.append("• Estado: ").append(cotizacion.getEstado()).append("\n");
                     reporte.append("• Comentarios: ").append(cotizacion.getComments()).append("\n");
                     
                     totalGeneral = totalGeneral.add(cotizacion.getTotal());
-                    if ("APROBADA".equalsIgnoreCase(cotizacion.getState())) {
+                    if ("APROBADA".equalsIgnoreCase(cotizacion.getEstado())) {
                         totalAprobado = totalAprobado.add(cotizacion.getTotal());
                         aprobadas++;
-                    } else if ("PENDIENTE".equalsIgnoreCase(cotizacion.getState())) {
+                    } else if ("PENDIENTE".equalsIgnoreCase(cotizacion.getEstado())) {
                         pendientes++;
                     } else {
                         rechazadas++;
                     }
                     
                     // Diseños asociados a esta cotización
-                    Optional<Design> disenoOpt = designService.buscarDisenoPorCotizacion(cotizacion.getIdQuote());
+                    Optional<Diseno> disenoOpt = designService.buscarDisenoPorCotizacion(cotizacion.getIdQuote());
                     if (disenoOpt.isPresent()) {
-                        Design diseno = disenoOpt.get();
+                        Diseno diseno = disenoOpt.get();
                         reporte.append("🎨 DISEÑO ASOCIADO:\n");
                         reporte.append("  • ID Diseño: ").append(diseno.getIdDesign()).append("\n");
                         reporte.append("  • URL Render: ").append(diseno.getUrlRender()).append("\n");
@@ -2319,30 +2319,30 @@ public class CommandProcessor {
             }
             
             // Cronogramas y tareas
-            List<Schedule> cronogramas = scheduleService.buscarPorProyecto(proyecto.getId());
+            List<Cronograma> cronogramas = scheduleService.buscarPorProyecto(proyecto.getId());
             reporte.append("📅 CRONOGRAMAS Y TAREAS (").append(cronogramas.size()).append("):\n");
             if (cronogramas.isEmpty()) {
                 reporte.append("• No hay cronogramas para este proyecto\n");
             } else {
-                for (Schedule cronograma : cronogramas) {
+                for (Cronograma cronograma : cronogramas) {
                     reporte.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
                     reporte.append("📋 Cronograma ID: ").append(cronograma.getId()).append("\n");
-                    reporte.append("• Fecha Inicio: ").append(cronograma.getInitDate()).append("\n");
-                    reporte.append("• Fecha Fin: ").append(cronograma.getFinalDate()).append("\n");
+                    reporte.append("• Fecha Inicio: ").append(cronograma.getFechaInicio()).append("\n");
+                    reporte.append("• Fecha Fin: ").append(cronograma.getFechaFinal()).append("\n");
                     reporte.append("• Días Estimados: ").append(cronograma.getEstimateDays()).append("\n");
-                    reporte.append("• Estado: ").append(cronograma.getState()).append("\n");
+                    reporte.append("• Estado: ").append(cronograma.getEstado()).append("\n");
                     
                     // Tareas del cronograma
-                    List<Task> tareas = taskService.buscarPorCronograma(cronograma.getId());
+                    List<Tarea> tareas = taskService.buscarPorCronograma(cronograma.getId());
                     reporte.append("✅ TAREAS (").append(tareas.size()).append("):\n");
                     if (tareas.isEmpty()) {
                         reporte.append("  • Sin tareas asignadas\n");
                     } else {
-                        for (Task tarea : tareas) {
+                        for (Tarea tarea : tareas) {
                             reporte.append("  • ").append(tarea.getInitHour())
                                    .append("-").append(tarea.getFinalHour())
                                    .append(": ").append(tarea.getDescription())
-                                   .append(" (").append(tarea.getState()).append(")\n");
+                                   .append(" (").append(tarea.getEstado()).append(")\n");
                         }
                     }
                     reporte.append("\n");
@@ -2350,22 +2350,22 @@ public class CommandProcessor {
             }
             
             // Materiales del proyecto
-            List<MaterialProject> materialesProyecto = materialProjectService.buscarMaterialesPorProyecto(proyecto.getId());
+            List<ProductoProject> materialesProyecto = materialProjectService.buscarMaterialesPorProyecto(proyecto.getId());
             reporte.append("🔧 MATERIALES UTILIZADOS (").append(materialesProyecto.size()).append("):\n");
             if (materialesProyecto.isEmpty()) {
                 reporte.append("• No hay materiales asignados a este proyecto\n");
             } else {
                 java.math.BigDecimal costoTotalMateriales = java.math.BigDecimal.ZERO;
-                for (MaterialProject mp : materialesProyecto) {
-                    Optional<Material> materialOpt = materialService.buscarMaterialPorId(mp.getIdMaterial());
+                for (ProductoProject mp : materialesProyecto) {
+                    Optional<Producto> materialOpt = materialService.buscarMaterialPorId(mp.getIdMaterial());
                     if (materialOpt.isPresent()) {
-                        Material material = materialOpt.get();
-                        java.math.BigDecimal costoMaterial = material.getUnitPrice().multiply(new java.math.BigDecimal(mp.getQuantity()));
+                        Producto Producto = materialOpt.get();
+                        java.math.BigDecimal costoMaterial = Producto.getUnitPrice().multiply(new java.math.BigDecimal(mp.getQuantity()));
                         
-                        reporte.append("• ").append(material.getName())
+                        reporte.append("• ").append(Producto.getNombre())
                                .append(" - Cantidad: ").append(mp.getQuantity())
-                               .append(" ").append(material.getUnitMeasure())
-                               .append(" - Precio Unitario: $").append(material.getUnitPrice())
+                               .append(" ").append(Producto.getUnitMeasure())
+                               .append(" - Precio Unitario: $").append(Producto.getUnitPrice())
                                .append(" - Costo Total: $").append(costoMaterial).append("\n");
                         
                         costoTotalMateriales = costoTotalMateriales.add(costoMaterial);
@@ -2387,22 +2387,22 @@ public class CommandProcessor {
             reporte.append("=== REPORTE COMPLETO DE MATERIALES ===\n\n");
             
             // Obtener todos los materiales
-            List<Material> materiales = materialService.listarTodosLosMateriales();
+            List<Producto> materiales = materialService.listarTodosLosMateriales();
             reporte.append("📦 INVENTARIO GENERAL (Total: ").append(materiales.size()).append(" materiales):\n");
             
             java.math.BigDecimal valorTotalInventario = java.math.BigDecimal.ZERO;
             int materialesBajoStock = 0;
             int materialesAgotados = 0;
             
-            for (Material material : materiales) {
-                java.math.BigDecimal valorMaterial = material.getUnitPrice().multiply(new java.math.BigDecimal(material.getStock()));
+            for (Producto Producto : materiales) {
+                java.math.BigDecimal valorMaterial = Producto.getUnitPrice().multiply(new java.math.BigDecimal(Producto.getStock()));
                 valorTotalInventario = valorTotalInventario.add(valorMaterial);
                 
                 String estadoStock = "";
-                if (material.getStock() <= 0) {
+                if (Producto.getStock() <= 0) {
                     estadoStock = " ⚠️ AGOTADO";
                     materialesAgotados++;
-                } else if (material.getStock() <= 10) {
+                } else if (Producto.getStock() <= 10) {
                     estadoStock = " ⚠️ STOCK BAJO";
                     materialesBajoStock++;
                 } else {
@@ -2410,32 +2410,32 @@ public class CommandProcessor {
                 }
                 
                 reporte.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-                reporte.append("📋 ").append(material.getName()).append(estadoStock).append("\n");
-                reporte.append("• Descripción: ").append(material.getType()).append("\n");
-                reporte.append("• Stock Actual: ").append(material.getStock()).append(" ").append(material.getUnitMeasure()).append("\n");
-                reporte.append("• Precio Unitario: $").append(material.getUnitPrice()).append("\n");
+                reporte.append("📋 ").append(Producto.getNombre()).append(estadoStock).append("\n");
+                reporte.append("• Descripción: ").append(Producto.getType()).append("\n");
+                reporte.append("• Stock Actual: ").append(Producto.getStock()).append(" ").append(Producto.getUnitMeasure()).append("\n");
+                reporte.append("• Precio Unitario: $").append(Producto.getUnitPrice()).append("\n");
                 reporte.append("• Valor en Stock: $").append(valorMaterial).append("\n");
                 
-                // Buscar en qué proyectos se ha utilizado este material
-                List<MaterialProject> usos = materialProjectService.buscarProyectosPorMaterial(material.getId());
-                reporte.append("🏗️ PROYECTOS QUE USAN ESTE MATERIAL (").append(usos.size()).append("):\n");
+                // Buscar en qué proyectos se ha utilizado este Producto
+                List<ProductoProject> usos = materialProjectService.buscarProyectosPorMaterial(Producto.getId());
+                reporte.append("🏗️ PROYECTOS QUE USAN ESTE Producto (").append(usos.size()).append("):\n");
                 
                 if (usos.isEmpty()) {
                     reporte.append("  • No se ha usado en ningún proyecto\n");
                 } else {
                     int cantidadTotalUsada = 0;
-                    for (MaterialProject uso : usos) {
-                        Optional<Project> proyectoOpt = projectService.buscarProyectoPorId(uso.getIdProject());
+                    for (ProductoProject uso : usos) {
+                        Optional<Proyecto> proyectoOpt = projectService.buscarProyectoPorId(uso.getIdProject());
                         if (proyectoOpt.isPresent()) {
-                            Project proyecto = proyectoOpt.get();
-                            reporte.append("  • ").append(proyecto.getName())
+                            Proyecto proyecto = proyectoOpt.get();
+                            reporte.append("  • ").append(proyecto.getNombre())
                                    .append(" - Cantidad: ").append(uso.getQuantity())
-                                   .append(" ").append(material.getUnitMeasure())
-                                   .append(" - Estado: ").append(proyecto.getState()).append("\n");
+                                   .append(" ").append(Producto.getUnitMeasure())
+                                   .append(" - Estado: ").append(proyecto.getEstado()).append("\n");
                             cantidadTotalUsada += uso.getQuantity();
                         }
                     }
-                    reporte.append("  📊 TOTAL USADO: ").append(cantidadTotalUsada).append(" ").append(material.getUnitMeasure()).append("\n");
+                    reporte.append("  📊 TOTAL USADO: ").append(cantidadTotalUsada).append(" ").append(Producto.getUnitMeasure()).append("\n");
                 }
                 reporte.append("\n");
             }
@@ -2449,24 +2449,24 @@ public class CommandProcessor {
             reporte.append("• VALOR TOTAL DEL INVENTARIO: $").append(valorTotalInventario).append("\n\n");
             
             // Top 5 materiales más caros
-            List<Material> materialesOrdenados = new ArrayList<>(materiales);
+            List<Producto> materialesOrdenados = new ArrayList<>(materiales);
             materialesOrdenados.sort((m1, m2) -> m2.getUnitPrice().compareTo(m1.getUnitPrice()));
             reporte.append("💎 TOP 5 MATERIALES MÁS CAROS:\n");
             for (int i = 0; i < Math.min(5, materialesOrdenados.size()); i++) {
-                Material m = materialesOrdenados.get(i);
-                reporte.append("  ").append(i + 1).append(". ").append(m.getName())
+                Producto m = materialesOrdenados.get(i);
+                reporte.append("  ").append(i + 1).append(". ").append(m.getNombre())
                        .append(" - $").append(m.getUnitPrice()).append(" por ").append(m.getUnitMeasure()).append("\n");
             }
             
             // Materiales que necesitan reabastecimiento
             reporte.append("\n⚠️ MATERIALES QUE REQUIEREN REABASTECIMIENTO:\n");
             boolean hayQueReabastecer = false;
-            for (Material material : materiales) {
-                if (material.getStock() <= 10) {
-                    reporte.append("• ").append(material.getName())
-                           .append(" - Stock: ").append(material.getStock())
-                           .append(" ").append(material.getUnitMeasure())
-                           .append(material.getStock() <= 0 ? " (URGENTE)" : " (PRONTO)").append("\n");
+            for (Producto Producto : materiales) {
+                if (Producto.getStock() <= 10) {
+                    reporte.append("• ").append(Producto.getNombre())
+                           .append(" - Stock: ").append(Producto.getStock())
+                           .append(" ").append(Producto.getUnitMeasure())
+                           .append(Producto.getStock() <= 0 ? " (URGENTE)" : " (PRONTO)").append("\n");
                     hayQueReabastecer = true;
                 }
             }
@@ -2485,17 +2485,17 @@ public class CommandProcessor {
     // --- Métodos de gestión de asignación (PROYECTO Y PERSONAL) ---
     private String handleListarAsignaciones(String[] parameters) {
         try {
-            List<Project> proyectos = projectService.listarTodosLosProyectos();
+            List<Proyecto> proyectos = projectService.listarTodosLosProyectos();
             StringBuilder asignaciones = new StringBuilder();
             asignaciones.append("=== ASIGNACIONES DE PROYECTOS ===\n\n");
             
-            for (Project proyecto : proyectos) {
+            for (Proyecto proyecto : proyectos) {
                 Optional<User> usuarioOpt = userService.buscarUsuarioPorId(proyecto.getUserId());
                 if (usuarioOpt.isPresent()) {
-                    asignaciones.append("📌 ").append(proyecto.getName())
-                              .append(" → Asignado a: ").append(usuarioOpt.get().getName())
+                    asignaciones.append("📌 ").append(proyecto.getNombre())
+                              .append(" → Asignado a: ").append(usuarioOpt.get().getNombre())
                               .append(" (").append(usuarioOpt.get().getRole()).append(")")
-                              .append(" | Estado: ").append(proyecto.getState()).append("\n");
+                              .append(" | Estado: ").append(proyecto.getEstado()).append("\n");
                 }
             }
             
@@ -2511,26 +2511,26 @@ public class CommandProcessor {
         }
         try {
             Long idUsuario = Long.parseLong(parameters[0]);
-            List<Project> proyectos = projectService.buscarProyectosPorUsuario(idUsuario);
-            List<Schedule> cronogramas = scheduleService.buscarPorUsuario(idUsuario);
-            List<Task> tareas = taskService.buscarPorUsuario(idUsuario);
+            List<Proyecto> proyectos = projectService.buscarProyectosPorUsuario(idUsuario);
+            List<Cronograma> cronogramas = scheduleService.buscarPorUsuario(idUsuario);
+            List<Tarea> tareas = taskService.buscarPorUsuario(idUsuario);
             
             StringBuilder asignaciones = new StringBuilder();
             asignaciones.append("=== ASIGNACIONES DEL USUARIO ===\n\n");
             asignaciones.append("📌 PROYECTOS ASIGNADOS: ").append(proyectos.size()).append("\n");
-            for (Project p : proyectos) {
-                asignaciones.append("  • ").append(p.getName()).append(" (").append(p.getState()).append(")\n");
+            for (Proyecto p : proyectos) {
+                asignaciones.append("  • ").append(p.getNombre()).append(" (").append(p.getEstado()).append(")\n");
             }
             
             asignaciones.append("\n📅 CRONOGRAMAS ASIGNADOS: ").append(cronogramas.size()).append("\n");
-            for (Schedule s : cronogramas) {
-                asignaciones.append("  • ").append(s.getInitDate()).append(" a ").append(s.getFinalDate())
-                          .append(" (").append(s.getState()).append(")\n");
+            for (Cronograma s : cronogramas) {
+                asignaciones.append("  • ").append(s.getFechaInicio()).append(" a ").append(s.getFechaFinal())
+                          .append(" (").append(s.getEstado()).append(")\n");
             }
             
             asignaciones.append("\n✅ TAREAS ASIGNADAS: ").append(tareas.size()).append("\n");
-            for (Task t : tareas) {
-                asignaciones.append("  • ").append(t.getDescription()).append(" (").append(t.getState()).append(")\n");
+            for (Tarea t : tareas) {
+                asignaciones.append("  • ").append(t.getDescription()).append(" (").append(t.getEstado()).append(")\n");
             }
             
             return emailResponseService.formatSuccessResponse("ASIGNACIONES POR USUARIO", asignaciones.toString(), "LISASIG_USR");
@@ -2547,7 +2547,7 @@ public class CommandProcessor {
             String nombreProyecto = parameters[0];
             Long idUsuario = Long.parseLong(parameters[1]);
             
-            Optional<Project> proyectoOpt = projectService.buscarProyectoPorNombre(nombreProyecto);
+            Optional<Proyecto> proyectoOpt = projectService.buscarProyectoPorNombre(nombreProyecto);
             if (!proyectoOpt.isPresent()) {
                 return emailResponseService.formatErrorResponse("Proyecto no encontrado: " + nombreProyecto, "ASIGNARPROYUSR");
             }
@@ -2557,19 +2557,19 @@ public class CommandProcessor {
                 return emailResponseService.formatErrorResponse("Usuario no encontrado con ID: " + idUsuario, "ASIGNARPROYUSR");
             }
             
-            Project proyecto = proyectoOpt.get();
+            Proyecto proyecto = proyectoOpt.get();
             proyecto.setUserId(idUsuario);
-            Project actualizado = projectService.actualizarProyectoPorNombre(
-                proyecto.getName(),
+            Proyecto actualizado = projectService.actualizarProyectoPorNombre(
+                proyecto.getNombre(),
                 proyecto.getDescription(),
                 proyecto.getLocation(),
-                proyecto.getState(),
+                proyecto.getEstado(),
                 proyecto.getIdClient(),
                 idUsuario
             );
             
             return emailResponseService.formatSuccessResponse("ASIGNACIÓN EXITOSA", 
-                "Proyecto '" + proyecto.getName() + "' asignado a " + usuarioOpt.get().getName(), "ASIGNARPROYUSR");
+                "Proyecto '" + proyecto.getNombre() + "' asignado a " + usuarioOpt.get().getNombre(), "ASIGNARPROYUSR");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al asignar proyecto: " + e.getMessage(), "ASIGNARPROYUSR");
         }
@@ -2582,11 +2582,11 @@ public class CommandProcessor {
             carga.append("=== CARGA DE TRABAJO POR USUARIO ===\n\n");
             
             for (User usuario : usuarios) {
-                List<Project> proyectos = projectService.buscarProyectosPorUsuario(usuario.getId());
-                List<Task> tareas = taskService.buscarPorUsuario(usuario.getId());
-                long tareasCompletadas = tareas.stream().filter(t -> "Completada".equalsIgnoreCase(t.getState())).count();
+                List<Proyecto> proyectos = projectService.buscarProyectosPorUsuario(usuario.getId());
+                List<Tarea> tareas = taskService.buscarPorUsuario(usuario.getId());
+                long tareasCompletadas = tareas.stream().filter(t -> "Completada".equalsIgnoreCase(t.getEstado())).count();
                 
-                carga.append("👤 ").append(usuario.getName()).append(" (").append(usuario.getRole()).append(")\n");
+                carga.append("👤 ").append(usuario.getNombre()).append(" (").append(usuario.getRole()).append(")\n");
                 carga.append("  • Proyectos: ").append(proyectos.size()).append("\n");
                 carga.append("  • Tareas Totales: ").append(tareas.size()).append("\n");
                 carga.append("  • Tareas Completadas: ").append(tareasCompletadas).append("\n");
@@ -2606,10 +2606,10 @@ public class CommandProcessor {
             reporte.append("=== REPORTE INTEGRAL DEL SISTEMA ===\n\n");
             
             // Estadísticas generales
-            List<Project> proyectos = projectService.listarTodosLosProyectos();
-            List<Client> clientes = clientService.listarTodosLosClientes();
+            List<Proyecto> proyectos = projectService.listarTodosLosProyectos();
+            List<Cliente> clientes = clientService.listarTodosLosClientes();
             List<User> usuarios = userService.listarTodosLosUsuarios();
-            List<Material> materiales = materialService.listarTodosLosMateriales();
+            List<Producto> materiales = materialService.listarTodosLosMateriales();
             
             reporte.append("📊 ESTADÍSTICAS GENERALES:\n");
             reporte.append("• Total Proyectos: ").append(proyectos.size()).append("\n");
@@ -2618,9 +2618,9 @@ public class CommandProcessor {
             reporte.append("• Total Materiales: ").append(materiales.size()).append("\n\n");
             
             // Proyectos por estado
-            long completados = proyectos.stream().filter(p -> "Completado".equalsIgnoreCase(p.getState())).count();
-            long enProceso = proyectos.stream().filter(p -> "En Proceso".equalsIgnoreCase(p.getState())).count();
-            long planificacion = proyectos.stream().filter(p -> "Planificación".equalsIgnoreCase(p.getState())).count();
+            long completados = proyectos.stream().filter(p -> "Completado".equalsIgnoreCase(p.getEstado())).count();
+            long enProceso = proyectos.stream().filter(p -> "En Proceso".equalsIgnoreCase(p.getEstado())).count();
+            long planificacion = proyectos.stream().filter(p -> "Planificación".equalsIgnoreCase(p.getEstado())).count();
             
             reporte.append("🏗️ ESTADO DE PROYECTOS:\n");
             reporte.append("• Completados: ").append(completados).append(" (").append(proyectos.isEmpty() ? 0 : (completados * 100 / proyectos.size())).append("%)\n");
@@ -2628,11 +2628,11 @@ public class CommandProcessor {
             reporte.append("• En Planificación: ").append(planificacion).append(" (").append(proyectos.isEmpty() ? 0 : (planificacion * 100 / proyectos.size())).append("%)\n\n");
             
             // Financiero
-            List<PayPlan> planes = payPlanService.listarTodosLosPlanesPago();
+            List<PlanPago> planes = payPlanService.listarTodosLosPlanesPago();
             java.math.BigDecimal deudaTotal = java.math.BigDecimal.ZERO;
             java.math.BigDecimal pagadoTotal = java.math.BigDecimal.ZERO;
             
-            for (PayPlan plan : planes) {
+            for (PlanPago plan : planes) {
                 deudaTotal = deudaTotal.add(plan.getTotalDebt());
                 pagadoTotal = pagadoTotal.add(plan.getTotalPayed());
             }
@@ -2774,41 +2774,41 @@ public class CommandProcessor {
             // Comandos de Materiales
             help.append(" MATERIALES:\n");
             help.append("* LISMAT[\"*\"] - Listar todos los materiales\n");
-            help.append("* INSMAT[\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Insertar material\n");
-            help.append("* UPDMAT[\"id\",\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Actualizar material\n");
-            help.append("* BUSMATNOM[\"nombre\"] - Buscar material por nombre\n");
+            help.append("* INSMAT[\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Insertar Producto\n");
+            help.append("* UPDMAT[\"id\",\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Actualizar Producto\n");
+            help.append("* BUSMATNOM[\"nombre\"] - Buscar Producto por nombre\n");
             help.append("* BUSMATTIPO[\"tipo\"] - Buscar materiales por tipo\n");
-            help.append("* UPDMATPRECIO[\"id\",\"nuevo_precio\"] - Actualizar precio material\n");
-            help.append("* UPDMATSTOCK[\"id\",\"nuevo_stock\"] - Actualizar stock material\n");
-            help.append("* REDMATSTOCK[\"id\",\"cantidad\"] - Reducir stock material\n");
-            help.append("* AUMMATSTOCK[\"id\",\"cantidad\"] - Aumentar stock material\n");
-            help.append("* VERMATDISP[\"id\",\"cantidad_requerida\"] - Verificar disponibilidad material\n\n");
+            help.append("* UPDMATPRECIO[\"id\",\"nuevo_precio\"] - Actualizar precio Producto\n");
+            help.append("* UPDMATSTOCK[\"id\",\"nuevo_stock\"] - Actualizar stock Producto\n");
+            help.append("* REDMATSTOCK[\"id\",\"cantidad\"] - Reducir stock Producto\n");
+            help.append("* AUMMATSTOCK[\"id\",\"cantidad\"] - Aumentar stock Producto\n");
+            help.append("* VERMATDISP[\"id\",\"cantidad_requerida\"] - Verificar disponibilidad Producto\n\n");
             
-            // Comandos de Material-Proyecto (GESTIÓN DE INVENTARIO)
-            help.append(" GESTIÓN DE INVENTARIO (MATERIAL-PROYECTO):\n");
-            help.append("* LISMATPROY[\"*\"] - Listar todas las asignaciones material-proyecto\n");
-            help.append("* INSMATPROY[\"proyecto_id\",\"material_id\",\"cantidad_requerida\"] - Asignar material (DESCUENTA STOCK)\n");
+            // Comandos de Producto-Proyecto (GESTIÓN DE INVENTARIO)
+            help.append(" GESTIÓN DE INVENTARIO (Producto-PROYECTO):\n");
+            help.append("* LISMATPROY[\"*\"] - Listar todas las asignaciones Producto-proyecto\n");
+            help.append("* INSMATPROY[\"proyecto_id\",\"material_id\",\"cantidad_requerida\"] - Asignar Producto (DESCUENTA STOCK)\n");
             help.append("* UPDMATPROY[\"id\",\"proyecto_id\",\"material_id\",\"cantidad_requerida\"] - Actualizar asignación (AJUSTA STOCK)\n");
             help.append("* DELMATPROY[\"id\"] - Eliminar asignación (DEVUELVE STOCK)\n");
             help.append("* BUSMATPROYID[\"id\"] - Buscar asignación por ID\n");
             help.append("* BUSMATPORPROY[\"proyecto_id\"] - Buscar materiales por proyecto\n");
-            help.append("* BUSPROYPORMAT[\"material_id\"] - Buscar proyectos por material\n\n");
+            help.append("* BUSPROYPORMAT[\"material_id\"] - Buscar proyectos por Producto\n\n");
             
             // Nuevos comandos de gestión de stock
             help.append(" GESTIÓN AVANZADA DE STOCK:\n");
-            help.append("* DEVOLVERSOBRANTE[\"materialproject_id\",\"cantidad_sobrante\"] - Devolver material no usado\n");
-            help.append("* DEVOLVERTODO[\"proyecto_id\"] - Devolver todo el material sobrante de un proyecto\n");
+            help.append("* DEVOLVERSOBRANTE[\"materialproject_id\",\"cantidad_sobrante\"] - Devolver Producto no usado\n");
+            help.append("* DEVOLVERTODO[\"proyecto_id\"] - Devolver todo el Producto sobrante de un proyecto\n");
             help.append("* REPORTESTOCK[\"proyecto_id\"] - Ver reporte de stock del proyecto\n");
             help.append("* AJUSTARSOBRANTE[\"materialproject_id\",\"uso_real\"] - Ajustar por uso real vs asignado\n");
-            help.append("* VERIFICARSTOCK[\"material_id\"] - Verificar disponibilidad actual de material\n\n");
+            help.append("* VERIFICARSTOCK[\"material_id\"] - Verificar disponibilidad actual de Producto\n\n");
             
             // Nuevos comandos de gestión de stock
             help.append(" GESTIÓN AVANZADA DE STOCK:\n");
-            help.append("* DEVOLVERSOBRANTE[\"materialproject_id\",\"cantidad_sobrante\"] - Devolver material no usado\n");
-            help.append("* DEVOLVERTODO[\"proyecto_id\"] - Devolver todo el material sobrante de un proyecto\n");
+            help.append("* DEVOLVERSOBRANTE[\"materialproject_id\",\"cantidad_sobrante\"] - Devolver Producto no usado\n");
+            help.append("* DEVOLVERTODO[\"proyecto_id\"] - Devolver todo el Producto sobrante de un proyecto\n");
             help.append("* REPORTESTOCK[\"proyecto_id\"] - Ver reporte de stock del proyecto\n");
             help.append("* AJUSTARSOBRANTE[\"materialproject_id\",\"uso_real\"] - Ajustar por uso real vs asignado\n");
-            help.append("* VERIFICARSTOCK[\"material_id\"] - Verificar disponibilidad actual de material\n\n");
+            help.append("* VERIFICARSTOCK[\"material_id\"] - Verificar disponibilidad actual de Producto\n\n");
             
             // Comandos de asignación
             help.append(" GESTIÓN DE ASIGNACIÓN (PROYECTO Y PERSONAL):\n");
@@ -2844,3 +2844,5 @@ public class CommandProcessor {
         }
     }
 }
+
+

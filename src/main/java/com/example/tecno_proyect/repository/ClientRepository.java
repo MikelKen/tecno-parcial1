@@ -13,29 +13,29 @@ import java.util.Optional;
 public interface ClientRepository extends JpaRepository<Cliente, Long> {
     
     // Buscar cliente por nombre
-    Optional<Cliente> findByName(String nombre);
+    Optional<Cliente> findByNombre(String nombre);
     
     // Verificar si existe un cliente con ese nombre
-    boolean existsByName(String nombre);
+    boolean existsByNombre(String nombre);
     
     // Buscar cliente por email
     Optional<Cliente> findByEmail(String email);
     
     // Buscar cliente por teléfono
-    Optional<Cliente> findByPhone(String telefono);
+    Optional<Cliente> findByTelefono(String telefono);
     
     // Verificar si existe un cliente con ese email
     boolean existsByEmail(String email);
     
     // Buscar clientes por nombre (parcial, ignorando mayúsculas)
     @Query("SELECT c FROM Cliente c WHERE LOWER(c.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))")
-    List<Cliente> findByNameContainingIgnoreCase(@Param("nombre") String nombre);
+    List<Cliente> findByNombreContainingIgnoreCase(@Param("nombre") String nombre);
     
     // Buscar clientes por dirección
     @Query("SELECT c FROM Cliente c WHERE LOWER(c.direccion) LIKE LOWER(CONCAT('%', :direccion, '%'))")
-    List<Cliente> findByAddressContainingIgnoreCase(@Param("direccion") String direccion);
+    List<Cliente> findByDireccionContainingIgnoreCase(@Param("direccion") String direccion);
     
     // Buscar clientes que tengan proyectos
-    @Query("SELECT DISTINCT c FROM Cliente c JOIN c.proyectos p")
-    List<Cliente> findClientsWithProjects();
+    @Query("SELECT DISTINCT c FROM Cliente c JOIN c.projects p")
+    List<Cliente> findClientesWithProjects();
 }

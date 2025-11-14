@@ -1,6 +1,6 @@
 package com.example.tecno_proyect.service;
 
-import com.example.tecno_proyect.model.Schedule;
+import com.example.tecno_proyect.model.Cronograma;
 import com.example.tecno_proyect.repository.ScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,34 +18,34 @@ public class ScheduleService {
     private ScheduleRepository scheduleRepository;
 
     // Listar todos los cronogramas
-    public List<Schedule> listarTodosLosCronogramas() {
+    public List<Cronograma> listarTodosLosCronogramas() {
         return scheduleRepository.findAll();
     }
 
     // Buscar cronograma por ID
-    public Optional<Schedule> buscarCronogramaPorId(Long id) {
+    public Optional<Cronograma> buscarCronogramaPorId(Long id) {
         return scheduleRepository.findById(id);
     }
 
     // Insertar nuevo cronograma
-    public Schedule insertarCronograma(Schedule schedule) {
-        return scheduleRepository.save(schedule);
+    public Cronograma insertarCronograma(Cronograma cronograma) {
+        return scheduleRepository.save(cronograma);
     }
 
     // Actualizar cronograma existente
-    public Schedule actualizarCronograma(Long id, Schedule datos) {
-        Optional<Schedule> existente = scheduleRepository.findById(id);
+    public Cronograma actualizarCronograma(Long id, Cronograma datos) {
+        Optional<Cronograma> existente = scheduleRepository.findById(id);
         if (existente.isEmpty()) {
             throw new RuntimeException("No se encontró cronograma con id: " + id);
         }
-        Schedule s = existente.get();
-        s.setInitDate(datos.getInitDate());
-        s.setFinalDate(datos.getFinalDate());
-        s.setEstimateDays(datos.getEstimateDays());
-        s.setState(datos.getState());
-        s.setIdProject(datos.getIdProject());
-        s.setUserId(datos.getUserId());
-        return scheduleRepository.save(s);
+        Cronograma c = existente.get();
+        c.setFechaInicio(datos.getFechaInicio());
+        c.setFechaFinal(datos.getFechaFinal());
+        c.setDiasEstimados(datos.getDiasEstimados());
+        c.setEstado(datos.getEstado());
+        c.setIdProyecto(datos.getIdProyecto());
+        c.setUsuarioId(datos.getUsuarioId());
+        return scheduleRepository.save(c);
     }
 
     // Eliminar cronograma por ID
@@ -58,102 +58,102 @@ public class ScheduleService {
     }
 
     // Buscar por proyecto
-    public List<Schedule> buscarPorProyecto(Long idProject) {
-        return scheduleRepository.findByIdProject(idProject);
+    public List<Cronograma> buscarPorProyecto(Long idProyecto) {
+        return scheduleRepository.findByIdProyecto(idProyecto);
     }
 
     // Buscar por usuario
-    public List<Schedule> buscarPorUsuario(Long userId) {
-        return scheduleRepository.findByUserId(userId);
+    public List<Cronograma> buscarPorUsuario(Long usuarioId) {
+        return scheduleRepository.findByUsuarioId(usuarioId);
     }
 
     // Buscar por estado
-    public List<Schedule> buscarPorEstado(String state) {
-        return scheduleRepository.findByState(state);
+    public List<Cronograma> buscarPorEstado(String estado) {
+        return scheduleRepository.findByEstado(estado);
     }
 
     // Buscar por fecha de inicio
-    public List<Schedule> buscarPorFechaInicio(LocalDate initDate) {
-        return scheduleRepository.findByInitDate(initDate);
+    public List<Cronograma> buscarPorFechaInicio(LocalDate fechaInicio) {
+        return scheduleRepository.findByFechaInicio(fechaInicio);
     }
 
     // Buscar por fecha de finalización
-    public List<Schedule> buscarPorFechaFinal(LocalDate finalDate) {
-        return scheduleRepository.findByFinalDate(finalDate);
+    public List<Cronograma> buscarPorFechaFinal(LocalDate fechaFinal) {
+        return scheduleRepository.findByFechaFinal(fechaFinal);
     }
 
     // Buscar por días estimados
-    public List<Schedule> buscarPorDiasEstimados(Integer estimateDays) {
-        return scheduleRepository.findByEstimateDays(estimateDays);
+    public List<Cronograma> buscarPorDiasEstimados(Integer diasEstimados) {
+        return scheduleRepository.findByDiasEstimados(diasEstimados);
     }
 
     // Buscar por rango de fechas de inicio
-    public List<Schedule> buscarPorRangoFechaInicio(LocalDate startDate, LocalDate endDate) {
-        return scheduleRepository.findByInitDateBetween(startDate, endDate);
+    public List<Cronograma> buscarPorRangoFechaInicio(LocalDate fechaInicio, LocalDate fechaFinal) {
+        return scheduleRepository.findByFechaInicioBetween(fechaInicio, fechaFinal);
     }
 
     // Buscar por rango de fechas de finalización
-    public List<Schedule> buscarPorRangoFechaFinal(LocalDate startDate, LocalDate endDate) {
-        return scheduleRepository.findByFinalDateBetween(startDate, endDate);
+    public List<Cronograma> buscarPorRangoFechaFinal(LocalDate fechaInicio, LocalDate fechaFinal) {
+        return scheduleRepository.findByFechaFinalBetween(fechaInicio, fechaFinal);
     }
 
     // Buscar cronogramas activos
-    public List<Schedule> buscarCronogramasActivos() {
+    public List<Cronograma> buscarCronogramasActivos() {
         return scheduleRepository.findActiveSchedules();
     }
 
     // Buscar cronogramas completados
-    public List<Schedule> buscarCronogramasCompletados() {
+    public List<Cronograma> buscarCronogramasCompletados() {
         return scheduleRepository.findCompletedSchedules();
     }
 
     // Buscar cronogramas pendientes
-    public List<Schedule> buscarCronogramasPendientes() {
+    public List<Cronograma> buscarCronogramasPendientes() {
         return scheduleRepository.findPendingSchedules();
     }
 
     // Buscar cronogramas que terminan hoy
-    public List<Schedule> buscarCronogramasQueTerminanHoy() {
+    public List<Cronograma> buscarCronogramasQueTerminanHoy() {
         return scheduleRepository.findSchedulesEndingToday();
     }
 
     // Buscar cronogramas que inician hoy
-    public List<Schedule> buscarCronogramasQueInicianHoy() {
+    public List<Cronograma> buscarCronogramasQueInicianHoy() {
         return scheduleRepository.findSchedulesStartingToday();
     }
 
     // Buscar cronogramas vencidos
-    public List<Schedule> buscarCronogramasVencidos() {
+    public List<Cronograma> buscarCronogramasVencidos() {
         return scheduleRepository.findOverdueSchedules();
     }
 
     // Buscar por proyecto y estado
-    public List<Schedule> buscarPorProyectoYEstado(Long idProject, String state) {
-        return scheduleRepository.findByIdProjectAndState(idProject, state);
+    public List<Cronograma> buscarPorProyectoYEstado(Long idProyecto, String estado) {
+        return scheduleRepository.findByIdProyectoAndEstado(idProyecto, estado);
     }
 
     // Buscar por usuario y estado
-    public List<Schedule> buscarPorUsuarioYEstado(Long userId, String state) {
-        return scheduleRepository.findByUserIdAndState(userId, state);
+    public List<Cronograma> buscarPorUsuarioYEstado(Long usuarioId, String estado) {
+        return scheduleRepository.findByUsuarioIdAndEstado(usuarioId, estado);
     }
 
     // Contar por estado
-    public long contarPorEstado(String state) {
-        return scheduleRepository.countByState(state);
+    public long contarPorEstado(String estado) {
+        return scheduleRepository.countByEstado(estado);
     }
 
     // Contar por usuario
-    public long contarPorUsuario(Long userId) {
-        return scheduleRepository.countByUserId(userId);
+    public long contarPorUsuario(Long usuarioId) {
+        return scheduleRepository.countByUsuarioId(usuarioId);
     }
 
     // Buscar cronogramas largos
-    public List<Schedule> buscarCronogramasLargos(Integer days) {
-        return scheduleRepository.findLongSchedules(days);
+    public List<Cronograma> buscarCronogramasLargos(Integer dias) {
+        return scheduleRepository.findLongSchedules(dias);
     }
 
     // Buscar ordenados por fecha de inicio
-    public List<Schedule> buscarOrdenadosPorFechaInicio() {
+    public List<Cronograma> buscarOrdenadosPorFechaInicio() {
         return scheduleRepository.findSchedulesOrderedByStartDate();
     }
 
@@ -163,7 +163,8 @@ public class ScheduleService {
     }
 
     // Buscar cronogramas del mes actual
-    public List<Schedule> buscarCronogramasMesActual() {
+    public List<Cronograma> buscarCronogramasMesActual() {
         return scheduleRepository.findCurrentMonthSchedules();
     }
 }
+

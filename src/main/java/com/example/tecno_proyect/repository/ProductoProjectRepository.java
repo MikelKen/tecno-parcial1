@@ -11,50 +11,50 @@ import java.util.List;
 @Repository
 public interface ProductoProjectRepository extends JpaRepository<ProductoProject, Long> {
     
-    // Buscar materiales de un proyecto
-    List<ProductoProject> findByIdProject(Long idProject);
+    // Buscar productos de un proyecto
+    List<ProductoProject> findByIdProyecto(Long idProyecto);
     
-    // Buscar proyectos que usan un material específico
-    List<ProductoProject> findByIdMaterial(Long idMaterial);
+    // Buscar proyectos que usan un producto específico
+    List<ProductoProject> findByIdProducto(Long idProducto);
     
-    // Buscar por proyecto y material específico
-    List<ProductoProject> findByIdProjectAndIdMaterial(Long idProject, Long idMaterial);
+    // Buscar por proyecto y producto específico
+    List<ProductoProject> findByIdProyectoAndIdProducto(Long idProyecto, Long idProducto);
     
-    // Buscar materiales con sobrante en proyectos
-    @Query("SELECT mp FROM ProductoProject mp WHERE mp.leftOver > 0")
-    List<ProductoProject> findMaterialsWithLeftOver();
+    // Buscar productos con sobrante en proyectos
+    @Query("SELECT mp FROM ProductoProject mp WHERE mp.sobrante > 0")
+    List<ProductoProject> findProductsWithLeftOver();
     
-    // Buscar materiales usados completamente (sin sobrante)
-    @Query("SELECT mp FROM ProductoProject mp WHERE mp.leftOver = 0 OR mp.leftOver IS NULL")
-    List<ProductoProject> findFullyUsedMaterials();
+    // Buscar productos usados completamente (sin sobrante)
+    @Query("SELECT mp FROM ProductoProject mp WHERE mp.sobrante = 0 OR mp.sobrante IS NULL")
+    List<ProductoProject> findFullyUsedProducts();
     
     // Buscar por cantidad específica
-    List<ProductoProject> findByQuantity(Integer quantity);
+    List<ProductoProject> findByCantidad(Integer cantidad);
     
-    // Buscar materiales con cantidad mayor a un valor
-    @Query("SELECT mp FROM ProductoProject mp WHERE mp.quantity > :minQuantity")
+    // Buscar productos con cantidad mayor a un valor
+    @Query("SELECT mp FROM ProductoProject mp WHERE mp.cantidad > :minQuantity")
     List<ProductoProject> findByQuantityGreaterThan(@Param("minQuantity") Integer minQuantity);
     
-    // Obtener total de materiales usados en un proyecto
-    @Query("SELECT SUM(mp.quantity) FROM ProductoProject mp WHERE mp.idProject = :idProject")
-    Integer getTotalMaterialsUsedInProject(@Param("idProject") Long idProject);
+    // Obtener total de productos usados en un proyecto
+    @Query("SELECT SUM(mp.cantidad) FROM ProductoProject mp WHERE mp.idProyecto = :idProyecto")
+    Integer getTotalProductsUsedInProject(@Param("idProyecto") Long idProyecto);
     
     // Obtener total de sobrantes en un proyecto
-    @Query("SELECT SUM(mp.leftOver) FROM ProductoProject mp WHERE mp.idProject = :idProject")
-    Integer getTotalLeftOverInProject(@Param("idProject") Long idProject);
+    @Query("SELECT SUM(mp.sobrante) FROM ProductoProject mp WHERE mp.idProyecto = :idProyecto")
+    Integer getTotalLeftOverInProject(@Param("idProyecto") Long idProyecto);
     
-    // Contar proyectos que usan un material específico
-    @Query("SELECT COUNT(DISTINCT mp.idProject) FROM ProductoProject mp WHERE mp.idMaterial = :idMaterial")
-    long countProjectsUsingMaterial(@Param("idMaterial") Long idMaterial);
+    // Contar proyectos que usan un producto específico
+    @Query("SELECT COUNT(DISTINCT mp.idProyecto) FROM ProductoProject mp WHERE mp.idProducto = :idProducto")
+    long countProjectsUsingProduct(@Param("idProducto") Long idProducto);
     
-    // Buscar materiales con sobrante específico
-    List<ProductoProject> findByLeftOver(Integer leftOver);
+    // Buscar productos con sobrante específico
+    List<ProductoProject> findBySobrante(Integer sobrante);
     
-    // Buscar materiales más utilizados (ordenados por cantidad descendente)
-    @Query("SELECT mp FROM ProductoProject mp ORDER BY mp.quantity DESC")
-    List<ProductoProject> findMostUsedMaterials();
+    // Buscar productos más utilizados (ordenados por cantidad descendente)
+    @Query("SELECT mp FROM ProductoProject mp ORDER BY mp.cantidad DESC")
+    List<ProductoProject> findMostUsedProducts();
     
-    // Obtener eficiencia de uso de material (porcentaje usado vs sobrante)
-    @Query("SELECT mp FROM ProductoProject mp WHERE (mp.quantity - mp.leftOver) * 100.0 / mp.quantity >= :efficiency")
-    List<ProductoProject> findMaterialsWithEfficiencyAbove(@Param("efficiency") Double efficiency);
+    // Obtener eficiencia de uso de producto (porcentaje usado vs sobrante)
+    @Query("SELECT mp FROM ProductoProject mp WHERE (mp.cantidad - mp.sobrante) * 100.0 / mp.cantidad >= :efficiency")
+    List<ProductoProject> findProductsWithEfficiencyAbove(@Param("efficiency") Double efficiency);
 }
