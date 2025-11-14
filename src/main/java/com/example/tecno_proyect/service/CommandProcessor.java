@@ -308,6 +308,16 @@ public class CommandProcessor {
                 case "VERIFICARSTOCK":
                     return handleVerificarStockMaterial(parameters);
                     
+                // --- Comandos de asignación ---
+                case "LISASIG":
+                    return handleListarAsignaciones(parameters);
+                case "LISASIG_USR":
+                    return handleAsignacionesPorUsuario(parameters);
+                case "ASIGNARPROYUSR":
+                    return handleAsignarProyectoAUsuario(parameters);
+                case "CARGAUSR":
+                    return handleCargaTrabajoUsuario(parameters);
+                
                 // --- Comandos de reportes ---
                 case "REPORTECLIENTE":
                     return handleReporteCliente(parameters);
@@ -315,6 +325,8 @@ public class CommandProcessor {
                     return handleReporteProyecto(parameters);
                 case "REPORTEMATERIALES":
                     return handleReporteMateriales(parameters);
+                case "REPORTEINT":
+                    return handleReporteIntegral(parameters);
                     
                 // Comando de ayuda
                 case "HELP":
@@ -2405,6 +2417,174 @@ public class CommandProcessor {
     }
     
     // --- Método de ayuda ---
+    // --- Métodos de gestión de asignación (PROYECTO Y PERSONAL) ---
+    private String handleListarAsignaciones(String[] parameters) {
+        try {
+            List<Project> proyectos = projectService.listarTodosLosProyectos();
+            StringBuilder asignaciones = new StringBuilder();
+            asignaciones.append("=== ASIGNACIONES DE PROYECTOS ===\n\n");
+            
+            for (Project proyecto : proyectos) {
+                Optional<User> usuarioOpt = userService.buscarUsuarioPorId(proyecto.getUserId());
+                if (usuarioOpt.isPresent()) {
+                    asignaciones.append("📌 ").append(proyecto.getName())
+                              .append(" → Asignado a: ").append(usuarioOpt.get().getName())
+                              .append(" (").append(usuarioOpt.get().getRole()).append(")")
+                              .append(" | Estado: ").append(proyecto.getState()).append("\n");
+                }
+            }
+            
+            return emailResponseService.formatSuccessResponse("ASIGNACIONES ACTUALES", asignaciones.toString(), "LISASIG");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al listar asignaciones: " + e.getMessage(), "LISASIG");
+        }
+    }
+
+    private String handleAsignacionesPorUsuario(String[] parameters) {
+        if (parameters.length < 1) {
+            return emailResponseService.formatInsufficientParametersResponse("LISASIG_USR", "LISASIG_USR[\"idUsuario\"]");
+        }
+        try {
+            Long idUsuario = Long.parseLong(parameters[0]);
+            List<Project> proyectos = projectService.buscarProyectosPorUsuario(idUsuario);
+            List<Schedule> cronogramas = scheduleService.buscarPorUsuario(idUsuario);
+            List<Task> tareas = taskService.buscarPorUsuario(idUsuario);
+            
+            StringBuilder asignaciones = new StringBuilder();
+            asignaciones.append("=== ASIGNACIONES DEL USUARIO ===\n\n");
+            asignaciones.append("📌 PROYECTOS ASIGNADOS: ").append(proyectos.size()).append("\n");
+            for (Project p : proyectos) {
+                asignaciones.append("  • ").append(p.getName()).append(" (").append(p.getState()).append(")\n");
+            }
+            
+            asignaciones.append("\n📅 CRONOGRAMAS ASIGNADOS: ").append(cronogramas.size()).append("\n");
+            for (Schedule s : cronogramas) {
+                asignaciones.append("  • ").append(s.getInitDate()).append(" a ").append(s.getFinalDate())
+                          .append(" (").append(s.getState()).append(")\n");
+            }
+            
+            asignaciones.append("\n✅ TAREAS ASIGNADAS: ").append(tareas.size()).append("\n");
+            for (Task t : tareas) {
+                asignaciones.append("  • ").append(t.getDescription()).append(" (").append(t.getState()).append(")\n");
+            }
+            
+            return emailResponseService.formatSuccessResponse("ASIGNACIONES POR USUARIO", asignaciones.toString(), "LISASIG_USR");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al obtener asignaciones por usuario: " + e.getMessage(), "LISASIG_USR");
+        }
+    }
+
+    private String handleAsignarProyectoAUsuario(String[] parameters) {
+        if (parameters.length < 2) {
+            return emailResponseService.formatInsufficientParametersResponse("ASIGNARPROYUSR", "ASIGNARPROYUSR[\"nombreProyecto\",\"idUsuario\"]");
+        }
+        try {
+            String nombreProyecto = parameters[0];
+            Long idUsuario = Long.parseLong(parameters[1]);
+            
+            Optional<Project> proyectoOpt = projectService.buscarProyectoPorNombre(nombreProyecto);
+            if (!proyectoOpt.isPresent()) {
+                return emailResponseService.formatErrorResponse("Proyecto no encontrado: " + nombreProyecto, "ASIGNARPROYUSR");
+            }
+            
+            Optional<User> usuarioOpt = userService.buscarUsuarioPorId(idUsuario);
+            if (!usuarioOpt.isPresent()) {
+                return emailResponseService.formatErrorResponse("Usuario no encontrado con ID: " + idUsuario, "ASIGNARPROYUSR");
+            }
+            
+            Project proyecto = proyectoOpt.get();
+            proyecto.setUserId(idUsuario);
+            Project actualizado = projectService.actualizarProyectoPorNombre(
+                proyecto.getName(),
+                proyecto.getDescription(),
+                proyecto.getLocation(),
+                proyecto.getState(),
+                proyecto.getIdClient(),
+                idUsuario
+            );
+            
+            return emailResponseService.formatSuccessResponse("ASIGNACIÓN EXITOSA", 
+                "Proyecto '" + proyecto.getName() + "' asignado a " + usuarioOpt.get().getName(), "ASIGNARPROYUSR");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al asignar proyecto: " + e.getMessage(), "ASIGNARPROYUSR");
+        }
+    }
+
+    private String handleCargaTrabajoUsuario(String[] parameters) {
+        try {
+            List<User> usuarios = userService.listarTodosLosUsuarios();
+            StringBuilder carga = new StringBuilder();
+            carga.append("=== CARGA DE TRABAJO POR USUARIO ===\n\n");
+            
+            for (User usuario : usuarios) {
+                List<Project> proyectos = projectService.buscarProyectosPorUsuario(usuario.getId());
+                List<Task> tareas = taskService.buscarPorUsuario(usuario.getId());
+                long tareasCompletadas = tareas.stream().filter(t -> "Completada".equalsIgnoreCase(t.getState())).count();
+                
+                carga.append("👤 ").append(usuario.getName()).append(" (").append(usuario.getRole()).append(")\n");
+                carga.append("  • Proyectos: ").append(proyectos.size()).append("\n");
+                carga.append("  • Tareas Totales: ").append(tareas.size()).append("\n");
+                carga.append("  • Tareas Completadas: ").append(tareasCompletadas).append("\n");
+                carga.append("  • Progreso: ").append(tareas.isEmpty() ? 0 : (tareasCompletadas * 100 / tareas.size())).append("%\n\n");
+            }
+            
+            return emailResponseService.formatSuccessResponse("CARGA DE TRABAJO", carga.toString(), "CARGAUSR");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al obtener carga de trabajo: " + e.getMessage(), "CARGAUSR");
+        }
+    }
+
+    // --- Métodos adicionales para reportes avanzados ---
+    private String handleReporteIntegral(String[] parameters) {
+        try {
+            StringBuilder reporte = new StringBuilder();
+            reporte.append("=== REPORTE INTEGRAL DEL SISTEMA ===\n\n");
+            
+            // Estadísticas generales
+            List<Project> proyectos = projectService.listarTodosLosProyectos();
+            List<Client> clientes = clientService.listarTodosLosClientes();
+            List<User> usuarios = userService.listarTodosLosUsuarios();
+            List<Material> materiales = materialService.listarTodosLosMateriales();
+            
+            reporte.append("📊 ESTADÍSTICAS GENERALES:\n");
+            reporte.append("• Total Proyectos: ").append(proyectos.size()).append("\n");
+            reporte.append("• Total Clientes: ").append(clientes.size()).append("\n");
+            reporte.append("• Total Usuarios: ").append(usuarios.size()).append("\n");
+            reporte.append("• Total Materiales: ").append(materiales.size()).append("\n\n");
+            
+            // Proyectos por estado
+            long completados = proyectos.stream().filter(p -> "Completado".equalsIgnoreCase(p.getState())).count();
+            long enProceso = proyectos.stream().filter(p -> "En Proceso".equalsIgnoreCase(p.getState())).count();
+            long planificacion = proyectos.stream().filter(p -> "Planificación".equalsIgnoreCase(p.getState())).count();
+            
+            reporte.append("🏗️ ESTADO DE PROYECTOS:\n");
+            reporte.append("• Completados: ").append(completados).append(" (").append(proyectos.isEmpty() ? 0 : (completados * 100 / proyectos.size())).append("%)\n");
+            reporte.append("• En Proceso: ").append(enProceso).append(" (").append(proyectos.isEmpty() ? 0 : (enProceso * 100 / proyectos.size())).append("%)\n");
+            reporte.append("• En Planificación: ").append(planificacion).append(" (").append(proyectos.isEmpty() ? 0 : (planificacion * 100 / proyectos.size())).append("%)\n\n");
+            
+            // Financiero
+            List<PayPlan> planes = payPlanService.listarTodosLosPlanesPago();
+            java.math.BigDecimal deudaTotal = java.math.BigDecimal.ZERO;
+            java.math.BigDecimal pagadoTotal = java.math.BigDecimal.ZERO;
+            
+            for (PayPlan plan : planes) {
+                deudaTotal = deudaTotal.add(plan.getTotalDebt());
+                pagadoTotal = pagadoTotal.add(plan.getTotalPayed());
+            }
+            
+            reporte.append("💰 INFORMACIÓN FINANCIERA:\n");
+            reporte.append("• Deuda Total: $").append(deudaTotal).append("\n");
+            reporte.append("• Total Pagado: $").append(pagadoTotal).append("\n");
+            reporte.append("• Pendiente de Pago: $").append(deudaTotal.subtract(pagadoTotal)).append("\n");
+            reporte.append("• Porcentaje Pagado: ").append(deudaTotal.compareTo(java.math.BigDecimal.ZERO) == 0 ? 0 : (pagadoTotal.multiply(new java.math.BigDecimal(100)).divide(deudaTotal, 2, java.math.RoundingMode.HALF_UP))).append("%\n\n");
+            
+            reporte.append("=== FIN DEL REPORTE ===");
+            return emailResponseService.formatSuccessResponse("REPORTE INTEGRAL", reporte.toString(), "REPORTEINT");
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al generar reporte integral: " + e.getMessage(), "REPORTEINT");
+        }
+    }
+
     private String handleHelp(String[] parameters) {
         try {
             StringBuilder help = new StringBuilder();
@@ -2413,167 +2593,183 @@ public class CommandProcessor {
             help.append("Nota: Use \"*\" para listar todos los elementos\n\n");
             
             // Comandos de Clientes
-            help.append("👥 CLIENTES:\n");
-            help.append("• LISCLI[\"*\"] - Listar todos los clientes\n");
-            help.append("• INSCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"] - Insertar cliente\n");
-            help.append("• UPDCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"] - Actualizar cliente\n");
-            help.append("• DELCLI[\"nombre\"] - Eliminar cliente\n");
-            help.append("• BUSCLIEMAIL[\"email\"] - Buscar cliente por email\n");
-            help.append("• BUSCLIPROY[\"*\"] - Buscar clientes con proyectos\n");
-            help.append("• ESTCLIS[\"*\"] - Obtener estadísticas de clientes\n\n");
+            help.append(" CLIENTES:\n");
+            help.append("* LISCLI[\"*\"] - Listar todos los clientes\n");
+            help.append("* INSCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"] - Insertar cliente\n");
+            help.append("* UPDCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"] - Actualizar cliente\n");
+            help.append("* DELCLI[\"nombre\"] - Eliminar cliente\n");
+            help.append("* BUSCLIEMAIL[\"email\"] - Buscar cliente por email\n");
+            help.append("* BUSCLIPROY[\"*\"] - Buscar clientes con proyectos\n");
+            help.append("* ESTCLIS[\"*\"] - Obtener estadísticas de clientes\n\n");
             
             // Comandos de Proyectos
-            help.append("🏗️ PROYECTOS:\n");
-            help.append("• LISPROY[\"*\"] - Listar todos los proyectos\n");
-            help.append("• INSPROY[\"nombre\",\"descripcion\",\"ubicacion\",\"estado\",\"idCliente\",\"idUsuario\"] - Insertar proyecto\n");
-            help.append("• UPDPROY[\"nombre\",\"descripcion\",\"ubicacion\",\"estado\",\"idCliente\",\"idUsuario\"] - Actualizar proyecto\n");
-            help.append("• BUSPROYNOM[\"nombre\"] - Buscar proyecto por nombre\n");
-            help.append("• BUSPROYCLI[\"idCliente\"] - Buscar proyectos por cliente\n");
-            help.append("• BUSPROYUSR[\"idUsuario\"] - Buscar proyectos por usuario\n");
-            help.append("• BUSPROYEST[\"estado\"] - Buscar proyectos por estado\n");
-            help.append("• ESTPROY[\"*\"] - Obtener estadísticas de proyectos\n\n");
+            help.append(" PROYECTOS:\n");
+            help.append("* LISPROY[\"*\"] - Listar todos los proyectos\n");
+            help.append("* INSPROY[\"nombre\",\"descripcion\",\"ubicacion\",\"estado\",\"idCliente\",\"idUsuario\"] - Insertar proyecto\n");
+            help.append("* UPDPROY[\"nombre\",\"descripcion\",\"ubicacion\",\"estado\",\"idCliente\",\"idUsuario\"] - Actualizar proyecto\n");
+            help.append("* BUSPROYNOM[\"nombre\"] - Buscar proyecto por nombre\n");
+            help.append("* BUSPROYCLI[\"idCliente\"] - Buscar proyectos por cliente\n");
+            help.append("* BUSPROYUSR[\"idUsuario\"] - Buscar proyectos por usuario\n");
+            help.append("* BUSPROYEST[\"estado\"] - Buscar proyectos por estado\n");
+            help.append("* ESTPROY[\"*\"] - Obtener estadísticas de proyectos\n\n");
             
             // Comandos de Usuarios
-            help.append("👤 USUARIOS:\n");
-            help.append("• LISUSR[\"*\"] - Listar todos los usuarios\n");
-            help.append("• INSUSR[\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"] - Insertar usuario\n");
-            help.append("• UPDUSR[\"id\",\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"] - Actualizar usuario\n");
-            help.append("• DELUSR[\"nombre\"] - Eliminar usuario\n");
-            help.append("• BUSUSRNOM[\"nombre\"] - Buscar usuario por nombre\n");
-            help.append("• BUSUSREMAIL[\"email\"] - Buscar usuario por email\n");
-            help.append("• BUSUSRROL[\"rol\"] - Buscar usuarios por rol\n\n");
+            help.append(" USUARIOS:\n");
+            help.append("* LISUSR[\"*\"] - Listar todos los usuarios\n");
+            help.append("* INSUSR[\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"] - Insertar usuario\n");
+            help.append("* UPDUSR[\"id\",\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"] - Actualizar usuario\n");
+            help.append("* DELUSR[\"nombre\"] - Eliminar usuario\n");
+            help.append("* BUSUSRNOM[\"nombre\"] - Buscar usuario por nombre\n");
+            help.append("* BUSUSREMAIL[\"email\"] - Buscar usuario por email\n");
+            help.append("* BUSUSRROL[\"rol\"] - Buscar usuarios por rol\n\n");
             
             // Comandos de Cronogramas
-            help.append("📅 CRONOGRAMAS:\n");
-            help.append("• LISSCH[\"*\"] - Listar todos los cronogramas\n");
-            help.append("• INSSCH[\"initDate\",\"finalDate\",\"estimateDays\",\"state\",\"idProject\",\"userId\"] - Insertar cronograma\n");
-            help.append("• UPDSCH[\"id\",\"initDate\",\"finalDate\",\"estimateDays\",\"state\",\"idProject\",\"userId\"] - Actualizar cronograma\n");
-            help.append("• BUSSCHID[\"id\"] - Buscar cronograma por ID\n");
-            help.append("• BUSSCHPROY[\"idProject\"] - Buscar cronogramas por proyecto\n");
-            help.append("• BUSSCHUSR[\"userId\"] - Buscar cronogramas por usuario\n");
-            help.append("• SCHACT[\"*\"] - Buscar cronogramas activos\n");
-            help.append("• SCHCOMP[\"*\"] - Buscar cronogramas completados\n\n");
+            help.append(" CRONOGRAMAS:\n");
+            help.append("* LISSCH[\"*\"] - Listar todos los cronogramas\n");
+            help.append("* INSSCH[\"initDate\",\"finalDate\",\"estimateDays\",\"state\",\"idProject\",\"userId\"] - Insertar cronograma\n");
+            help.append("* UPDSCH[\"id\",\"initDate\",\"finalDate\",\"estimateDays\",\"state\",\"idProject\",\"userId\"] - Actualizar cronograma\n");
+            help.append("* BUSSCHID[\"id\"] - Buscar cronograma por ID\n");
+            help.append("* BUSSCHPROY[\"idProject\"] - Buscar cronogramas por proyecto\n");
+            help.append("* BUSSCHUSR[\"userId\"] - Buscar cronogramas por usuario\n");
+            help.append("* SCHACT[\"*\"] - Buscar cronogramas activos\n");
+            help.append("* SCHCOMP[\"*\"] - Buscar cronogramas completados\n\n");
             
             // Comandos de Tareas
-            help.append("✅ TAREAS:\n");
-            help.append("• LISTASK[\"*\"] - Listar todas las tareas\n");
-            help.append("• INSTASK[\"initHour\",\"finalHour\",\"description\",\"state\",\"idSchedule\",\"userId\"] - Insertar tarea\n");
-            help.append("• UPDTASK[\"id\",\"initHour\",\"finalHour\",\"description\",\"state\",\"idSchedule\",\"userId\"] - Actualizar tarea\n");
-            help.append("• DELTASK[\"id\"] - Eliminar tarea\n");
-            help.append("• BUSTASKID[\"id\"] - Buscar tarea por ID\n");
-            help.append("• BUSTASKSCH[\"idSchedule\"] - Buscar tareas por cronograma\n");
-            help.append("• BUSTASKUSR[\"userId\"] - Buscar tareas por usuario\n");
-            help.append("• TASKACT[\"*\"] - Buscar tareas activas\n");
-            help.append("• TASKCOMP[\"*\"] - Buscar tareas completadas\n");
-            help.append("• TASKPEND[\"*\"] - Buscar tareas pendientes\n\n");
+            help.append(" TAREAS:\n");
+            help.append("* LISTASK[\"*\"] - Listar todas las tareas\n");
+            help.append("* INSTASK[\"initHour\",\"finalHour\",\"description\",\"state\",\"idSchedule\",\"userId\"] - Insertar tarea\n");
+            help.append("* UPDTASK[\"id\",\"initHour\",\"finalHour\",\"description\",\"state\",\"idSchedule\",\"userId\"] - Actualizar tarea\n");
+            help.append("* DELTASK[\"id\"] - Eliminar tarea\n");
+            help.append("* BUSTASKID[\"id\"] - Buscar tarea por ID\n");
+            help.append("* BUSTASKSCH[\"idSchedule\"] - Buscar tareas por cronograma\n");
+            help.append("* BUSTASKUSR[\"userId\"] - Buscar tareas por usuario\n");
+            help.append("* TASKACT[\"*\"] - Buscar tareas activas\n");
+            help.append("* TASKCOMP[\"*\"] - Buscar tareas completadas\n");
+            help.append("* TASKPEND[\"*\"] - Buscar tareas pendientes\n\n");
             
             // Comandos de Cotizaciones
-            help.append("💰 COTIZACIONES:\n");
-            help.append("• LISQUOTE[\"*\"] - Listar todas las cotizaciones\n");
-            help.append("• INSQUOTE[\"typeMetro\",\"costMetro\",\"quantityMetro\",\"costFurniture\",\"total\",\"state\",\"furnitureNumber\",\"comments\",\"idProject\",\"userId\"] - Insertar cotización\n");
-            help.append("• UPDQUOTE[\"id\",\"typeMetro\",\"costMetro\",\"quantityMetro\",\"costFurniture\",\"total\",\"state\",\"furnitureNumber\",\"comments\",\"idProject\",\"userId\"] - Actualizar cotización\n");
-            help.append("• DELQUOTE[\"id\"] - Eliminar cotización\n");
-            help.append("• BUSQUOTEID[\"id\"] - Buscar cotización por ID\n");
-            help.append("• BUSQUOTEPROY[\"idProject\"] - Buscar cotizaciones por proyecto\n");
-            help.append("• BUSQUOTEUSR[\"userId\"] - Buscar cotizaciones por usuario\n");
-            help.append("• BUSQUOTETYPE[\"typeMetro\"] - Buscar cotizaciones por tipo metro\n");
-            help.append("• TOTALQUOTEAPPR[\"idProject\"] - Total cotizaciones aprobadas por proyecto\n");
-            help.append("• CALCQUOTE[\"costMetro\",\"quantityMetro\",\"costFurniture\"] - Calcular total cotización\n");
-            help.append("• APPRQUOTE[\"id\"] - Aprobar cotización\n");
-            help.append("• REJQUOTE[\"id\"] - Rechazar cotización\n\n");
+            help.append(" COTIZACIONES:\n");
+            help.append("* LISQUOTE[\"*\"] - Listar todas las cotizaciones\n");
+            help.append("* INSQUOTE[\"typeMetro\",\"costMetro\",\"quantityMetro\",\"costFurniture\",\"total\",\"state\",\"furnitureNumber\",\"comments\",\"idProject\",\"userId\"] - Insertar cotización\n");
+            help.append("* UPDQUOTE[\"id\",\"typeMetro\",\"costMetro\",\"quantityMetro\",\"costFurniture\",\"total\",\"state\",\"furnitureNumber\",\"comments\",\"idProject\",\"userId\"] - Actualizar cotización\n");
+            help.append("* DELQUOTE[\"id\"] - Eliminar cotización\n");
+            help.append("* BUSQUOTEID[\"id\"] - Buscar cotización por ID\n");
+            help.append("* BUSQUOTEPROY[\"idProject\"] - Buscar cotizaciones por proyecto\n");
+            help.append("* BUSQUOTEUSR[\"userId\"] - Buscar cotizaciones por usuario\n");
+            help.append("* BUSQUOTETYPE[\"typeMetro\"] - Buscar cotizaciones por tipo metro\n");
+            help.append("* TOTALQUOTEAPPR[\"idProject\"] - Total cotizaciones aprobadas por proyecto\n");
+            help.append("* CALCQUOTE[\"costMetro\",\"quantityMetro\",\"costFurniture\"] - Calcular total cotización\n");
+            help.append("* APPRQUOTE[\"id\"] - Aprobar cotización\n");
+            help.append("* REJQUOTE[\"id\"] - Rechazar cotización\n\n");
             
             // Comandos de Diseños
-            help.append("🎨 DISEÑOS:\n");
-            help.append("• LISDESIGN[\"*\"] - Listar todos los diseños\n");
-            help.append("• INSDESIGN[\"idQuote\",\"urlRender\",\"laminatedPlane\",\"approved\",\"approvedDate\",\"comments\",\"userId\"] - Insertar diseño\n");
-            help.append("• UPDDESIGN[\"idDesign\",\"idQuote\",\"urlRender\",\"laminatedPlane\",\"approved\",\"approvedDate\",\"comments\",\"userId\"] - Actualizar diseño\n");
-            help.append("• DELDESIGN[\"id\"] - Eliminar diseño\n");
-            help.append("• BUSDESIGNID[\"id\"] - Buscar diseño por ID\n");
-            help.append("• BUSDESIGNQUOTE[\"idQuote\"] - Buscar diseño por cotización\n");
-            help.append("• BUSDESIGNUSR[\"userId\"] - Buscar diseños por usuario\n");
-            help.append("• DESIGNAPPR[\"*\"] - Buscar diseños aprobados\n");
-            help.append("• APPRDESIGN[\"id\"] - Aprobar diseño\n");
-            help.append("• REJDESIGN[\"id\"] - Rechazar diseño\n\n");
+            help.append(" DISEÑOS:\n");
+            help.append("* LISDESIGN[\"*\"] - Listar todos los diseños\n");
+            help.append("* INSDESIGN[\"idQuote\",\"urlRender\",\"laminatedPlane\",\"approved\",\"approvedDate\",\"comments\",\"userId\"] - Insertar diseño\n");
+            help.append("* UPDDESIGN[\"idDesign\",\"idQuote\",\"urlRender\",\"laminatedPlane\",\"approved\",\"approvedDate\",\"comments\",\"userId\"] - Actualizar diseño\n");
+            help.append("* DELDESIGN[\"id\"] - Eliminar diseño\n");
+            help.append("* BUSDESIGNID[\"id\"] - Buscar diseño por ID\n");
+            help.append("* BUSDESIGNQUOTE[\"idQuote\"] - Buscar diseño por cotización\n");
+            help.append("* BUSDESIGNUSR[\"userId\"] - Buscar diseños por usuario\n");
+            help.append("* DESIGNAPPR[\"*\"] - Buscar diseños aprobados\n");
+            help.append("* APPRDESIGN[\"id\"] - Aprobar diseño\n");
+            help.append("* REJDESIGN[\"id\"] - Rechazar diseño\n\n");
             
             // Comandos de Planes de Pago
-            help.append("💳 PLANES DE PAGO:\n");
-            help.append("• LISPAYPLAN[\"*\"] - Listar todos los planes de pago\n");
-            help.append("• INSPAYPLAN[\"proyecto_id\",\"deuda_total\",\"porcentaje_pago\",\"estado\"] - Insertar plan de pago\n");
-            help.append("• UPDPAYPLAN[\"id\",\"proyecto_id\",\"deuda_total\",\"porcentaje_pago\",\"estado\"] - Actualizar plan de pago\n");
-            help.append("• BUSPAYPLANID[\"id\"] - Buscar plan de pago por ID\n");
-            help.append("• BUSPAYPLANPROY[\"proyecto_id\"] - Buscar plan de pago por proyecto\n");
-            help.append("• BUSPAYPLANEST[\"estado\"] - Buscar planes de pago por estado\n");
-            help.append("• TOTDEUDAPEND[\"*\"] - Total deuda pendiente\n");
-            help.append("• TOTPAGADO[\"*\"] - Total pagado\n");
-            help.append("• UPDDEUDATOT[\"id\",\"nueva_deuda\"] - Actualizar deuda total\n");
-            help.append("• CALCPORCPAGO[\"id\"] - Calcular porcentaje de pago\n");
-            help.append("• CAMBIOEST[\"id\",\"nuevo_estado\"] - Cambiar estado\n");
-            help.append("• CREARPLANPAGOS[\"proyecto_id\",\"deuda_total\",\"num_pagos\"] - Crear plan completo con pagos\n");
-            help.append("• OBTENERPLANPAGO[\"id\"] - Obtener plan de pago completo\n");
-            help.append("• RECALCPLANPAGO[\"id\"] - Recalcular plan de pago\n\n");
+            help.append(" PLANES DE PAGO:\n");
+            help.append("* LISPAYPLAN[\"*\"] - Listar todos los planes de pago\n");
+            help.append("* INSPAYPLAN[\"proyecto_id\",\"deuda_total\",\"porcentaje_pago\",\"estado\"] - Insertar plan de pago\n");
+            help.append("* UPDPAYPLAN[\"id\",\"proyecto_id\",\"deuda_total\",\"porcentaje_pago\",\"estado\"] - Actualizar plan de pago\n");
+            help.append("* BUSPAYPLANID[\"id\"] - Buscar plan de pago por ID\n");
+            help.append("* BUSPAYPLANPROY[\"proyecto_id\"] - Buscar plan de pago por proyecto\n");
+            help.append("* BUSPAYPLANEST[\"estado\"] - Buscar planes de pago por estado\n");
+            help.append("* TOTDEUDAPEND[\"*\"] - Total deuda pendiente\n");
+            help.append("* TOTPAGADO[\"*\"] - Total pagado\n");
+            help.append("* UPDDEUDATOT[\"id\",\"nueva_deuda\"] - Actualizar deuda total\n");
+            help.append("* CALCPORCPAGO[\"id\"] - Calcular porcentaje de pago\n");
+            help.append("* CAMBIOEST[\"id\",\"nuevo_estado\"] - Cambiar estado\n");
+            help.append("* CREARPLANPAGOS[\"proyecto_id\",\"deuda_total\",\"num_pagos\"] - Crear plan completo con pagos\n");
+            help.append("* OBTENERPLANPAGO[\"id\"] - Obtener plan de pago completo\n");
+            help.append("* RECALCPLANPAGO[\"id\"] - Recalcular plan de pago\n\n");
             
             // Comandos de Pagos
-            help.append("💸 PAGOS:\n");
-            help.append("• LISPAYS[\"*\"] - Listar todos los pagos\n");
-            help.append("• INSPAY[\"plan_pago_id\",\"monto\",\"fecha_pago\",\"metodo_pago\",\"estado\"] - Insertar pago\n");
-            help.append("• UPDPAY[\"id\",\"plan_pago_id\",\"monto\",\"fecha_pago\",\"metodo_pago\",\"estado\"] - Actualizar pago\n");
-            help.append("• BUSPAYID[\"id\"] - Buscar pago por ID\n");
-            help.append("• BUSPAYCLI[\"cliente_nombre\"] - Buscar pagos por cliente\n");
-            help.append("• TOTPAGCLI[\"cliente_nombre\"] - Total pagado por cliente\n");
-            help.append("• PLANPAGOHAS[\"plan_pago_id\"] - Verificar si plan tiene pagos\n");
-            help.append("• COUNTPAYPPLAN[\"plan_pago_id\"] - Contar pagos por plan\n");
-            help.append("• OBTPAGOSPLAN[\"plan_pago_id\"] - Obtener pagos por plan\n");
-            help.append("• PAGAR[\"plan_pago_id\",\"monto\",\"metodo_pago\"] - Realizar pago automático\n\n");
+            help.append(" PAGOS:\n");
+            help.append("* LISPAYS[\"*\"] - Listar todos los pagos\n");
+            help.append("* INSPAY[\"plan_pago_id\",\"monto\",\"fecha_pago\",\"metodo_pago\",\"estado\"] - Insertar pago\n");
+            help.append("* UPDPAY[\"id\",\"plan_pago_id\",\"monto\",\"fecha_pago\",\"metodo_pago\",\"estado\"] - Actualizar pago\n");
+            help.append("* BUSPAYID[\"id\"] - Buscar pago por ID\n");
+            help.append("* BUSPAYCLI[\"cliente_nombre\"] - Buscar pagos por cliente\n");
+            help.append("* TOTPAGCLI[\"cliente_nombre\"] - Total pagado por cliente\n");
+            help.append("* PLANPAGOHAS[\"plan_pago_id\"] - Verificar si plan tiene pagos\n");
+            help.append("* COUNTPAYPPLAN[\"plan_pago_id\"] - Contar pagos por plan\n");
+            help.append("* OBTPAGOSPLAN[\"plan_pago_id\"] - Obtener pagos por plan\n");
+            help.append("* PAGAR[\"plan_pago_id\",\"monto\",\"metodo_pago\"] - Realizar pago automático\n\n");
             
             // Comandos de Materiales
-            help.append("🔧 MATERIALES:\n");
-            help.append("• LISMAT[\"*\"] - Listar todos los materiales\n");
-            help.append("• INSMAT[\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Insertar material\n");
-            help.append("• UPDMAT[\"id\",\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Actualizar material\n");
-            help.append("• BUSMATNOM[\"nombre\"] - Buscar material por nombre\n");
-            help.append("• BUSMATTIPO[\"tipo\"] - Buscar materiales por tipo\n");
-            help.append("• UPDMATPRECIO[\"id\",\"nuevo_precio\"] - Actualizar precio material\n");
-            help.append("• UPDMATSTOCK[\"id\",\"nuevo_stock\"] - Actualizar stock material\n");
-            help.append("• REDMATSTOCK[\"id\",\"cantidad\"] - Reducir stock material\n");
-            help.append("• AUMMATSTOCK[\"id\",\"cantidad\"] - Aumentar stock material\n");
-            help.append("• VERMATDISP[\"id\",\"cantidad_requerida\"] - Verificar disponibilidad material\n\n");
+            help.append(" MATERIALES:\n");
+            help.append("* LISMAT[\"*\"] - Listar todos los materiales\n");
+            help.append("* INSMAT[\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Insertar material\n");
+            help.append("* UPDMAT[\"id\",\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Actualizar material\n");
+            help.append("* BUSMATNOM[\"nombre\"] - Buscar material por nombre\n");
+            help.append("* BUSMATTIPO[\"tipo\"] - Buscar materiales por tipo\n");
+            help.append("* UPDMATPRECIO[\"id\",\"nuevo_precio\"] - Actualizar precio material\n");
+            help.append("* UPDMATSTOCK[\"id\",\"nuevo_stock\"] - Actualizar stock material\n");
+            help.append("* REDMATSTOCK[\"id\",\"cantidad\"] - Reducir stock material\n");
+            help.append("* AUMMATSTOCK[\"id\",\"cantidad\"] - Aumentar stock material\n");
+            help.append("* VERMATDISP[\"id\",\"cantidad_requerida\"] - Verificar disponibilidad material\n\n");
             
             // Comandos de Material-Proyecto (GESTIÓN DE INVENTARIO)
-            help.append("📦 GESTIÓN DE INVENTARIO (MATERIAL-PROYECTO):\n");
-            help.append("• LISMATPROY[\"*\"] - Listar todas las asignaciones material-proyecto\n");
-            help.append("• INSMATPROY[\"proyecto_id\",\"material_id\",\"cantidad_requerida\"] - Asignar material (DESCUENTA STOCK)\n");
-            help.append("• UPDMATPROY[\"id\",\"proyecto_id\",\"material_id\",\"cantidad_requerida\"] - Actualizar asignación (AJUSTA STOCK)\n");
-            help.append("• DELMATPROY[\"id\"] - Eliminar asignación (DEVUELVE STOCK)\n");
-            help.append("• BUSMATPROYID[\"id\"] - Buscar asignación por ID\n");
-            help.append("• BUSMATPORPROY[\"proyecto_id\"] - Buscar materiales por proyecto\n");
-            help.append("• BUSPROYPORMAT[\"material_id\"] - Buscar proyectos por material\n\n");
+            help.append(" GESTIÓN DE INVENTARIO (MATERIAL-PROYECTO):\n");
+            help.append("* LISMATPROY[\"*\"] - Listar todas las asignaciones material-proyecto\n");
+            help.append("* INSMATPROY[\"proyecto_id\",\"material_id\",\"cantidad_requerida\"] - Asignar material (DESCUENTA STOCK)\n");
+            help.append("* UPDMATPROY[\"id\",\"proyecto_id\",\"material_id\",\"cantidad_requerida\"] - Actualizar asignación (AJUSTA STOCK)\n");
+            help.append("* DELMATPROY[\"id\"] - Eliminar asignación (DEVUELVE STOCK)\n");
+            help.append("* BUSMATPROYID[\"id\"] - Buscar asignación por ID\n");
+            help.append("* BUSMATPORPROY[\"proyecto_id\"] - Buscar materiales por proyecto\n");
+            help.append("* BUSPROYPORMAT[\"material_id\"] - Buscar proyectos por material\n\n");
             
             // Nuevos comandos de gestión de stock
-            help.append("🏪 GESTIÓN AVANZADA DE STOCK:\n");
-            help.append("• DEVOLVERSOBRANTE[\"materialproject_id\",\"cantidad_sobrante\"] - Devolver material no usado\n");
-            help.append("• DEVOLVERTODO[\"proyecto_id\"] - Devolver todo el material sobrante de un proyecto\n");
-            help.append("• REPORTESTOCK[\"proyecto_id\"] - Ver reporte de stock del proyecto\n");
-            help.append("• AJUSTARSOBRANTE[\"materialproject_id\",\"uso_real\"] - Ajustar por uso real vs asignado\n");
-            help.append("• VERIFICARSTOCK[\"material_id\"] - Verificar disponibilidad actual de material\n\n");
+            help.append(" GESTIÓN AVANZADA DE STOCK:\n");
+            help.append("* DEVOLVERSOBRANTE[\"materialproject_id\",\"cantidad_sobrante\"] - Devolver material no usado\n");
+            help.append("* DEVOLVERTODO[\"proyecto_id\"] - Devolver todo el material sobrante de un proyecto\n");
+            help.append("* REPORTESTOCK[\"proyecto_id\"] - Ver reporte de stock del proyecto\n");
+            help.append("* AJUSTARSOBRANTE[\"materialproject_id\",\"uso_real\"] - Ajustar por uso real vs asignado\n");
+            help.append("* VERIFICARSTOCK[\"material_id\"] - Verificar disponibilidad actual de material\n\n");
+            
+            // Nuevos comandos de gestión de stock
+            help.append(" GESTIÓN AVANZADA DE STOCK:\n");
+            help.append("* DEVOLVERSOBRANTE[\"materialproject_id\",\"cantidad_sobrante\"] - Devolver material no usado\n");
+            help.append("* DEVOLVERTODO[\"proyecto_id\"] - Devolver todo el material sobrante de un proyecto\n");
+            help.append("* REPORTESTOCK[\"proyecto_id\"] - Ver reporte de stock del proyecto\n");
+            help.append("* AJUSTARSOBRANTE[\"materialproject_id\",\"uso_real\"] - Ajustar por uso real vs asignado\n");
+            help.append("* VERIFICARSTOCK[\"material_id\"] - Verificar disponibilidad actual de material\n\n");
+            
+            // Comandos de asignación
+            help.append(" GESTIÓN DE ASIGNACIÓN (PROYECTO Y PERSONAL):\n");
+            help.append("* LISASIG[\"*\"] - Listar todas las asignaciones de proyectos\n");
+            help.append("* LISASIG_USR[\"id_usuario\"] - Listar asignaciones de un usuario específico\n");
+            help.append("* ASIGNARPROYUSR[\"nombre_proyecto\",\"id_usuario\"] - Asignar un proyecto a un usuario\n");
+            help.append("* CARGAUSR[\"*\"] - Ver carga de trabajo de todos los usuarios\n\n");
             
             // Comandos de reportes
-            help.append("📊 REPORTES EJECUTIVOS:\n");
-            help.append("• REPORTECLIENTE[\"nombre_cliente\"] - Reporte completo del cliente con todos sus proyectos\n");
-            help.append("• REPORTEPROYECTO[\"nombre_proyecto\"] - Reporte detallado del proyecto con cotizaciones y materiales\n");
-            help.append("• REPORTEMATERIALES[\"*\"] - Reporte completo del inventario y uso de materiales\n\n");
+            help.append(" REPORTES EJECUTIVOS:\n");
+            help.append("* REPORTECLIENTE[\"nombre_cliente\"] - Reporte completo del cliente con todos sus proyectos\n");
+            help.append("* REPORTEPROYECTO[\"nombre_proyecto\"] - Reporte detallado del proyecto con cotizaciones y materiales\n");
+            help.append("* REPORTEMATERIALES[\"*\"] - Reporte completo del inventario y uso de materiales\n");
+            help.append("* REPORTEINT[\"*\"] - Reporte integral del sistema (estadísticas, financiero, etc)\n\n");
             
             // Comando de ayuda
-            help.append("❓ AYUDA:\n");
-            help.append("• HELP[\"*\"] - Mostrar esta ayuda completa\n\n");
+            help.append(" AYUDA:\n");
+            help.append("* HELP[\"*\"] - Mostrar esta ayuda completa\n\n");
             
             help.append("=== NOTAS IMPORTANTES ===\n");
-            help.append("• Todos los parámetros deben ir entre comillas dobles\n");
-            help.append("• Las fechas deben estar en formato YYYY-MM-DD\n");
-            help.append("• Las horas deben estar en formato HH:MM\n");
-            help.append("• Los IDs deben ser números enteros\n");
-            help.append("• Los montos pueden tener decimales (usar punto como separador)\n");
-            help.append("• Los valores booleanos deben ser true/false\n");
-            help.append("• El sistema gestiona automáticamente el stock al asignar/devolver materiales\n\n");
+            help.append("* Todos los parámetros deben ir entre comillas dobles\n");
+            help.append("* Las fechas deben estar en formato YYYY-MM-DD\n");
+            help.append("* Las horas deben estar en formato HH:MM\n");
+            help.append("* Los IDs deben ser números enteros\n");
+            help.append("* Los montos pueden tener decimales (usar punto como separador)\n");
+            help.append("* Los valores booleanos deben ser true/false\n");
+            help.append("* El sistema gestiona automáticamente el stock al asignar/devolver materiales\n\n");
             help.append("Sistema desarrollado por Grupo03SA - TecnoWeb 2025");
             
             return emailResponseService.formatSuccessResponse("SISTEMA DE AYUDA", help.toString(), "HELP");
