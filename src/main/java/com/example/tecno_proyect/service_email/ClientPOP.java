@@ -70,8 +70,18 @@ public class ClientPOP {
         // Obtener el mensaje completo
         String emailContent = sendCommand("RETR " + messageNumber + "\r\n");
         
+        System.out.println("DEBUG ClientPOP: Contenido completo del email recibido (primeros 500 chars): ");
+        System.out.println(emailContent.substring(0, Math.min(500, emailContent.length())));
+        System.out.println("...");
+        
         // Extraer información del correo
         EmailInfo emailInfo = parseEmail(emailContent);
+        
+        if (emailInfo != null) {
+            System.out.println("DEBUG ClientPOP: From extraído: [" + emailInfo.from + "]");
+            System.out.println("DEBUG ClientPOP: Subject extraído: [" + emailInfo.subject + "]");
+            System.out.println("DEBUG ClientPOP: Longitud del subject: " + (emailInfo.subject != null ? emailInfo.subject.length() : 0));
+        }
         
         if (emailInfo != null && emailInfo.subject != null && !emailInfo.subject.trim().isEmpty()) {
             System.out.println("Procesando comando: " + emailInfo.subject);
@@ -110,11 +120,15 @@ public class ClientPOP {
             info.from = extractEmailAddress(fromMatcher.group(1));
         }
         
-        // Extraer Subject
-        Pattern subjectPattern = Pattern.compile("Subject: (.+)", Pattern.CASE_INSENSITIVE);
+        // Extraer Subject - manejo de líneas continuas (word-wrapped)
+        // El Subject puede continuar en líneas siguientes si están indentadas con espacios/tabs
+        Pattern subjectPattern = Pattern.compile("Subject: (.+?)(?=\\r?\\nFrom:|\\r?\\nTo:|\\r?\\nDate:|\\r?\\nContent-|\\r?\\n[^ \\t]|\\r?\\n\\r?\\n|$)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
         Matcher subjectMatcher = subjectPattern.matcher(emailContent);
         if (subjectMatcher.find()) {
-            info.subject = subjectMatcher.group(1).trim();
+            String subject = subjectMatcher.group(1).trim();
+            // Remover saltos de línea y espacios múltiples de word-wrapping
+            subject = subject.replaceAll("\\r?\\n[ \\t]+", "").replaceAll("\\s+", " ");
+            info.subject = subject.trim();
         }
         
         return info;

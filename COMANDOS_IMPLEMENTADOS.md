@@ -43,12 +43,12 @@ INSUSR["nombre","email","telefono","direccion","password","rol"]
 ```
 
 - Parámetros:
-  - `nombre`: Nombre único del usuario
-  - `email`: Email válido
-  - `telefono`: Teléfono (20 caracteres máx)
-  - `direccion`: Dirección (255 caracteres máx)
-  - `password`: Contraseña
-  - `rol`: ADMIN, DESIGNER, INSTALLER, TECHNICIAN, COORDINATOR, SUPERVISOR, ASSISTANT
+  - `nombre`: Nombre único del usuario (3-100 caracteres)
+  - `email`: Email válido con formato correcto (ej: usuario@ejemplo.com)
+  - `telefono`: Teléfono con mínimo 8 dígitos (sin +591)
+  - `direccion`: Dirección (5-255 caracteres)
+  - `password`: Contraseña fuerte (8+ caracteres, mayúscula, minúscula, dígito, carácter especial)
+  - `rol`: ADMIN, USER, MANAGER, VIEWER
 
 ### Actualizar Usuario
 
@@ -58,16 +58,13 @@ UPDUSR["id","nombre","email","telefono","direccion","password","rol"]
 
 - Parámetros:
   - `id`: ID del usuario a actualizar
-  - (resto de parámetros igual a insertar)
+  - `nombre`: Nombre único del usuario (3-100 caracteres)
+  - `email`: Email válido con formato correcto
+  - `telefono`: Teléfono con mínimo 8 dígitos (sin +591)
+  - `direccion`: Dirección (5-255 caracteres)
+  - `password`: Contraseña fuerte o vacío para mantener la actual
+  - `rol`: ADMIN, USER, MANAGER, VIEWER
 
-### Eliminar Usuario
-
-```
-DELUSR["nombre"]
-```
-
-- Parámetros:
-  - `nombre`: Nombre del usuario a eliminar
 
 ### Buscar Usuarios por Rol
 
@@ -836,6 +833,7 @@ HELP["*"]
    - Todos los parámetros deben ir entre comillas dobles
    - Las comas separan los parámetros
    - NO incluir espacios antes o después de los parámetros
+   - ⚠️ **IMPORTANTE**: Los comandos muy largos pueden ser divididos en múltiples líneas por el cliente de correo. El sistema los reconstruye automáticamente, pero se recomienda mantener los comandos lo más compactos posible
 
 2. **Formatos Específicos**
 
@@ -865,6 +863,19 @@ HELP["*"]
    - Los IDs de cliente y usuario deben existir en el sistema
    - No se pueden eliminar registros que tienen relaciones activas
    - Los nombres únicos no pueden repetirse
+   
+6. **Validaciones de Usuario (INSUSR/UPDUSR)**
+   - **Nombre**: Entre 3 y 100 caracteres (obligatorio)
+   - **Email**: Formato válido con @ y dominio (obligatorio)
+   - **Teléfono**: Mínimo 8 dígitos, sin contar prefijo +591 (obligatorio)
+   - **Dirección**: Entre 5 y 255 caracteres (obligatorio)
+   - **Contraseña**: 
+     - Mínimo 8 caracteres
+     - Al menos 1 letra mayúscula
+     - Al menos 1 letra minúscula
+     - Al menos 1 dígito (número)
+     - Al menos 1 carácter especial (!@#$%^&* etc)
+   - **Rol**: Solo valores permitidos: ADMIN, USER, MANAGER, VIEWER
 
 ---
 

@@ -723,6 +723,7 @@ public class CommandProcessor {
             
             // Caso especial para el parámetro "*"
             if (paramString.equals("*") || paramString.equals("\"*\"")) {
+                System.out.println("extractParameters - Caso especial: wildcard");
                 return new String[]{"*"};
             }
             
@@ -742,12 +743,18 @@ public class CommandProcessor {
                 
                 List<String> params = new ArrayList<>();
                 while (paramMatcher.find()) {
-                    params.add(paramMatcher.group(1));
+                    String param = paramMatcher.group(1);
+                    params.add(param);
+                    System.out.println("extractParameters - Parámetro encontrado: [" + param + "]");
                 }
                 
-                System.out.println("extractParameters - Parámetros encontrados con regex: " + params.size());
+                System.out.println("extractParameters - Total de parámetros encontrados con regex: " + params.size());
                 for (int i = 0; i < params.size(); i++) {
                     System.out.println("extractParameters - Parámetro " + i + ": [" + params.get(i) + "]");
+                }
+                
+                if (params.isEmpty()) {
+                    System.out.println("extractParameters - ADVERTENCIA: No se extrajeron parámetros con regex, devolviendo array vacío");
                 }
                 
                 return params.toArray(new String[0]);
@@ -756,6 +763,7 @@ public class CommandProcessor {
                 if (paramString.startsWith("\"") && paramString.endsWith("\"")) {
                     paramString = paramString.substring(1, paramString.length() - 1);
                 }
+                System.out.println("extractParameters - Un solo parámetro: [" + paramString + "]");
                 return new String[]{paramString};
             }
         }
@@ -1006,10 +1014,17 @@ public class CommandProcessor {
     }
 
     private String handleInsertarUsuario(String[] parameters) {
+        System.out.println("DEBUG handleInsertarUsuario: parameters.length = " + parameters.length);
+        for (int i = 0; i < parameters.length; i++) {
+            System.out.println("DEBUG handleInsertarUsuario: parameters[" + i + "] = [" + parameters[i] + "]");
+        }
+        
         if (parameters.length < 6) {
+            System.out.println("DEBUG handleInsertarUsuario: PARÁMETROS INSUFICIENTES (esperados 6, recibidos " + parameters.length + ")");
             return emailResponseService.formatInsufficientParametersResponse("INSUSR", "INSUSR[\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"]");
         }
         try {
+            System.out.println("DEBUG handleInsertarUsuario: Llamando a userService.insertarUsuario()");
             User usuario = userService.insertarUsuario(
                 parameters[0], // nombre
                 parameters[1], // email
@@ -1018,8 +1033,10 @@ public class CommandProcessor {
                 parameters[4], // password
                 parameters[5]  // rol
             );
+            System.out.println("DEBUG handleInsertarUsuario: Usuario creado exitosamente: " + usuario.getName());
             return emailResponseService.formatInsertUsuarioSuccess(usuario, "INSUSR");
         } catch (Exception e) {
+            System.out.println("DEBUG handleInsertarUsuario: Excepción capturada: " + e.getClass().getName() + " - " + e.getMessage());
             return emailResponseService.formatErrorResponse("Error al insertar usuario: " + e.getMessage(), "INSUSR");
         }
     }
@@ -2592,6 +2609,16 @@ public class CommandProcessor {
             help.append("Formato: COMANDO[\"parametro1\",\"parametro2\",...]\n");
             help.append("Nota: Use \"*\" para listar todos los elementos\n\n");
             
+            // Comandos de Usuarios
+            help.append(" USUARIOS:\n");
+            help.append("* LISUSR[\"*\"] - Listar todos los usuarios\n");
+            help.append("* INSUSR[\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"] - Insertar usuario\n");
+            help.append("* UPDUSR[\"id\",\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"] - Actualizar usuario\n");
+            help.append("* DELUSR[\"nombre\"] - Eliminar usuario\n");
+            help.append("* BUSUSRNOM[\"nombre\"] - Buscar usuario por nombre\n");
+            help.append("* BUSUSREMAIL[\"email\"] - Buscar usuario por email\n");
+            help.append("* BUSUSRROL[\"rol\"] - Buscar usuarios por rol\n\n");
+
             // Comandos de Clientes
             help.append(" CLIENTES:\n");
             help.append("* LISCLI[\"*\"] - Listar todos los clientes\n");
@@ -2612,16 +2639,6 @@ public class CommandProcessor {
             help.append("* BUSPROYUSR[\"idUsuario\"] - Buscar proyectos por usuario\n");
             help.append("* BUSPROYEST[\"estado\"] - Buscar proyectos por estado\n");
             help.append("* ESTPROY[\"*\"] - Obtener estadísticas de proyectos\n\n");
-            
-            // Comandos de Usuarios
-            help.append(" USUARIOS:\n");
-            help.append("* LISUSR[\"*\"] - Listar todos los usuarios\n");
-            help.append("* INSUSR[\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"] - Insertar usuario\n");
-            help.append("* UPDUSR[\"id\",\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"rol\"] - Actualizar usuario\n");
-            help.append("* DELUSR[\"nombre\"] - Eliminar usuario\n");
-            help.append("* BUSUSRNOM[\"nombre\"] - Buscar usuario por nombre\n");
-            help.append("* BUSUSREMAIL[\"email\"] - Buscar usuario por email\n");
-            help.append("* BUSUSRROL[\"rol\"] - Buscar usuarios por rol\n\n");
             
             // Comandos de Cronogramas
             help.append(" CRONOGRAMAS:\n");
