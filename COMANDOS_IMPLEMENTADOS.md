@@ -84,6 +84,132 @@ LISTROLES["*"]
 - Retorna lista de todos los roles disponibles en el sistema con descripción detallada de cada uno
 - Los roles disponibles son: ADMIN, DESIGNER, INSTALLER
 
+
+### Listar Clientes
+
+```
+LISCLI["*"]
+```
+
+- Retorna todos los clientes registrados en el sistema con sus contactos
+- **Estado**: ✅ Implementado
+
+### Buscar Cliente por ID
+
+```
+BUSCLIID["id"]
+```
+
+- Parámetros:
+  - `id`: ID del cliente (número entero)
+- Retorna información completa del cliente
+- **Estado**: ✅ Implementado
+
+### Buscar Cliente por Email
+
+```
+BUSCLIEMAIL["email"]
+```
+
+- Parámetros:
+  - `email`: Email del cliente
+- Retorna cliente específico con su información
+- **Estado**: ✅ Implementado
+
+### Buscar Cliente por Teléfono
+
+```
+BUSCLITEL["telefono"]
+```
+
+- Parámetros:
+  - `telefono`: Teléfono del cliente
+- Retorna cliente que coincide con el número
+- **Estado**: ✅ Implementado
+
+
+### Buscar Clientes con Proyectos
+
+```
+BUSCLIPROY["*"]
+```
+
+- Retorna todos los clientes que tienen al menos un proyecto asignado
+- **Estado**: ✅ Implementado
+
+### Insertar Cliente
+
+```
+INSCLI["nombre","email","telefono","direccion"]
+```
+
+- Parámetros:
+  - `nombre`: Nombre único del cliente (3-100 caracteres)
+  - `email`: Email válido con formato correcto (ej: cliente@ejemplo.com)
+  - `telefono`: Teléfono con mínimo 8 dígitos (sin +591)
+  - `direccion`: Dirección (5-255 caracteres)
+- Crea un nuevo cliente en el sistema
+- **Validaciones**:
+  - Email debe tener formato válido (ej: cliente@ejemplo.com)
+  - Teléfono debe tener mínimo 8 dígitos
+  - Nombre entre 3-100 caracteres (obligatorio)
+  - Dirección entre 5-255 caracteres (obligatorio)
+  - No se puede repetir nombre
+  - No se puede repetir email
+- **Estado**: ✅ Implementado
+
+### Actualizar Cliente
+
+```
+UPDCLI["nombre","email","telefono","direccion"]
+```
+
+- Parámetros:
+  - `nombre`: Nombre del cliente a actualizar (búsqueda por nombre)
+  - `email`: Email nuevo (válido con formato correcto)
+  - `telefono`: Teléfono nuevo (mínimo 8 dígitos)
+  - `direccion`: Dirección nueva (5-255 caracteres)
+- Actualiza información del cliente existente buscando por nombre
+- **Validaciones**: 
+  - Email debe tener formato válido (ej: cliente@ejemplo.com)
+  - Teléfono debe tener mínimo 8 dígitos
+  - Dirección entre 5-255 caracteres
+- **Estado**: ✅ Implementado
+
+
+### Verificar Existencia de Cliente
+
+```
+ESTCLI["id"]
+```
+
+- Parámetros:
+  - `id`: ID del cliente
+- Retorna true si el cliente existe, false si no
+- **Estado**: ✅ Implementado
+
+### Contar Clientes
+
+```
+CONTCLI["*"]
+```
+
+- Retorna el número total de clientes en el sistema
+- **Estado**: ✅ Implementado
+
+### Estadísticas de Clientes
+
+```
+ESTCLIS["*"]
+```
+
+- Retorna estadísticas generales de clientes:
+  - Total de clientes
+  - Clientes con proyectos
+  - Clientes sin proyectos
+  - Información adicional
+- **Estado**: ✅ Implementado
+
 ---
 
 ## 🏗️ CU2: GESTIÓN DE PROYECTOS Y CRONOGRAMAS
@@ -230,81 +356,81 @@ SCHCOMP["*"]
 
 ---
 
-## 🔧 CU3: GESTIÓN DE PRODUCTOS (MATERIALES)
+## 🔧 CU3: GESTIÓN DE PRODUCTOS
 
-### Listar Materiales
-
-```
-LISMAT["*"]
-```
-
-- Retorna todos los materiales con información de stock e inventario
-
-### Buscar Material por Nombre
+### Listar Productos
 
 ```
-BUSMATNOM["nombre"]
+LISPROD["*"]
 ```
 
-- Retorna material específico con su información
+- Retorna todos los productos con información de stock e inventario
 
-### Insertar Material
+### Buscar Producto por Nombre
 
 ```
-INSMAT["nombre","tipo","unidadMedida","precioBases","stock"]
+BUSPRODNOM["nombre"]
+```
+
+- Retorna producto específico con su información
+
+### Insertar Producto
+
+```
+INSPROD["nombre","tipo","unidadMedida","precioBases","stock"]
 ```
 
 - Parámetros:
-  - `nombre`: Nombre único del material
-  - `tipo`: Tipo de material (Textil, Herraje, Acabado, etc.)
+  - `nombre`: Nombre único del producto
+  - `tipo`: Tipo de producto (Textil, Herraje, Acabado, etc.)
   - `unidadMedida`: Unidad de medida (m2, ml, un, kg, etc.)
   - `precioUnitario`: Precio por unidad (decimal)
   - `stock`: Stock inicial
 
-### Actualizar Material
+### Actualizar Producto
 
 ```
-UPDMAT["nombre","tipo","unidadMedida","precioUnitario","stock"]
+UPDPROD["nombre","tipo","unidadMedida","precioUnitario","stock"]
 ```
 
-- Actualiza material completo
+- Actualiza producto completo
 
-### Buscar Materiales por Tipo
-
-```
-BUSMATTIPO["tipo"]
-```
-
-- Retorna todos los materiales de un tipo específico
-
-### Actualizar Precio Material
+### Buscar Productos por Tipo
 
 ```
-UPDMATPRECIO["id","nuevoPrecio"]
+BUSPRODTIPO["tipo"]
+```
+
+- Retorna todos los productos de un tipo específico
+
+### Actualizar Precio Producto
+
+```
+UPDPRODPRECIO["id","nuevoPrecio"]
 ```
 
 - Actualiza solo el precio unitario
 
-### Actualizar Stock Material
+### Actualizar Stock Producto
 
 ```
-UPDMATSTOCK["id","nuevoStock"]
+UPDPRODSTOCK["id","nuevoStock"]
 ```
 
 - Actualiza solo el stock
 
-### Reducir Stock Material
+### Reducir Stock Producto
 
 ```
-REDMATSTOCK["id","cantidad"]
+REDPRODSTOCK["id","cantidad"]
 ```
 
 - Reduce el stock en la cantidad especificada
 
-### Aumentar Stock Material
+### Aumentar Stock Producto
 
 ```
-AUMMATSTOCK["id","cantidad"]
+AUMPRODSTOCK["id","cantidad"]
 ```
 
 - Aumenta el stock en la cantidad especificada
@@ -312,10 +438,10 @@ AUMMATSTOCK["id","cantidad"]
 ### Verificar Disponibilidad
 
 ```
-VERMATDISP["id","cantidadRequerida"]
+VERPRODDISP["id","cantidadRequerida"]
 ```
 
-- Verifica si hay suficiente stock del material
+- Verifica si hay suficiente stock del producto
 
 ---
 
@@ -464,26 +590,26 @@ CARGAUSR["*"]
 
 ## 📦 CU6: GESTIÓN DE INVENTARIO (INGRESO/SALIDA)
 
-### Listar Material-Proyecto
+### Listar Producto-Proyecto
 
 ```
-LISMATPROY["*"]
+LISPRODPROY["*"]
 ```
 
-- Retorna todas las asignaciones de materiales a proyectos
+- Retorna todas las asignaciones de productos a proyectos
 
-### Buscar Material-Proyecto por ID
+### Buscar Producto-Proyecto por ID
 
 ```
-BUSMATPROYID["id"]
+BUSPRODPROYID["id"]
 ```
 
 - Retorna una asignación específica
 
-### Insertar Material-Proyecto
+### Insertar Producto-Proyecto
 
 ```
-INSMATPROY["cantidad","leftOver","idProject","idMaterial"]
+INSPRODPROY["cantidad","leftOver","idProject","idProducto"]
 ```
 
 - **IMPORTANTE**: Descuenta automáticamente del stock general
@@ -491,40 +617,40 @@ INSMATPROY["cantidad","leftOver","idProject","idMaterial"]
   - `cantidad`: Cantidad requerida para el proyecto
   - `leftOver`: Cantidad sobrante (inicial 0)
   - `idProject`: ID del proyecto
-  - `idMaterial`: ID del material
+  - `idProducto`: ID del producto
 
-### Actualizar Material-Proyecto
+### Actualizar Producto-Proyecto
 
 ```
-UPDMATPROY["id","cantidad","leftOver","idProject","idMaterial"]
+UPDPRODPROY["id","cantidad","leftOver","idProject","idProducto"]
 ```
 
 - **IMPORTANTE**: Ajusta automáticamente el stock
 - Actualiza una asignación
 
-### Buscar Materiales por Proyecto
+### Buscar Productos por Proyecto
 
 ```
-BUSMATPORPROY["idProject"]
+BUSPRODPORPROY["idProject"]
 ```
 
-- Retorna todos los materiales asignados a un proyecto
+- Retorna todos los productos asignados a un proyecto
 
-### Buscar Proyectos por Material
-
-```
-BUSPROYPORMAT["idMaterial"]
-```
-
-- Retorna todos los proyectos que usan un material
-
-### Devolver Material Sobrante
+### Buscar Proyectos por Producto
 
 ```
-DEVOLVERSOBRANTE["idMaterialProject","cantidadDevolver"]
+BUSPROYPORPORD["idProducto"]
 ```
 
-- Devuelve al stock general el material no utilizado
+- Retorna todos los proyectos que usan un producto
+
+### Devolver Producto Sobrante
+
+```
+DEVOLVERSOBRANTE["idProductoProject","cantidadDevolver"]
+```
+
+- Devuelve al stock general el producto no utilizado
 - Actualiza automáticamente el stock
 
 ### Devolver Todo Sobrante
@@ -533,7 +659,7 @@ DEVOLVERSOBRANTE["idMaterialProject","cantidadDevolver"]
 DEVOLVERTODO["idProject"]
 ```
 
-- Devuelve todo el material sobrante de un proyecto
+- Devuelve todo el producto sobrante de un proyecto
 
 ### Reporte de Stock del Proyecto
 
@@ -872,8 +998,17 @@ HELP["*"]
    - Los IDs de cliente y usuario deben existir en el sistema
    - No se pueden eliminar registros que tienen relaciones activas
    - Los nombres únicos no pueden repetirse
+
+6. **Validaciones de Cliente (INSCLI/UPDCLI)** ✅
+   - **Nombre**: Entre 3 y 100 caracteres (obligatorio)
+   - **Email**: Formato válido con @ y dominio (ej: cliente@ejemplo.com)
+   - **Teléfono**: Mínimo 8 dígitos, sin contar prefijo +591 (obligatorio)
+   - **Dirección**: Entre 5 y 255 caracteres (obligatorio)
+   - **Unicidad**: 
+     - No se puede insertar cliente con nombre duplicado
+     - No se puede insertar cliente con email duplicado
    
-6. **Validaciones de Usuario (INSUSR/UPDUSR)**
+7. **Validaciones de Usuario (INSUSR/UPDUSR)**
    - **Nombre**: Entre 3 y 100 caracteres (obligatorio)
    - **Email**: Formato válido con @ y dominio (obligatorio)
    - **Teléfono**: Mínimo 8 dígitos, sin contar prefijo +591 (obligatorio)
@@ -906,6 +1041,12 @@ INSUSR["Maria Diseñadora","maria@ejemplo.com","76543210","Av. Principal 123","A
 
 ```
 INSCLI["Constructora ABC","info@abc.com","3334567","Av. Principal 123"]
+```
+
+### Actualizar Cliente (por nombre)
+
+```
+UPDCLI["Constructora ABC","newemail@abc.com","3334568","Av. Nueva 456"]
 ```
 
 ### Crear un Proyecto para ese Cliente

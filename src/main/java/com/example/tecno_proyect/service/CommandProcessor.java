@@ -69,14 +69,24 @@ public class CommandProcessor {
                 case "LISCLI":
                     System.out.println("DEBUG: Ejecutando caso LISCLI...");
                     return handleListClientes(parameters);
+                case "BUSCLIID":
+                    return handleBuscarClientePorId(parameters);
                 case "INSCLI":
                     return handleInsertCliente(parameters);
                 case "BUSCLIEMAIL":
                     return handleBuscarClientePorEmail(parameters);
+                case "BUSCLITEL":
+                    return handleBuscarClientePorTelefono(parameters);
+                case "BUSCLIDIR":
+                    return handleBuscarClientesPorDireccion(parameters);
                 case "UPDCLI":
                     return handleActualizarCliente(parameters);
                 case "DELCLI":
                     return handleEliminarCliente(parameters);
+                case "ESTCLI":
+                    return handleVerificarExistenciaCliente(parameters);
+                case "CONTCLI":
+                    return handleContarClientes(parameters);
                 case "BUSCLIPROY":
                     return handleBuscarClientesConProyectos(parameters);
                 case "ESTCLIS":
@@ -118,26 +128,26 @@ public class CommandProcessor {
                 case "ESTPROY":
                     return handleObtenerEstadisticasProyectos(parameters);
 
-                // Comandos de materiales-productos
-                case "LISMAT":
+                // Comandos de productos
+                case "LISPROD":
                     return handleListarTodosLosMateriales(parameters);
-                case "BUSMATNOM":
+                case "BUSPRODNOM":
                     return handleBuscarMaterialPorNombre(parameters);
-                case "INSMAT":
+                case "INSPROD":
                     return handleInsertarMaterial(parameters);
-                case "UPDMAT":
+                case "UPDPROD":
                     return handleActualizarMaterial(parameters);
-                case "BUSMATTIPO":
+                case "BUSPRODTIPO":
                     return handleBuscarMaterialesPorTipo(parameters);
-                case "UPDMATPRECIO":
+                case "UPDPRODPRECIO":
                     return handleActualizarPrecioMaterial(parameters);
-                case "UPDMATSTOCK":
+                case "UPDPRODSTOCK":
                     return handleActualizarStockMaterial(parameters);
-                case "REDMATSTOCK":
+                case "REDPRODSTOCK":
                     return handleReducirStockMaterial(parameters);
-                case "AUMMATSTOCK":
+                case "AUMPRODSTOCK":
                     return handleAumentarStockMaterial(parameters);
-                case "VERMATDISP":
+                case "VERPRODDISP":
                     return handleVerificarDisponibilidadMaterial(parameters);
                 
                 // Diseños
@@ -284,18 +294,18 @@ public class CommandProcessor {
                 case "PAGAR":
                     return handlePagar(parameters);
                 
-                // Comandos de materiales-proyecto
-                case "LISMATPROY":
+                // Comandos de productos-proyecto
+                case "LISPRODPROY":
                     return handleListarTodosMaterialesProyecto(parameters);
-                case "BUSMATPROYID":
+                case "BUSPRODPROYID":
                     return handleBuscarMaterialProyectoPorId(parameters);
-                case "INSMATPROY":
+                case "INSPRODPROY":
                     return handleInsertarMaterialProyecto(parameters);
-                case "UPDMATPROY":
+                case "UPDPRODPROY":
                     return handleActualizarMaterialProyecto(parameters);
-                case "BUSMATPORPROY":
+                case "BUSPRODPORPROY":
                     return handleBuscarMaterialesPorProyecto(parameters);
-                case "BUSPROYPORMAT":
+                case "BUSPROYPORPORD":
                     return handleBuscarProyectosPorMaterial(parameters);
                     
                 // --- Comandos de gestión de stock ---
@@ -970,6 +980,94 @@ public class CommandProcessor {
                 return emailResponseService.formatEstadisticasClientesResponse(estadisticas, "ESTCLIS");
             } catch (Exception e) {
                 return emailResponseService.formatErrorResponse("Error al obtener estadísticas de clientes: " + e.getMessage(), "ESTCLIS");
+            }
+        }
+
+        private String handleBuscarClientePorId(String[] parameters) {
+            if (parameters.length < 1) {
+                return emailResponseService.formatInsufficientParametersResponse("BUSCLIID", "BUSCLIID[\"id\"]");
+            }
+            try {
+                Long id = Long.parseLong(parameters[0]);
+                Optional<Client> clientOpt = clientService.buscarClientePorId(id);
+                if (clientOpt.isPresent()) {
+                    return emailResponseService.formatSearchClienteSuccess(clientOpt.get(), "BUSCLIID");
+                } else {
+                    return emailResponseService.formatSearchClienteNotFound("ID: " + id, "BUSCLIID");
+                }
+            } catch (NumberFormatException e) {
+                return emailResponseService.formatErrorResponse("Error: El ID debe ser un número válido", "BUSCLIID");
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al buscar cliente por ID: " + e.getMessage(), "BUSCLIID");
+            }
+        }
+
+        private String handleBuscarClientePorTelefono(String[] parameters) {
+            if (parameters.length < 1) {
+                return emailResponseService.formatInsufficientParametersResponse("BUSCLITEL", "BUSCLITEL[\"telefono\"]");
+            }
+            try {
+                String telefono = parameters[0];
+                List<Client> clientes = clientService.listarTodosLosClientes();
+                List<Client> clientesFiltrados = clientes.stream()
+                    .filter(c -> c.getPhone() != null && c.getPhone().equals(telefono))
+                    .toList();
+                
+                if (!clientesFiltrados.isEmpty()) {
+                    return emailResponseService.formatListClientesResponse(clientesFiltrados, "BUSCLITEL");
+                } else {
+                    return emailResponseService.formatSearchClienteNotFound("Teléfono: " + telefono, "BUSCLITEL");
+                }
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al buscar cliente por teléfono: " + e.getMessage(), "BUSCLITEL");
+            }
+        }
+
+        private String handleBuscarClientesPorDireccion(String[] parameters) {
+            if (parameters.length < 1) {
+                return emailResponseService.formatInsufficientParametersResponse("BUSCLIDIR", "BUSCLIDIR[\"direccion\"]");
+            }
+            try {
+                String direccion = parameters[0].toLowerCase();
+                List<Client> clientes = clientService.listarTodosLosClientes();
+                List<Client> clientesFiltrados = clientes.stream()
+                    .filter(c -> c.getAddress() != null && c.getAddress().toLowerCase().contains(direccion))
+                    .toList();
+                
+                if (!clientesFiltrados.isEmpty()) {
+                    return emailResponseService.formatListClientesResponse(clientesFiltrados, "BUSCLIDIR");
+                } else {
+                    return emailResponseService.formatSearchClienteNotFound("Dirección: " + parameters[0], "BUSCLIDIR");
+                }
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al buscar clientes por dirección: " + e.getMessage(), "BUSCLIDIR");
+            }
+        }
+
+        private String handleVerificarExistenciaCliente(String[] parameters) {
+            if (parameters.length < 1) {
+                return emailResponseService.formatInsufficientParametersResponse("ESTCLI", "ESTCLI[\"id\"]");
+            }
+            try {
+                Long id = Long.parseLong(parameters[0]);
+                boolean existe = clientService.existeClientePorId(id);
+                String resultado = existe ? "✅ El cliente con ID " + id + " existe en el sistema" 
+                                         : "❌ El cliente con ID " + id + " NO existe en el sistema";
+                return emailResponseService.formatSuccessResponse("VERIFICACIÓN DE CLIENTE", resultado, "ESTCLI");
+            } catch (NumberFormatException e) {
+                return emailResponseService.formatErrorResponse("Error: El ID debe ser un número válido", "ESTCLI");
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al verificar existencia de cliente: " + e.getMessage(), "ESTCLI");
+            }
+        }
+
+        private String handleContarClientes(String[] parameters) {
+            try {
+                long totalClientes = clientService.contarClientes();
+                String resultado = "Total de clientes en el sistema: " + totalClientes;
+                return emailResponseService.formatSuccessResponse("CONTEO DE CLIENTES", resultado, "CONTCLI");
+            } catch (Exception e) {
+                return emailResponseService.formatErrorResponse("Error al contar clientes: " + e.getMessage(), "CONTCLI");
             }
         }
 
@@ -1901,49 +1999,49 @@ public class CommandProcessor {
     private String handleListarTodosMaterialesProyecto(String[] parameters) {
         try {
             List<MaterialProject> materialesProyecto = materialProjectService.listarTodosMaterialesProyecto();
-            return emailResponseService.formatListMaterialesProyectoResponse(materialesProyecto, "LISMATPROY");
+            return emailResponseService.formatListMaterialesProyectoResponse(materialesProyecto, "LISPRODPROY");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al listar materiales-proyecto: " + e.getMessage(), "LISMATPROY");
+            return emailResponseService.formatErrorResponse("Error al listar productos-proyecto: " + e.getMessage(), "LISPRODPROY");
         }
     }
 
     private String handleBuscarMaterialProyectoPorId(String[] parameters) {
         if (parameters.length < 1) {
-            return emailResponseService.formatInsufficientParametersResponse("BUSMATPROYID", "BUSMATPROYID[\"id\"]");
+            return emailResponseService.formatInsufficientParametersResponse("BUSPRODPROYID", "BUSPRODPROYID[\"id\"]");
         }
         try {
             Long id = Long.parseLong(parameters[0]);
             Optional<MaterialProject> materialProyectoOpt = materialProjectService.buscarMaterialProyectoPorId(id);
             if (materialProyectoOpt.isPresent()) {
-                return emailResponseService.formatSearchMaterialProyectoSuccess(materialProyectoOpt.get(), "BUSMATPROYID");
+                return emailResponseService.formatSearchMaterialProyectoSuccess(materialProyectoOpt.get(), "BUSPRODPROYID");
             } else {
-                return emailResponseService.formatSearchMaterialProyectoNotFound(id, "BUSMATPROYID");
+                return emailResponseService.formatSearchMaterialProyectoNotFound(id, "BUSPRODPROYID");
             }
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al buscar material-proyecto por ID: " + e.getMessage(), "BUSMATPROYID");
+            return emailResponseService.formatErrorResponse("Error al buscar producto-proyecto por ID: " + e.getMessage(), "BUSPRODPROYID");
         }
     }
 
     private String handleInsertarMaterialProyecto(String[] parameters) {
         if (parameters.length < 4) {
-            return emailResponseService.formatInsufficientParametersResponse("INSMATPROY", "INSMATPROY[\"quantity\",\"leftOver\",\"idProject\",\"idMaterial\"]");
+            return emailResponseService.formatInsufficientParametersResponse("INSPRODPROY", "INSPRODPROY[\"quantity\",\"leftOver\",\"idProject\",\"idProducto\"]");
         }
         try {
             MaterialProject materialProyecto = materialProjectService.insertarMaterialProyecto(
                 Integer.parseInt(parameters[0]), // quantity
                 Integer.parseInt(parameters[1]), // leftOver
                 Long.parseLong(parameters[2]), // idProject
-                Long.parseLong(parameters[3])  // idMaterial
+                Long.parseLong(parameters[3])  // idProducto
             );
-            return emailResponseService.formatInsertMaterialProyectoSuccess(materialProyecto, "INSMATPROY");
+            return emailResponseService.formatInsertMaterialProyectoSuccess(materialProyecto, "INSPRODPROY");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al insertar material-proyecto: " + e.getMessage(), "INSMATPROY");
+            return emailResponseService.formatErrorResponse("Error al insertar producto-proyecto: " + e.getMessage(), "INSPRODPROY");
         }
     }
 
     private String handleActualizarMaterialProyecto(String[] parameters) {
         if (parameters.length < 5) {
-            return emailResponseService.formatInsufficientParametersResponse("UPDMATPROY", "UPDMATPROY[\"id\",\"quantity\",\"leftOver\",\"idProject\",\"idMaterial\"]");
+            return emailResponseService.formatInsufficientParametersResponse("UPDPRODPROY", "UPDPRODPROY[\"id\",\"quantity\",\"leftOver\",\"idProject\",\"idProducto\"]");
         }
         try {
             MaterialProject materialProyecto = materialProjectService.actualizarMaterialProyecto(
@@ -1951,35 +2049,35 @@ public class CommandProcessor {
                 Integer.parseInt(parameters[1]), // quantity
                 Integer.parseInt(parameters[2]), // leftOver
                 Long.parseLong(parameters[3]), // idProject
-                Long.parseLong(parameters[4])  // idMaterial
+                Long.parseLong(parameters[4])  // idProducto
             );
-            return emailResponseService.formatUpdateMaterialProyectoSuccess(materialProyecto, "UPDMATPROY");
+            return emailResponseService.formatUpdateMaterialProyectoSuccess(materialProyecto, "UPDPRODPROY");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al actualizar material-proyecto: " + e.getMessage(), "UPDMATPROY");
+            return emailResponseService.formatErrorResponse("Error al actualizar producto-proyecto: " + e.getMessage(), "UPDPRODPROY");
         }
     }
 
     private String handleBuscarMaterialesPorProyecto(String[] parameters) {
         if (parameters.length < 1) {
-            return emailResponseService.formatInsufficientParametersResponse("BUSMATPORPROY", "BUSMATPORPROY[\"idProject\"]");
+            return emailResponseService.formatInsufficientParametersResponse("BUSPRODPORPROY", "BUSPRODPORPROY[\"idProject\"]");
         }
         try {
             List<MaterialProject> materialesProyecto = materialProjectService.buscarMaterialesPorProyecto(Long.parseLong(parameters[0]));
-            return emailResponseService.formatListMaterialesPorProyectoResponse(materialesProyecto, "BUSMATPORPROY");
+            return emailResponseService.formatListMaterialesPorProyectoResponse(materialesProyecto, "BUSPRODPORPROY");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al buscar materiales por proyecto: " + e.getMessage(), "BUSMATPORPROY");
+            return emailResponseService.formatErrorResponse("Error al buscar productos por proyecto: " + e.getMessage(), "BUSPRODPORPROY");
         }
     }
 
     private String handleBuscarProyectosPorMaterial(String[] parameters) {
         if (parameters.length < 1) {
-            return emailResponseService.formatInsufficientParametersResponse("BUSPROYPORMAT", "BUSPROYPORMAT[\"idMaterial\"]");
+            return emailResponseService.formatInsufficientParametersResponse("BUSPROYPORPORD", "BUSPROYPORPORD[\"idProducto\"]");
         }
         try {
             List<MaterialProject> proyectosMaterial = materialProjectService.buscarProyectosPorMaterial(Long.parseLong(parameters[0]));
-            return emailResponseService.formatListProyectosPorMaterialResponse(proyectosMaterial, "BUSPROYPORMAT");
+            return emailResponseService.formatListProyectosPorMaterialResponse(proyectosMaterial, "BUSPROYPORPORD");
         } catch (Exception e) {
-            return emailResponseService.formatErrorResponse("Error al buscar proyectos por material: " + e.getMessage(), "BUSPROYPORMAT");
+            return emailResponseService.formatErrorResponse("Error al buscar proyectos por producto: " + e.getMessage(), "BUSPROYPORPORD");
         }
     }
     
@@ -2671,10 +2769,15 @@ public class CommandProcessor {
             // Comandos de Clientes
             help.append(" CLIENTES:\n");
             help.append("* LISCLI[\"*\"] - Listar todos los clientes\n");
+            help.append("* BUSCLIID[\"id\"] - Buscar cliente por ID\n");
+            help.append("* BUSCLIEMAIL[\"email\"] - Buscar cliente por email\n");
+            help.append("* BUSCLITEL[\"telefono\"] - Buscar cliente por teléfono\n");
+            help.append("* BUSCLIDIR[\"direccion\"] - Buscar clientes por dirección (búsqueda parcial)\n");
             help.append("* INSCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"] - Insertar cliente\n");
             help.append("* UPDCLI[\"nombre\",\"email\",\"telefono\",\"direccion\"] - Actualizar cliente\n");
-            help.append("* DELCLI[\"nombre\"] - Eliminar cliente\n");
-            help.append("* BUSCLIEMAIL[\"email\"] - Buscar cliente por email\n");
+            help.append("* DELCLI[\"nombre\"] - Eliminar cliente por nombre\n");
+            help.append("* ESTCLI[\"id\"] - Verificar existencia de cliente\n");
+            help.append("* CONTCLI[\"*\"] - Contar total de clientes\n");
             help.append("* BUSCLIPROY[\"*\"] - Buscar clientes con proyectos\n");
             help.append("* ESTCLIS[\"*\"] - Obtener estadísticas de clientes\n\n");
             
@@ -2772,27 +2875,27 @@ public class CommandProcessor {
             help.append("* PAGAR[\"plan_pago_id\",\"monto\",\"metodo_pago\"] - Realizar pago automático\n\n");
             
             // Comandos de Materiales
-            help.append(" MATERIALES:\n");
-            help.append("* LISMAT[\"*\"] - Listar todos los materiales\n");
-            help.append("* INSMAT[\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Insertar material\n");
-            help.append("* UPDMAT[\"id\",\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Actualizar material\n");
-            help.append("* BUSMATNOM[\"nombre\"] - Buscar material por nombre\n");
-            help.append("* BUSMATTIPO[\"tipo\"] - Buscar materiales por tipo\n");
-            help.append("* UPDMATPRECIO[\"id\",\"nuevo_precio\"] - Actualizar precio material\n");
-            help.append("* UPDMATSTOCK[\"id\",\"nuevo_stock\"] - Actualizar stock material\n");
-            help.append("* REDMATSTOCK[\"id\",\"cantidad\"] - Reducir stock material\n");
-            help.append("* AUMMATSTOCK[\"id\",\"cantidad\"] - Aumentar stock material\n");
-            help.append("* VERMATDISP[\"id\",\"cantidad_requerida\"] - Verificar disponibilidad material\n\n");
+            help.append(" PRODUCTOS:\n");
+            help.append("* LISPROD[\"*\"] - Listar todos los productos\n");
+            help.append("* INSPROD[\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Insertar producto\n");
+            help.append("* UPDPROD[\"id\",\"nombre\",\"descripcion\",\"unidad_medida\",\"precio_unitario\",\"stock_actual\"] - Actualizar producto\n");
+            help.append("* BUSPRODNOM[\"nombre\"] - Buscar producto por nombre\n");
+            help.append("* BUSPRODTIPO[\"tipo\"] - Buscar productos por tipo\n");
+            help.append("* UPDPRODPRECIO[\"id\",\"nuevo_precio\"] - Actualizar precio producto\n");
+            help.append("* UPDPRODSTOCK[\"id\",\"nuevo_stock\"] - Actualizar stock producto\n");
+            help.append("* REDPRODSTOCK[\"id\",\"cantidad\"] - Reducir stock producto\n");
+            help.append("* AUMPRODSTOCK[\"id\",\"cantidad\"] - Aumentar stock producto\n");
+            help.append("* VERPRODDISP[\"id\",\"cantidad_requerida\"] - Verificar disponibilidad producto\n\n");
             
-            // Comandos de Material-Proyecto (GESTIÓN DE INVENTARIO)
-            help.append(" GESTIÓN DE INVENTARIO (MATERIAL-PROYECTO):\n");
-            help.append("* LISMATPROY[\"*\"] - Listar todas las asignaciones material-proyecto\n");
-            help.append("* INSMATPROY[\"proyecto_id\",\"material_id\",\"cantidad_requerida\"] - Asignar material (DESCUENTA STOCK)\n");
-            help.append("* UPDMATPROY[\"id\",\"proyecto_id\",\"material_id\",\"cantidad_requerida\"] - Actualizar asignación (AJUSTA STOCK)\n");
-            help.append("* DELMATPROY[\"id\"] - Eliminar asignación (DEVUELVE STOCK)\n");
-            help.append("* BUSMATPROYID[\"id\"] - Buscar asignación por ID\n");
-            help.append("* BUSMATPORPROY[\"proyecto_id\"] - Buscar materiales por proyecto\n");
-            help.append("* BUSPROYPORMAT[\"material_id\"] - Buscar proyectos por material\n\n");
+            // Comandos de Producto-Proyecto (GESTIÓN DE INVENTARIO)
+            help.append(" GESTIÓN DE INVENTARIO (PRODUCTO-PROYECTO):\n");
+            help.append("* LISPRODPROY[\"*\"] - Listar todas las asignaciones producto-proyecto\n");
+            help.append("* INSPRODPROY[\"proyecto_id\",\"producto_id\",\"cantidad_requerida\"] - Asignar producto (DESCUENTA STOCK)\n");
+            help.append("* UPDPRODPROY[\"id\",\"proyecto_id\",\"producto_id\",\"cantidad_requerida\"] - Actualizar asignación (AJUSTA STOCK)\n");
+            help.append("* DELPRODPROY[\"id\"] - Eliminar asignación (DEVUELVE STOCK)\n");
+            help.append("* BUSPRODPROYID[\"id\"] - Buscar asignación por ID\n");
+            help.append("* BUSPRODPORPROY[\"proyecto_id\"] - Buscar productos por proyecto\n");
+            help.append("* BUSPROYPORPORD[\"producto_id\"] - Buscar proyectos por producto\n\n");
             
             // Nuevos comandos de gestión de stock
             help.append(" GESTIÓN AVANZADA DE STOCK:\n");
