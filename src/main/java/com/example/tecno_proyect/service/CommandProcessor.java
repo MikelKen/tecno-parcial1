@@ -97,6 +97,8 @@ public class CommandProcessor {
                     return handleEliminarUsuario(parameters);
                 case "BUSUSRROL":
                     return handleBuscarUsuariosPorRol(parameters);
+                case "LISTROLES":
+                    return handleListarRolesDisponibles(parameters);
 
                 // Proyectos
                 case "LISPROY":
@@ -1087,6 +1089,52 @@ public class CommandProcessor {
             return emailResponseService.formatListUsuariosPorRolResponse(usuarios, "BUSUSRROL");
         } catch (Exception e) {
             return emailResponseService.formatErrorResponse("Error al buscar usuarios por rol: " + e.getMessage(), "BUSUSRROL");
+        }
+    }
+
+    private String handleListarRolesDisponibles(String[] parameters) {
+        try {
+            StringBuilder response = new StringBuilder();
+            response.append("================================================\n");
+            response.append("    SISTEMA DE GESTIÓN - GRUPO 03SA\n");
+            response.append("    Respuesta para comando: LISTROLES\n");
+            response.append("    Fecha: ").append(java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))).append("\n");
+            response.append("================================================\n\n");
+            
+            response.append("ROLES DISPONIBLES EN EL SISTEMA\n");
+            response.append("------------------------\n\n");
+            
+            String[] roles = com.example.tecno_proyect.util.ValidationUtil.getValidRoles();
+            int count = 1;
+            
+            for (String role : roles) {
+                response.append(count).append(". ").append(role).append("\n");
+                count++;
+            }
+            
+            response.append("\nDESCRIPCIÓN DE ROLES\n");
+            response.append("------------------------\n\n");
+            
+            response.append("• ADMIN\n");
+            response.append("  Administrador del sistema con acceso total a todas las funciones\n\n");
+            
+            response.append("• DESIGNER\n");
+            response.append("  Diseñador encargado de crear diseños y renderizaciones\n\n");
+            
+            response.append("• INSTALLER\n");
+            response.append("  Instalador responsable de ejecutar las instalaciones en proyectos\n\n");
+            
+            response.append("INFORMACIÓN\n");
+            response.append("------------------------\n");
+            response.append("Total de roles disponibles: ").append(roles.length).append("\n\n");
+            response.append("Para usar un rol en la creación de usuarios, utilize el comando:\n");
+            response.append("INSUSR[\"nombre\",\"email\",\"telefono\",\"direccion\",\"password\",\"ROLE\"]\n");
+            response.append("Donde ROLE es uno de los roles listados arriba.\n\n");
+            response.append("================================================\n");
+            
+            return response.toString();
+        } catch (Exception e) {
+            return emailResponseService.formatErrorResponse("Error al listar roles: " + e.getMessage(), "LISTROLES");
         }
     }
 
@@ -2617,7 +2665,8 @@ public class CommandProcessor {
             help.append("* DELUSR[\"nombre\"] - Eliminar usuario\n");
             help.append("* BUSUSRNOM[\"nombre\"] - Buscar usuario por nombre\n");
             help.append("* BUSUSREMAIL[\"email\"] - Buscar usuario por email\n");
-            help.append("* BUSUSRROL[\"rol\"] - Buscar usuarios por rol\n\n");
+            help.append("* BUSUSRROL[\"rol\"] - Buscar usuarios por rol\n");
+            help.append("* LISTROLES[\"*\"] - Listar roles disponibles con descripción\n\n");
 
             // Comandos de Clientes
             help.append(" CLIENTES:\n");

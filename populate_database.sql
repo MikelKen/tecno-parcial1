@@ -26,12 +26,12 @@ INSERT INTO app_user (name, email, phone, address, password, role) VALUES
 ('maria_designer', 'maria.designer@sistema.com', '3334444', 'Calle 2 456', 'pass123', 'DESIGNER'),
 ('carlos_installer', 'carlos.installer@sistema.com', '3335555', 'Calle 3 789', 'pass123', 'INSTALLER'),
 ('ana_admin', 'ana.admin@sistema.com', '3336666', 'Calle 4 101', 'pass123', 'ADMIN'),
-('pedro_tech', 'pedro.tech@sistema.com', '3337777', 'Calle 5 202', 'pass123', 'TECHNICIAN'),
-('laura_coord', 'laura.coord@sistema.com', '3338888', 'Calle 6 303', 'pass123', 'COORDINATOR'),
-('roberto_super', 'roberto.super@sistema.com', '3339999', 'Calle 7 404', 'pass123', 'SUPERVISOR'),
+('pedro_designer', 'pedro.designer@sistema.com', '3337777', 'Calle 5 202', 'pass123', 'DESIGNER'),
+('laura_installer', 'laura.installer@sistema.com', '3338888', 'Calle 6 303', 'pass123', 'INSTALLER'),
+('roberto_admin', 'roberto.admin@sistema.com', '3339999', 'Calle 7 404', 'pass123', 'ADMIN'),
 ('sofia_designer', 'sofia.designer@sistema.com', '3330000', 'Calle 8 505', 'pass123', 'DESIGNER'),
 ('miguel_installer', 'miguel.installer@sistema.com', '3331111', 'Calle 9 606', 'pass123', 'INSTALLER'),
-('elena_assist', 'elena.assist@sistema.com', '3332222', 'Calle 10 707', 'pass123', 'ASSISTANT');
+('elena_designer', 'elena.designer@sistema.com', '3332222', 'Calle 10 707', 'pass123', 'DESIGNER');
 
 -- ============================================================
 -- 3. TABLA: client

@@ -48,7 +48,7 @@ INSUSR["nombre","email","telefono","direccion","password","rol"]
   - `telefono`: Teléfono con mínimo 8 dígitos (sin +591)
   - `direccion`: Dirección (5-255 caracteres)
   - `password`: Contraseña fuerte (8+ caracteres, mayúscula, minúscula, dígito, carácter especial)
-  - `rol`: ADMIN, USER, MANAGER, VIEWER
+  - `rol`: ADMIN, DESIGNER, INSTALLER
 
 ### Actualizar Usuario
 
@@ -63,7 +63,7 @@ UPDUSR["id","nombre","email","telefono","direccion","password","rol"]
   - `telefono`: Teléfono con mínimo 8 dígitos (sin +591)
   - `direccion`: Dirección (5-255 caracteres)
   - `password`: Contraseña fuerte o vacío para mantener la actual
-  - `rol`: ADMIN, USER, MANAGER, VIEWER
+  - `rol`: ADMIN, DESIGNER, INSTALLER
 
 
 ### Buscar Usuarios por Rol
@@ -74,6 +74,15 @@ BUSUSRROL["rol"]
 
 - Parámetros:
   - `rol`: Rol a filtrar (ADMIN, DESIGNER, etc.)
+
+### Listar Roles Disponibles
+
+```
+LISTROLES["*"]
+```
+
+- Retorna lista de todos los roles disponibles en el sistema con descripción detallada de cada uno
+- Los roles disponibles son: ADMIN, DESIGNER, INSTALLER
 
 ---
 
@@ -875,11 +884,23 @@ HELP["*"]
      - Al menos 1 letra minúscula
      - Al menos 1 dígito (número)
      - Al menos 1 carácter especial (!@#$%^&* etc)
-   - **Rol**: Solo valores permitidos: ADMIN, USER, MANAGER, VIEWER
+   - **Rol**: Solo valores permitidos: ADMIN, DESIGNER, INSTALLER
 
 ---
 
 ## 🔗 EJEMPLOS DE USO
+
+### Listar Roles Disponibles
+
+```
+LISTROLES["*"]
+```
+
+### Crear un Usuario con rol DESIGNER
+
+```
+INSUSR["Maria Diseñadora","maria@ejemplo.com","76543210","Av. Principal 123","Abc123!@#","DESIGNER"]
+```
 
 ### Crear un Cliente
 

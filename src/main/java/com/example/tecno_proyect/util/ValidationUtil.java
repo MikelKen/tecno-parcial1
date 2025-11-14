@@ -17,7 +17,7 @@ public class ValidationUtil {
     private static final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX);
     
     // Roles válidos en el sistema
-    private static final String[] VALID_ROLES = {"ADMIN", "USER", "MANAGER", "VIEWER"};
+    private static final String[] VALID_ROLES = {"ADMIN", "DESIGNER", "INSTALLER"};
     
     /**
      * Valida que el nombre no sea nulo, vacío o muy corto
