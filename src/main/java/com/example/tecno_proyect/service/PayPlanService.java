@@ -239,4 +239,139 @@ public class PayPlanService {
     public long contarTotalPlanes() {
         return payPlanRepository.count();
     }
+    
+    /**
+     * Actualizar deuda total de un plan de pago
+     */
+    public PlanPago actualizarDeudaTotal(Long idPlanPago, BigDecimal nuevaDeuda) {
+        Optional<PlanPago> planOpt = payPlanRepository.findById(idPlanPago);
+        
+        if (planOpt.isEmpty()) {
+            throw new RuntimeException("No se encontró plan de pago con ID: " + idPlanPago);
+        }
+        
+        PlanPago plan = planOpt.get();
+        plan.setTotalDeuda(nuevaDeuda);
+        
+        return payPlanRepository.save(plan);
+    }
+    
+    /**
+     * Buscar planes de pago por estado (sobrecarga para String)
+     */
+    public List<PlanPago> buscarPlanesPagoPorEstado(String estado) {
+        return payPlanRepository.findByEstado(estado);
+    }
+    
+    /**
+     * Obtener total pagado en todos los planes
+     */
+    public BigDecimal obtenerTotalPagado() {
+        BigDecimal total = payPlanRepository.getTotalPaidAmount();
+        return total != null ? total : BigDecimal.ZERO;
+    }
+    
+    /**
+     * Calcular porcentaje de pago (sobrecarga)
+     */
+    public BigDecimal calcularPorcentajePago(Long idPlanPago) {
+        return calcularPorcentajePagado(idPlanPago);
+    }
+    
+    /**
+     * Cambiar estado de un plan de pago
+     */
+    public PlanPago cambiarEstado(Long idPlanPago, String nuevoEstado) {
+        return actualizarEstadoPlanPago(idPlanPago, nuevoEstado);
+    }
+    
+    /**
+     * Crear plan de pago con múltiples pagos
+     */
+    public PlanPago crearPlanPagoConPagos(Long idProyecto, List<BigDecimal> montos) {
+        if (montos == null || montos.isEmpty()) {
+            throw new RuntimeException("La lista de montos no puede estar vacía");
+        }
+        
+        // Calcular deuda total
+        BigDecimal totalDeuda = montos.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        // Crear plan de pago
+        PlanPago planPago = new PlanPago(
+                idProyecto,
+                totalDeuda,
+                BigDecimal.ZERO,
+                montos.size(),
+                0,
+                "PENDIENTE"
+        );
+        
+        PlanPago planGuardado = payPlanRepository.save(planPago);
+        
+        // Crear pagos asociados
+        for (BigDecimal monto : montos) {
+            paysService.insertarPago(
+                    java.time.LocalDate.now(),
+                    monto,
+                    "PENDIENTE",
+                    null,
+                    planGuardado.getIdPlanPago()
+            );
+        }
+        
+        return planGuardado;
+    }
+    
+    /**
+     * Recalcular plan de pago con nuevos montos
+     */
+    public PlanPago recalcularPlanPago(Long idPlanPago, List<BigDecimal> nuevosMontos) {
+        if (nuevosMontos == null || nuevosMontos.isEmpty()) {
+            throw new RuntimeException("La lista de nuevos montos no puede estar vacía");
+        }
+        
+        Optional<PlanPago> planOpt = payPlanRepository.findById(idPlanPago);
+        
+        if (planOpt.isEmpty()) {
+            throw new RuntimeException("No se encontró plan de pago con ID: " + idPlanPago);
+        }
+        
+        PlanPago plan = planOpt.get();
+        
+        // Calcular nueva deuda total
+        BigDecimal nuevaDeudaTotal = nuevosMontos.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        // Obtener pagos existentes
+        List<Pago> pagosExistentes = paysService.obtenerPagosPorPlanPago(idPlanPago);
+        
+        // Eliminar pagos pendientes existentes (mantener pagados)
+        for (Pago pago : pagosExistentes) {
+            if ("PENDIENTE".equalsIgnoreCase(pago.getEstado())) {
+                paysService.eliminarPago(pago.getId());
+            }
+        }
+        
+        // Actualizar plan
+        plan.setTotalDeuda(nuevaDeudaTotal);
+        plan.setNumeroDeuda(nuevosMontos.size());
+        plan.setNumeroPagos(0);
+        plan.setEstado("PENDIENTE");
+        
+        PlanPago planActualizado = payPlanRepository.save(plan);
+        
+        // Crear nuevos pagos
+        for (BigDecimal monto : nuevosMontos) {
+            paysService.insertarPago(
+                    java.time.LocalDate.now(),
+                    monto,
+                    "PENDIENTE",
+                    null,
+                    planActualizado.getIdPlanPago()
+            );
+        }
+        
+        return planActualizado;
+    }
 }

@@ -12,21 +12,21 @@ public class Cliente {
     @Column(name = "id")
     private Long id;
     
-    @Column(name = "name", length = 100, unique = true)
+    @Column(name = "nombre", length = 100, unique = true)
     private String nombre;
     
     @Column(name = "email", length = 150)
     private String email;
     
-    @Column(name = "phone", length = 20)
+    @Column(name = "telefono", length = 20)
     private String telefono;
     
-    @Column(name = "address", length = 255)
+    @Column(name = "direccion", length = 255)
     private String direccion;
     
     // Relaciones
-    @OneToMany(mappedBy = "Cliente", cascade = CascadeType.ALL)
-    private List<Proyecto> projects;
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private List<Proyecto> proyectos;
     
     // Constructor vacío
     public Cliente() {}
@@ -90,11 +90,11 @@ public class Cliente {
     }
     
     public List<Proyecto> getProyectos() {
-        return projects;
+        return proyectos;
     }
     
     public void setProyectos(List<Proyecto> proyectos) {
-        this.projects = proyectos;
+        this.proyectos = proyectos;
     }
     
     @Override
